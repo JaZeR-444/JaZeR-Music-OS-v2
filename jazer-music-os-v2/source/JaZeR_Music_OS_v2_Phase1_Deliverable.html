@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Phase 1 Deliverable</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --bg:          #09090b;
+    --bg2:         #101014;
+    --bg3:         #16161c;
+    --bg4:         #1c1c24;
+    --border:      #252530;
+    --border2:     #333345;
+    --text:        #e4e2ef;
+    --text2:       #9290ab;
+    --text3:       #545268;
+    --gold:        #c8a645;
+    --gold2:       #edd975;
+    --gold-dim:    #60500f;
+    --green:       #4aad7e;
+    --green-dim:   #183b2a;
+    --red:         #df4f4f;
+    --red-dim:     #3a1818;
+    --blue:        #5a8def;
+    --blue-dim:    #172645;
+    --orange:      #df7730;
+    --orange-dim:  #3a2008;
+    --purple:      #9a6de6;
+    --purple-dim:  #271c44;
+    --teal:        #2fb7c7;
+    --teal-dim:    #0d2c34;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .page { max-width: 960px; margin: 0 auto; padding: 0 32px 120px; }
+
+  /* ── HEADER ── */
+  .doc-header {
+    padding: 56px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .phase-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .phase-label::before { content: ''; width: 20px; height: 1px; background: var(--gold); }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  h1 span { color: var(--gold); }
+  .doc-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text2);
+    margin-bottom: 20px;
+  }
+  .header-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hp {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    border: 1px solid var(--border2);
+    color: var(--text3);
+  }
+  .hp.g { color: var(--green);  border-color: var(--green-dim);  background: rgba(74,173,126,0.06); }
+  .hp.gold { color: var(--gold); border-color: var(--gold-dim); background: rgba(200,166,69,0.06); }
+  .hp.b { color: var(--blue);   border-color: var(--blue-dim);   background: rgba(90,141,239,0.06); }
+
+  /* ── USER DECISIONS PREAMBLE ── */
+  .preamble {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+  }
+  .pre-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pre-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .pre-grid { display: flex; flex-direction: column; gap: 8px; }
+  .pre-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .pre-item-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    min-width: 18px;
+    margin-top: 1px;
+  }
+  .pre-key { color: var(--text); }
+  .pre-val { color: var(--text2); }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 60px; }
+  .s-head { margin-bottom: 22px; }
+  .s-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .sb-a    { background: rgba(90,141,239,0.1);  color: var(--blue);   border: 1px solid var(--blue-dim);  }
+  .sb-b    { background: rgba(74,173,126,0.1);  color: var(--green);  border: 1px solid var(--green-dim); }
+  .sb-c    { background: rgba(155,109,230,0.1); color: var(--purple); border: 1px solid var(--purple-dim);}
+  .sb-d    { background: rgba(200,166,69,0.12); color: var(--gold);   border: 1px solid var(--gold-dim);  }
+  .sb-dl   { background: rgba(47,183,199,0.1);  color: var(--teal);   border: 1px solid var(--teal-dim);  }
+  .sb-oq   { background: rgba(200,166,69,0.08); color: var(--gold);   border: 1px solid var(--gold-dim);  }
+  .sb-wns  { background: rgba(84,82,104,0.25);  color: var(--text3);  border: 1px solid var(--border2);   }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .s-intro { font-size: 12.5px; color: var(--text2); max-width: 660px; line-height: 1.7; margin-bottom: 20px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 56px 0; }
+
+  /* ── DECISION ROWS (Part A) ── */
+  .decision-list { display: flex; flex-direction: column; gap: 2px; }
+  .d-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .d-item:last-child { border-bottom: none; }
+  .d-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    text-transform: uppercase;
+    padding: 14px 16px 14px 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    padding-right: 20px;
+  }
+  .d-content {
+    padding: 14px 0 14px 20px;
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .d-sub { color: var(--text2); font-size: 12px; margin-top: 5px; line-height: 1.55; }
+  .d-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .d-list-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .dli-dot { color: var(--text3); flex-shrink: 0; margin-top: 2px; }
+  .hub-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+  .hub-tag.green  { background: rgba(74,173,126,0.1);  color: var(--green);  border: 1px solid var(--green-dim); }
+  .hub-tag.blue   { background: rgba(90,141,239,0.1);  color: var(--blue);   border: 1px solid var(--blue-dim);  }
+  .hub-tag.purple { background: rgba(155,109,230,0.1); color: var(--purple); border: 1px solid var(--purple-dim);}
+  .hub-tag.gold   { background: rgba(200,166,69,0.1);  color: var(--gold);   border: 1px solid var(--gold-dim);  }
+  .hub-tag.red    { background: rgba(223,79,79,0.1);   color: var(--red);    border: 1px solid var(--red-dim);   }
+  .hub-tag.gray   { background: rgba(84,82,104,0.2);   color: var(--text2);  border: 1px solid var(--border2);   }
+
+  /* ── VOCAB CARDS (Part B) ── */
+  .vocab-list { display: flex; flex-direction: column; gap: 2px; }
+  .v-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    border-bottom: 1px solid var(--border);
+    gap: 0;
+  }
+  .v-item:last-child { border-bottom: none; }
+  .v-term {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    padding: 14px 20px 14px 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+  }
+  .v-def {
+    padding: 14px 0 14px 20px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+  .v-def strong { color: var(--text); font-weight: 500; }
+  .v-filter {
+    display: inline-block;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 6px 10px;
+    font-size: 11.5px;
+    color: var(--teal);
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    line-height: 1.5;
+  }
+
+  /* ── HIERARCHY (Part C) ── */
+  .hierarchy {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+  }
+  .h-level {
+    margin-bottom: 20px;
+  }
+  .h-level:last-child { margin-bottom: 0; }
+  .h-level-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .h-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13px;
+  }
+  .h-row.indent-1 { padding-left: 20px; }
+  .h-row.indent-2 { padding-left: 40px; }
+  .h-icon { font-size: 14px; min-width: 20px; }
+  .h-name { color: var(--text); font-weight: 400; }
+  .h-type {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-left: 4px;
+  }
+  .ht-hub   { background: rgba(74,173,126,0.1);  color: var(--green);  border: 1px solid var(--green-dim); }
+  .ht-db    { background: rgba(90,141,239,0.1);  color: var(--blue);   border: 1px solid var(--blue-dim);  }
+  .ht-ref   { background: rgba(84,82,104,0.2);   color: var(--text2);  border: 1px solid var(--border2);   }
+  .ht-link  { background: rgba(155,109,230,0.08);color: var(--purple); border: 1px solid var(--purple-dim);}
+  .ht-page  { background: rgba(200,166,69,0.08); color: var(--gold);   border: 1px solid var(--gold-dim);  }
+  .ht-defer { background: rgba(223,79,79,0.08);  color: var(--red);    border: 1px solid var(--red-dim);   }
+  .h-note {
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: 4px;
+    font-style: italic;
+  }
+  .h-connector {
+    color: var(--text3);
+    margin-right: 2px;
+  }
+
+  /* ── DELIVERABLE BLOCKS (Part D) ── */
+  .d-block {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .db-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .db-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .dbt-lock   { background: rgba(74,173,126,0.12); color: var(--green);  border: 1px solid var(--green-dim);  }
+  .dbt-spec   { background: rgba(90,141,239,0.1);  color: var(--blue);   border: 1px solid var(--blue-dim);   }
+  .dbt-oq     { background: rgba(200,166,69,0.1);  color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .dbt-defer  { background: rgba(84,82,104,0.2);   color: var(--text3);  border: 1px solid var(--border2);    }
+  .db-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .db-count {
+    margin-left: auto;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    color: var(--text3);
+  }
+  .db-body { padding: 18px 20px; font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+  .lock-list { display: flex; flex-direction: column; gap: 7px; }
+  .lock-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .lock-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--green);
+    min-width: 22px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .lock-text { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+  .lock-text .dim { color: var(--text2); font-size: 11.5px; margin-top: 3px; display: block; }
+
+  /* ── OPEN QUESTION CARDS ── */
+  .oq-list { display: flex; flex-direction: column; gap: 12px; }
+  .oq-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 14px 18px;
+  }
+  .oq-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .oq-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gold);
+    min-width: 28px;
+  }
+  .oq-q {
+    font-family: 'Syne', sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .oq-why { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .oq-rec {
+    margin-top: 8px;
+    font-size: 11.5px;
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 7px 10px;
+    color: var(--teal);
+  }
+  .oq-rec-label { font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 3px; }
+
+  /* ── DEFER LIST ── */
+  .defer-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .defer-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: var(--text3);
+    padding: 7px 10px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  .defer-arrow { color: var(--border2); flex-shrink: 0; }
+  .defer-phase {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text3);
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    padding: 1px 5px;
+    margin-left: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── STATUS BOX ── */
+  .status-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(74,173,126,0.06);
+    border: 1px solid var(--green-dim);
+    border-radius: 6px;
+    padding: 16px 24px;
+    margin-top: 48px;
+    gap: 16px;
+  }
+  .sb-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+  .sb-text { font-size: 12.5px; color: var(--text2); }
+  .sb-gate {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 4px;
+    background: rgba(74,173,126,0.1);
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    white-space: nowrap;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-size: 10px;
+    color: var(--text3);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.07em;
+  }
+
+  @media(max-width:680px){
+    .page { padding: 0 16px 80px; }
+    .d-item, .v-item { grid-template-columns: 1fr; }
+    .d-label, .v-term { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 8px; }
+    .d-content, .v-def { padding-left: 0; padding-top: 8px; }
+    .defer-list { grid-template-columns: 1fr; }
+    .status-box { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="phase-label">Phase 1 · Decision Confirmation &amp; Vocabulary Lock</div>
+    <h1>JaZeR Music OS <span>v2</span></h1>
+    <div class="doc-sub">Phase 1 Deliverable — Architecture Locked, Vocabulary Set, Build Ready</div>
+    <div class="header-pills">
+      <span class="hp gold">25 Decisions Locked</span>
+      <span class="hp g">5 Vocabulary Terms Defined</span>
+      <span class="hp b">4 Open Questions</span>
+      <span class="hp">Gate: Awaiting Approval</span>
+    </div>
+  </header>
+
+  <!-- PRE-LOCKED USER DECISIONS -->
+  <div class="preamble">
+    <div class="pre-title">User-Locked Decisions — Entered Before Phase 1 Began</div>
+    <div class="pre-grid">
+      <div class="pre-item">
+        <span class="pre-item-num">U-1</span>
+        <div><span class="pre-key">Writing Assets "Concept" Type:</span> <span class="pre-val">CUT. Use Type = Idea + Status = Developing instead. No "Concept" Type in Writing Assets DB.</span></div>
+      </div>
+      <div class="pre-item">
+        <span class="pre-item-num">U-2</span>
+        <div><span class="pre-key">Confirmed Writing Assets Types:</span> <span class="pre-val">Exactly 7 — Idea · Hook · Verse · Chorus · Bridge · Lyric Sheet · Freestyle. No additions without explicit approval.</span></div>
+      </div>
+      <div class="pre-item">
+        <span class="pre-item-num">U-3</span>
+        <div><span class="pre-key">Unattached Ideas filter:</span> <span class="pre-val">Song relation = empty AND Status ≠ Archived. Sort: Date Created descending. "Status = Active" is rejected as too restrictive.</span></div>
+      </div>
+      <div class="pre-item">
+        <span class="pre-item-num">U-4</span>
+        <div><span class="pre-key">Releases DB timing:</span> <span class="pre-val">Schema designed in Phase 2. Notion build deferred to pre-release (60 days before first release). Schema-ready but not built.</span></div>
+      </div>
+      <div class="pre-item">
+        <span class="pre-item-num">U-5</span>
+        <div><span class="pre-key">Active song migration:</span> <span class="pre-val">Transformative Trance, Mission Statement, The Divine Rerun, Cosmic Beam migrate at the start of Phase 7 (Notion build), not during schema design.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PART A -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="section" id="pA">
+    <div class="s-head">
+      <span class="s-badge sb-a">Part A</span>
+      <h2>Confirmed Decisions</h2>
+      <p class="s-intro">Every item below is stated as a locked fact. These decisions are not open for reconsideration in Phase 2 or later phases unless a written architectural revision is issued.</p>
+    </div>
+
+    <div class="decision-list">
+
+      <div class="d-item">
+        <div class="d-label">Active Hubs (3)</div>
+        <div class="d-content">
+          <div class="d-list">
+            <div class="d-list-item">
+              <span class="dli-dot">—</span>
+              <div><span class="hub-tag green">🎵 Song Lab</span> The primary daily creative workspace where songs are written, developed, and tracked through the full pipeline from Concept to Release Prep.</div>
+            </div>
+            <div class="d-list-item">
+              <span class="dli-dot">—</span>
+              <div><span class="hub-tag blue">🚀 Launch Hub</span> The release pipeline surface — activated when a release is 60 days out — housing release records, distribution prep tasks, and content scheduling.</div>
+            </div>
+            <div class="d-list-item">
+              <span class="dli-dot">—</span>
+              <div><span class="hub-tag purple">📦 Vault</span> The hard archive boundary for legacy content, inactive resources, and completed projects, governed by the Phase 3I Archive Protocol Plan.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-item">
+        <div class="d-label">Production Hub Disposition</div>
+        <div class="d-content">
+          Production Hub is not a sidebar hub and has no sidebar page. Its content becomes two named Dashboard Sections on the Master Dashboard:
+          <div class="d-list" style="margin-top:8px;">
+            <div class="d-list-item"><span class="dli-dot">—</span> <strong>Songs in Production</strong> — filtered Songs DB view (Status = Recording, Producing, or Mixing)</div>
+            <div class="d-list-item"><span class="dli-dot">—</span> <strong>Production Tasks</strong> — filtered Tasks DB view (Type = Production, Status ≠ Done)</div>
+          </div>
+          <div class="d-sub">Rationale: two filtered views and one external link do not constitute a hub. Absorbing them into the dashboard eliminates a navigation layer that adds no organizational value.</div>
+        </div>
+      </div>
+
+      <div class="d-item">
+        <div class="d-label">Brand Hub Disposition</div>
+        <div class="d-content">
+          Brand Hub is not a sidebar hub and has no sidebar page. It becomes one Reference Page pinned in the sidebar:
+          <div class="d-list" style="margin-top:8px;">
+            <div class="d-list-item"><span class="dli-dot">—</span> <strong>Brand Reference</strong> — single Notion page containing: About JaZeR link, Drive persona/archetype/ideal fan report links, JaZeR Brand Website URL</div>
+          </div>
+          <div class="d-sub">Promotion criteria: Brand Reference is promoted to Hub status only when active brand workflow volume develops (e.g., active website development tasks, content voice guide in active use, brand refresh project in progress).</div>
+        </div>
+      </div>
+
+      <div class="d-item">
+        <div class="d-label">Vault Gate Criteria</div>
+        <div class="d-content">
+          A resource moves to the Vault when <strong>all three</strong> conditions are met:
+          <div class="d-list" style="margin-top:8px;">
+            <div class="d-list-item"><span class="dli-dot">1</span> No active workflow in v2 — the resource is not used in any current database, hub, or recurring workflow.</div>
+            <div class="d-list-item"><span class="dli-dot">2</span> Overlaps with a confirmed v2 database or hub — its function is fully covered by the new system.</div>
+            <div class="d-list-item"><span class="dli-dot">3</span> Not opened in 30 days — or it is a confirmed legacy/backup page, in which case the 30-day condition is waived.</div>
+          </div>
+          <div class="d-sub">Governing document: <strong>Phase 3I Archive Protocol Plan</strong>. Lives linked as the first visible element at the top of the Vault page — before any other content. This document is the decision authority for all archiving. If in doubt, consult Phase 3I before moving anything.</div>
+        </div>
+      </div>
+
+      <div class="d-item">
+        <div class="d-label">Master Dashboard Rule</div>
+        <div class="d-content">
+          The Master Dashboard contains only filtered views of the five core databases — no records, documents, notes, or content of any kind lives on the dashboard itself.
+          <div class="d-sub">Corollary: anything that is not a filtered database view does not belong on the dashboard. The single exception is the Quick Capture template button, which is a Notion button (not content) that creates a Writing Assets record without navigating away.</div>
+        </div>
+      </div>
+
+      <div class="d-item">
+        <div class="d-label">Scope Exclusions</div>
+        <div class="d-content">
+          The following are excluded from JaZeR Music OS v2. They are not deferred — they are out of scope unless a new explicit written request is made:
+          <div class="d-list" style="margin-top:8px;">
+            <div class="d-list-item"><span class="dli-dot">✗</span> Finance / income / expense tracking</div>
+            <div class="d-list-item"><span class="dli-dot">✗</span> Collaborator CRM</div>
+            <div class="d-list-item"><span class="dli-dot">✗</span> Touring / live performance database</div>
+            <div class="d-list-item"><span class="dli-dot">✗</span> Sample library / sounds database</div>
+            <div class="d-list-item"><span class="dli-dot">✗</span> FL Studio Plugin Command Center — remains an external linked sibling; never absorbed into Music OS v2</div>
+            <div class="d-list-item"><span class="dli-dot">✗</span> Any 6th database — requires explicit written approval with a stated workflow justification</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PART B -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="section" id="pB">
+    <div class="s-head">
+      <span class="s-badge sb-b">Part B</span>
+      <h2>Canonical Vocabulary</h2>
+      <p class="s-intro">These five definitions apply to this workspace only. Every phase prompt, deliverable, and spec must use these terms exactly. If a term is used differently in any document, the definition below is authoritative.</p>
+    </div>
+
+    <div class="vocab-list">
+
+      <div class="v-item">
+        <div class="v-term">Hub</div>
+        <div class="v-def">
+          A <strong>first-level sidebar page</strong> that: (1) contains at least one active database view filtered to its scope, (2) serves a daily or weekly workflow that requires its own navigation destination, and (3) is expected to be opened at least once per week during active use. A page with only reference links, external URLs, or archived content is not a Hub.
+          <br><br>
+          Confirmed Hubs: <span class="hub-tag green" style="font-size:10px;">Song Lab</span> <span class="hub-tag blue" style="font-size:10px;">Launch Hub</span> <span class="hub-tag purple" style="font-size:10px;">Vault</span>
+        </div>
+      </div>
+
+      <div class="v-item">
+        <div class="v-term">Reference Page</div>
+        <div class="v-def">
+          A <strong>single Notion page in the sidebar</strong> containing only static reference links, external URLs, Drive file links, and optionally read-only embedded documents. It has no database views, no recurring operational workflow, and is not the primary surface for any active task. It is navigated to when you need to look something up — not when you need to do work.
+          <br><br>
+          Confirmed Reference Page: <span class="hub-tag gold" style="font-size:10px;">🏷️ Brand Reference</span>
+        </div>
+      </div>
+
+      <div class="v-item">
+        <div class="v-term">Dashboard Section</div>
+        <div class="v-def">
+          A <strong>named block on the Master Dashboard page</strong> containing exactly one filtered database view and one section heading. Dashboard Sections exist solely to answer "What do I work on right now?" Every Dashboard Section must pass this test before it is built. They appear on the Master Dashboard only — not on Hub pages.
+          <br><br>
+          Confirmed Dashboard Sections replacing Production Hub: <span class="hub-tag gray" style="font-size:10px;">Songs in Production</span> <span class="hub-tag gray" style="font-size:10px;">Production Tasks</span>
+        </div>
+      </div>
+
+      <div class="v-item">
+        <div class="v-term">Hub Page Section</div>
+        <div class="v-def">
+          A <strong>named block within a Hub page</strong> (Song Lab, Launch Hub, or Vault) containing a database view filtered to that Hub's scope and purpose. Hub Page Sections are designed around that Hub's specific workflow context — they are not governed by the "What do I work on right now?" constraint and may show historical, planning, or reference-adjacent content appropriate to their Hub.
+          <br><br>
+          Hub Page Sections and Dashboard Sections are distinct. A view appearing on the dashboard and the same view appearing in Song Lab are different sections with potentially different filters, sorts, and visible properties.
+        </div>
+      </div>
+
+      <div class="v-item">
+        <div class="v-term">Unattached Ideas</div>
+        <div class="v-def">
+          The <strong>name of the default view for Writing Assets DB</strong>. It functions as the creative inbox — the first thing you see when you open Writing Assets. It is never called "All Records," "Inbox," or "Ideas."
+          <div class="v-filter">
+            Filter: Song relation = empty AND Status ≠ Archived<br>
+            Sort: Date Created — Descending<br>
+            Position: View #1 in Writing Assets DB (opens by default)
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PART C -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="section" id="pC">
+    <div class="s-head">
+      <span class="s-badge sb-c">Part C</span>
+      <h2>Workspace Page Hierarchy</h2>
+      <p class="s-intro">The canonical sidebar structure. This becomes the navigation spec for Phase 3. Every page, database, and reference in this workspace has exactly one home in this hierarchy, regardless of how many places it appears as an embedded view.</p>
+    </div>
+
+    <div class="hierarchy">
+
+      <div class="h-level">
+        <div class="h-level-label">Level 0 — Root</div>
+        <div class="h-row">
+          <span class="h-icon">🎯</span>
+          <span class="h-name">Master Dashboard</span>
+          <span class="h-type ht-page">Root Page</span>
+          <span class="h-note">— filtered views only, Quick Capture button</span>
+        </div>
+      </div>
+
+      <div class="h-level">
+        <div class="h-level-label">Level 1 — Hubs</div>
+        <div class="h-row">
+          <span class="h-icon">🎵</span>
+          <span class="h-name">Song Lab</span>
+          <span class="h-type ht-hub">Hub</span>
+        </div>
+        <div class="h-row">
+          <span class="h-icon">🚀</span>
+          <span class="h-name">Launch Hub</span>
+          <span class="h-type ht-hub">Hub</span>
+        </div>
+        <div class="h-row">
+          <span class="h-icon">📦</span>
+          <span class="h-name">Vault</span>
+          <span class="h-type ht-hub">Hub</span>
+        </div>
+      </div>
+
+      <div class="h-level">
+        <div class="h-level-label">Level 1 — Reference &amp; External</div>
+        <div class="h-row">
+          <span class="h-icon">🏷️</span>
+          <span class="h-name">Brand Reference</span>
+          <span class="h-type ht-ref">Reference Page</span>
+          <span class="h-note">— pinned, static links only</span>
+        </div>
+        <div class="h-row">
+          <span class="h-icon">🎛️</span>
+          <span class="h-name">FL Studio Plugin Command Center</span>
+          <span class="h-type ht-link">External Link</span>
+          <span class="h-note">— linked sibling, not owned by this workspace</span>
+        </div>
+      </div>
+
+      <div class="h-level">
+        <div class="h-level-label">Level 1 — Cross-Hub Database</div>
+        <div class="h-row">
+          <span class="h-icon">✅</span>
+          <span class="h-name">Tasks DB</span>
+          <span class="h-type ht-db">Database</span>
+          <span class="h-note">— global, serves all hubs; embedded as filtered views throughout</span>
+        </div>
+      </div>
+
+      <div class="h-level">
+        <div class="h-level-label">Level 2 — Inside Song Lab</div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">🎵</span>
+          <span class="h-name">Songs DB</span>
+          <span class="h-type ht-db">Database</span>
+        </div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">📝</span>
+          <span class="h-name">Writing Assets DB</span>
+          <span class="h-type ht-db">Database</span>
+          <span class="h-note">— default view: Unattached Ideas</span>
+        </div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">🎙️</span>
+          <span class="h-name">Sessions DB</span>
+          <span class="h-type ht-db">Database</span>
+        </div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">📚</span>
+          <span class="h-name">The Book of JaZeR</span>
+          <span class="h-type ht-page">Sub-Page</span>
+          <span class="h-note">— existing page, kept as-is</span>
+        </div>
+      </div>
+
+      <div class="h-level">
+        <div class="h-level-label">Level 2 — Inside Launch Hub</div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">🚀</span>
+          <span class="h-name">Releases DB</span>
+          <span class="h-type ht-defer">Deferred Build</span>
+          <span class="h-note">— schema ready in Phase 2; Notion build at pre-release only</span>
+        </div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">📆</span>
+          <span class="h-name">Content Calendar Generator</span>
+          <span class="h-type ht-page">Linked Tool</span>
+          <span class="h-note">— existing page; output (tasks) routes to Tasks DB, not stored here</span>
+        </div>
+      </div>
+
+      <div class="h-level" style="margin-bottom:0;">
+        <div class="h-level-label">Level 2 — Inside Vault</div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">⚖️</span>
+          <span class="h-name">Phase 3I Archive Protocol Plan</span>
+          <span class="h-type ht-page">Governing Doc</span>
+          <span class="h-note">— linked at top of Vault page; decision authority for all archiving</span>
+        </div>
+        <div class="h-row indent-1">
+          <span class="h-connector">↳</span>
+          <span class="h-icon">📁</span>
+          <span class="h-name">Archive Batch</span>
+          <span class="h-type ht-ref">Sub-Pages</span>
+          <span class="h-note">— Funky Futuristic CC, Freestyle Hub V1, backup tree, Music Hub v1.0</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:14px; font-size:11.5px; color:var(--text3); line-height:1.65; padding: 0 4px;">
+      <strong style="color:var(--text2);">Tasks DB at Level 1 — rationale:</strong> Tasks spans Production, Release Prep, Content, Brand/Website, Admin, and Review. No single hub owns more than a portion of it. Nesting Tasks inside Song Lab or Launch Hub would misrepresent its scope. Placing it at Level 1 as a standalone cross-hub database is clean, honest, and avoids the perception that tasks are owned by any one workflow context. Hub pages and the Master Dashboard access it exclusively through embedded filtered views.
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PART D — FORMAL DELIVERABLE -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section class="section" id="pD">
+    <div class="s-head">
+      <span class="s-badge sb-d">Part D</span>
+      <h2>Phase 1 Formal Deliverable</h2>
+      <p class="s-intro">Standard format: Decisions Locked → The Spec → Open Questions → What I Am Not Specifying Yet.</p>
+    </div>
+
+    <!-- DECISIONS LOCKED -->
+    <div class="d-block">
+      <div class="db-head">
+        <span class="db-tag dbt-lock">Decisions Locked</span>
+        <span class="db-title">25 Architectural Facts — Closed for Phase 2 and Beyond</span>
+        <span class="db-count">25 items</span>
+      </div>
+      <div class="db-body">
+        <div class="lock-list">
+
+          <div class="lock-item"><span class="lock-num">01</span><div class="lock-text">Database count = exactly 5: Songs DB, Writing Assets DB, Sessions DB, Releases DB, Tasks DB.<span class="dim">No 6th database without explicit written approval and workflow justification.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">02</span><div class="lock-text">Writing Assets DB is unified and never split into separate Hooks, Lyrics, Ideas, or Freestyle databases.<span class="dim">Type property (7 options) replaces what four separate databases would have done.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">03</span><div class="lock-text">Writing Assets confirmed Type list (7): Idea · Hook · Verse · Chorus · Bridge · Lyric Sheet · Freestyle.<span class="dim">No "Concept" Type. Use Idea + Status = Developing when an idea develops substance.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">04</span><div class="lock-text">FL Studio Plugin Command Center = external linked sibling. Never absorbed into Music OS v2.<span class="dim">Referenced via links from individual Song pages and the sidebar. Not a Music OS v2 database.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">05</span><div class="lock-text">Master Dashboard = filtered views of the 5 databases only. No records, documents, or raw content.<span class="dim">Single exception: Quick Capture template button (creates a Writing Asset — it is a button, not content).</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">06</span><div class="lock-text">Active Hubs = Song Lab, Launch Hub, Vault. Three hubs. No more without architectural revision.</div></div>
+
+          <div class="lock-item"><span class="lock-num">07</span><div class="lock-text">Production Hub → demoted to two Dashboard Sections: "Songs in Production" and "Production Tasks."<span class="dim">No sidebar hub page. No navigation destination. Both sections live on the Master Dashboard only.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">08</span><div class="lock-text">Brand Hub → demoted to one Reference Page: "Brand Reference" (pinned in sidebar).<span class="dim">Promoted back to hub status only if active brand workflow volume develops.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">09</span><div class="lock-text">Song Status first option = "Concept" (not "Idea").<span class="dim">Eliminates naming collision with Writing Assets Type = "Idea." A Song at Concept status is a named project; a Writing Asset of Type Idea is a fragment.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">10</span><div class="lock-text">Songs DB Status flow (8 steps): Concept → Writing → Recording → Producing → Mixing → Review → Release Prep → Released.</div></div>
+
+          <div class="lock-item"><span class="lock-num">11</span><div class="lock-text">Writing Assets DB default view = "Unattached Ideas."<span class="dim">Filter: Song relation = empty AND Status ≠ Archived. Sort: Date Created descending. This is View #1 and opens by default. Never "All Records."</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">12</span><div class="lock-text">Sessions DB: 3 required properties (Date auto-fill, Session Type select, Song relation). Maximum 5 total columns.<span class="dim">All other properties are optional and hidden below the fold in the template. Logging must take under 10 seconds.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">13</span><div class="lock-text">Sessions DB has no Status property.<span class="dim">Sessions are event records — they don't have a Planned/Done state. To plan a future session, create a Task (Type = Production).</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">14</span><div class="lock-text">Tasks DB = includes a "Focus" checkbox property before the database is built.<span class="dim">Focus = true is the primary filter for the dashboard execution view. Due Date is for planning. They are different signals.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">15</span><div class="lock-text">Tasks DB dashboard views = two separate views (not one OR-logic combined view).<span class="dim">"Focus Now" (Focus = true, Status ≠ Done) and "Due This Week" (Due ≤ 7 days, Status ≠ Done). Different purposes, different views.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">16</span><div class="lock-text">Quick Capture = a Notion template button on the Master Dashboard (not a link to Writing Assets DB).<span class="dim">Pre-fills: Type = Idea, Status = Raw, Date = today. Target: new record created in under 8 seconds.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">17</span><div class="lock-text">Releases DB: schema designed in Phase 2. Notion build deferred to pre-release (60 days before first release).<span class="dim">Launch Hub page is also deferred to pre-release. Phase 2 produces a written spec only.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">18</span><div class="lock-text">4 active songs migrate into Songs DB at the start of Phase 7 (Notion build), not during schema design.<span class="dim">Transformative Trance · Mission Statement · The Divine Rerun · Cosmic Beam.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">19</span><div class="lock-text">Archive batch executes before v2 launches — not after.<span class="dim">Items: Funky Futuristic CC (post-audit), Freestyle Hub V1 Snapshot, JaZeR Musician Page backup, 10_Music_Creative_Projects, Music Hub v1.0. All to Vault.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">20</span><div class="lock-text">All rollup properties deferred to 30 days post-launch.<span class="dim">Exception: Sessions Count rollup on Songs DB may be added with Sessions DB at build time — it provides immediate visible reward for logging and has minimal schema complexity.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">21</span><div class="lock-text">Weekly Review template deferred until 14 days of real database use.<span class="dim">When built, it homes in Song Lab as a sub-page. Dashboard may link to the most recent Review page but the template lives in Song Lab.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">22</span><div class="lock-text">Song page body template locked before the first Song record is created.<span class="dim">Minimum sections: reference track, key/BPM, lyrics working area, session notes, production notes, FL Studio project path (plain text), release checklist link.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">23</span><div class="lock-text">"Recent Sessions" dashboard widget = cut. Replaced by "Songs in Production" Dashboard Section.<span class="dim">Recent Sessions answers "what did I do before?" — history, not decisions. Songs in Production answers "what am I working on?" — actionable.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">24</span><div class="lock-text">Vault gate criteria: 3 conditions (no active workflow + overlaps v2 system + not opened in 30 days). All three required.<span class="dim">Governing document: Phase 3I Archive Protocol Plan, linked at top of Vault page.</span></div></div>
+
+          <div class="lock-item"><span class="lock-num">25</span><div class="lock-text">Tasks DB lives at Level 1 in the sidebar hierarchy as a cross-hub global database.<span class="dim">Its span (Production, Release Prep, Content, Brand/Website, Admin, Review) means no single hub owns it. Accessed everywhere via filtered embedded views.</span></div></div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- THE SPEC -->
+    <div class="d-block">
+      <div class="db-head">
+        <span class="db-tag dbt-spec">The Spec</span>
+        <span class="db-title">Phase 1 Spec = Parts A, B, and C above</span>
+      </div>
+      <div class="db-body" style="color:var(--text2); font-size:12.5px;">
+        The Phase 1 spec is fully contained in Parts A (confirmed decisions), B (canonical vocabulary), and C (workspace hierarchy) of this document. These three parts together constitute the complete Phase 1 output. No additional spec documents are needed for Phase 1. The 25 locked decisions above are the formalized record of every Part A, B, and C decision in list form.
+      </div>
+    </div>
+
+    <!-- OPEN QUESTIONS -->
+    <div class="d-block">
+      <div class="db-head">
+        <span class="db-tag dbt-oq">Open Questions</span>
+        <span class="db-title">4 Items — Require Your Decision Before Phase 2 Begins</span>
+        <span class="db-count">4 items</span>
+      </div>
+      <div class="db-body">
+        <div class="oq-list">
+
+          <div class="oq-card">
+            <div class="oq-head">
+              <span class="oq-num">OQ-1</span>
+              <span class="oq-q">Sessions DB — confirm the Session Type options</span>
+            </div>
+            <div class="oq-why">Two different option sets exist across the source documents and cannot both be correct. The Implementation Plan (P3) lists: <strong>Songwriting / Production / Mixing / Other</strong>. The Database Schema Audit lists: <strong>Writing · Freestyle · Recording · Production · Mix Review</strong>. These are meaningfully different — the Schema Audit version distinguishes "Recording" (vocal/instrument capture) from "Production" (beat-making, arrangement) and has "Mix Review" as a distinct session type rather than just "Mixing." The Implementation Plan version is simpler but less specific.</div>
+            <div class="oq-rec">
+              <span class="oq-rec-label">Recommendation</span>
+              Use the Database Schema Audit option set: <strong>Writing · Freestyle · Recording · Production · Mix Review</strong>. It maps more precisely to the actual sessions a solo recording artist has — "Writing" and "Freestyle" are meaningfully different session types, and "Mix Review" as a named type makes it easy to track how many mix passes a song took. Confirm or adjust before Phase 2.
+            </div>
+          </div>
+
+          <div class="oq-card">
+            <div class="oq-head">
+              <span class="oq-num">OQ-2</span>
+              <span class="oq-q">Tasks DB — confirm the Task Type options</span>
+            </div>
+            <div class="oq-why">The confirmed Type list from the Implementation Plan is: <strong>Production · Release Prep · Content · Brand / Website · Admin · Review</strong>. This has never been explicitly approved by you. Phase 2 schemas the Tasks DB and the Type property's option list must be locked before that work begins. If any Type should be renamed, consolidated, or removed, now is the correct time to do it — not after the schema is built.</div>
+            <div class="oq-rec">
+              <span class="oq-rec-label">Recommendation</span>
+              Confirm the list as-is: Production · Release Prep · Content · Brand / Website · Admin · Review — 6 Types. "Review" covers weekly reviews, listening sessions, and feedback passes. If "Admin" feels too vague, consider "Business" or leave it as Admin. Your call to confirm or adjust.
+            </div>
+          </div>
+
+          <div class="oq-card">
+            <div class="oq-head">
+              <span class="oq-num">OQ-3</span>
+              <span class="oq-q">Launch Hub dormant state — confirm the design approach</span>
+            </div>
+            <div class="oq-why">Launch Hub will be empty for most of the year between active release cycles. The UX Review identifies this as "the temporal gap problem" and recommends an explicit dormant state design: a callout at the top of Launch Hub reading "No active release. This hub activates when a release is 60 days out." with a single button to create a new Release record. Phase 3 (Dashboard Design) will design the Launch Hub layout — it needs this decision locked beforehand so the dormant state is designed intentionally rather than as an afterthought.</div>
+            <div class="oq-rec">
+              <span class="oq-rec-label">Recommendation</span>
+              Confirm the dormant mode design: top of Launch Hub shows a single callout block with the activation message and one "New Release →" button. Everything else is hidden or shows empty state. This approach is honest, clean, and prevents the "abandoned hub" feeling. Confirm to lock for Phase 3.
+            </div>
+          </div>
+
+          <div class="oq-card">
+            <div class="oq-head">
+              <span class="oq-num">OQ-4</span>
+              <span class="oq-q">The Book of JaZeR — rebuild or keep as-is inside Song Lab?</span>
+            </div>
+            <div class="oq-why">The Book of JaZeR exists as an active page in the current workspace and is confirmed to live inside Song Lab. The question is whether it stays exactly as it is (moved into Song Lab, no changes to its internal structure) or whether it gets rebuilt as a cleaner template-driven sub-page during the Phase 7 build. This matters because Phase 4 (Templates) must know whether to produce a Book of JaZeR template or treat it as a pre-existing page with no Phase 4 deliverable.</div>
+            <div class="oq-rec">
+              <span class="oq-rec-label">Recommendation</span>
+              Keep as-is for now. Move it into Song Lab during Phase 7 without restructuring. Evaluate its internal structure after 14 days of use alongside the new Songs DB and Writing Assets DB — if it needs reworking, do it then with real usage data. Confirm to exclude it from Phase 4 template work.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT I AM NOT SPECIFYING YET -->
+    <div class="d-block">
+      <div class="db-head">
+        <span class="db-tag dbt-defer">What I Am Not Specifying Yet</span>
+        <span class="db-title">Deferred to Later Phases — Not Missing, Just Staged</span>
+      </div>
+      <div class="db-body">
+        <div class="defer-list">
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Database property maps for all 5 databases</span><span class="defer-phase">Phase 2</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Relation map between databases</span><span class="defer-phase">Phase 2</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Formula specifications (progress %, auto-name)</span><span class="defer-phase">Phase 2</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Rollup property candidates</span><span class="defer-phase">Phase 2</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Master Dashboard section layout and filters</span><span class="defer-phase">Phase 3</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Song Lab hub page layout</span><span class="defer-phase">Phase 3</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Launch Hub and Vault hub page layouts</span><span class="defer-phase">Phase 3</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Page templates for all 5 databases</span><span class="defer-phase">Phase 4</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Song page body template (contents)</span><span class="defer-phase">Phase 4</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>View specs beyond default views</span><span class="defer-phase">Phase 5</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>All rollup properties</span><span class="defer-phase">30 days post-launch</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Weekly Review template</span><span class="defer-phase">14 days post-launch</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Releases DB Notion build</span><span class="defer-phase">Pre-release only</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Launch Hub Notion build</span><span class="defer-phase">Pre-release only</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>Content Calendar Generator internal structure</span><span class="defer-phase">Phase 3 / Phase 4</span></div>
+          <div class="defer-item"><span class="defer-arrow">→</span><span>The Book of JaZeR internal restructure (if any)</span><span class="defer-phase">Post-launch</span></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- STATUS / GATE -->
+  <div class="status-box">
+    <div>
+      <div class="sb-label">Phase 1 Status</div>
+      <div class="sb-text">Deliverable complete. Awaiting your approval on 4 open questions and overall Phase 1 sign-off before Phase 2 begins.</div>
+    </div>
+    <div class="sb-gate">Awaiting Approval → Phase 2</div>
+  </div>
+
+  <hr>
+
+  <footer class="doc-footer">
+    <span>JaZeR Music OS v2 — Phase 1 Deliverable · May 2026</span>
+    <span>25 Decisions · 5 Terms · 4 Open Questions</span>
+  </footer>
+
+</div>
+</body>
+</html>

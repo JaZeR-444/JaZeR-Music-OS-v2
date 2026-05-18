@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Dashboard UX Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080b;
+    --s1: #111116;
+    --s2: #181820;
+    --s3: #1f1f2a;
+    --b1: #202030;
+    --b2: #2a2a3c;
+    --b3: #363650;
+    --gold: #dfc23a;
+    --purple: #a07ff8;
+    --green: #3ec98a;
+    --red: #f04768;
+    --orange: #f5924a;
+    --blue: #4ea8f5;
+    --pink: #e878c8;
+    --muted: #4a4a62;
+    --text: #d0d0e2;
+    --dim: #7878a0;
+    --white: #f0f0f8;
+    --mono: 'DM Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Lora', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 52px 32px 100px;
+  }
+
+  .doc-header { border-bottom: 1px solid var(--b2); padding-bottom: 36px; margin-bottom: 52px; }
+  .stamp { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--pink); background: rgba(232,120,200,0.08); border: 1px solid rgba(232,120,200,0.2); display: inline-block; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px; }
+  h1 { font-family: var(--display); font-size: 56px; line-height: 1; letter-spacing: 2px; color: var(--white); margin-bottom: 4px; }
+  h1 span { color: var(--pink); }
+  .header-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 8px; }
+
+  .s-tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px; }
+  .st-g { color: var(--gold); background: rgba(223,194,58,0.07); border: 1px solid rgba(223,194,58,0.18); }
+  .st-p { color: var(--purple); background: rgba(160,127,248,0.07); border: 1px solid rgba(160,127,248,0.18); }
+  .st-gr { color: var(--green); background: rgba(62,201,138,0.07); border: 1px solid rgba(62,201,138,0.18); }
+  .st-r { color: var(--red); background: rgba(240,71,104,0.07); border: 1px solid rgba(240,71,104,0.18); }
+  .st-o { color: var(--orange); background: rgba(245,146,74,0.07); border: 1px solid rgba(245,146,74,0.18); }
+  .st-b { color: var(--blue); background: rgba(78,168,245,0.07); border: 1px solid rgba(78,168,245,0.18); }
+  .st-pk { color: var(--pink); background: rgba(232,120,200,0.07); border: 1px solid rgba(232,120,200,0.18); }
+
+  h2 { font-family: var(--display); font-size: 40px; letter-spacing: 1.5px; color: var(--white); margin-bottom: 18px; line-height: 1; }
+  h3 { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--b1); padding-bottom: 7px; margin: 28px 0 12px; }
+  p { margin-bottom: 12px; color: var(--text); font-size: 15px; }
+  p.dim { color: var(--dim); font-size: 13.5px; }
+  strong { color: var(--white); }
+  em { color: var(--gold); font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--b1); margin: 52px 0; }
+  .section { margin-bottom: 68px; }
+
+  /* VERDICT */
+  .verdict-block { display: grid; grid-template-columns: 150px 1fr; background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; margin-bottom: 48px; }
+  .vs { background: var(--s2); border-right: 1px solid var(--b2); padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .vs-l { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .vs-score { font-family: var(--display); font-size: 76px; color: var(--pink); line-height: 1; }
+  .vs-d { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .vs-r { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--pink); margin-top: 8px; text-align: center; }
+  .vt { padding: 26px 28px; }
+  .vt-l { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .vt p { font-size: 14px; color: var(--dim); margin-bottom: 10px; }
+  .vt p:last-child { margin-bottom: 0; }
+
+  /* KEEP/CHANGE/CUT */
+  .kcc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  @media(max-width:700px) { .kcc-grid { grid-template-columns: 1fr 1fr; } }
+  .kcc-col { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; }
+  .kcc-head { padding: 12px 16px; border-bottom: 1px solid var(--b1); font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  .kcc-head.keep { color: var(--green); background: rgba(62,201,138,0.07); }
+  .kcc-head.change { color: var(--gold); background: rgba(223,194,58,0.07); }
+  .kcc-head.cut { color: var(--red); background: rgba(240,71,104,0.07); }
+  .kcc-head.move { color: var(--purple); background: rgba(160,127,248,0.07); }
+  .kcc-item { padding: 10px 16px; border-bottom: 1px solid rgba(32,32,48,0.5); font-size: 13px; color: var(--dim); }
+  .kcc-item:last-child { border-bottom: none; }
+  .kcc-item strong { color: var(--white); display: block; font-size: 12px; margin-bottom: 2px; }
+
+  /* WIREFRAME */
+  .wireframe {
+    background: var(--s1);
+    border: 1px solid var(--b2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    font-family: var(--mono);
+  }
+  .wf-topbar { background: var(--s3); border-bottom: 1px solid var(--b2); padding: 10px 18px; display: flex; align-items: center; gap: 10px; }
+  .wf-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .wf-dot.r { background: #ff5f57; }
+  .wf-dot.y { background: #febc2e; }
+  .wf-dot.g { background: #28c840; }
+  .wf-title { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; margin-left: 8px; }
+  .wf-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .wf-section { border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; }
+  .wf-section.capture { border-color: rgba(223,194,58,0.3); }
+  .wf-section.focus { border-color: rgba(240,71,104,0.25); }
+  .wf-section.main { border-color: var(--b1); }
+  .wf-section.pipeline { border-color: rgba(62,201,138,0.2); }
+  .wf-section.nav { border-color: var(--b1); }
+  .wf-section.col-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border: none; background: transparent; }
+
+  .wf-sh { padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--b1); }
+  .wf-sh-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; }
+  .wf-sh-label.gold { color: var(--gold); }
+  .wf-sh-label.red { color: var(--red); }
+  .wf-sh-label.blue { color: var(--blue); }
+  .wf-sh-label.green { color: var(--green); }
+  .wf-sh-label.dim { color: var(--dim); }
+  .wf-sh-type { font-size: 9px; color: var(--muted); }
+  .wf-content { padding: 10px 14px; background: var(--bg); }
+  .wf-capture-row { display: flex; gap: 10px; }
+  .wf-btn { flex: 1; background: rgba(223,194,58,0.1); border: 1px solid rgba(223,194,58,0.25); border-radius: 4px; padding: 10px 14px; font-size: 11px; color: var(--gold); text-align: center; }
+  .wf-btn.session { background: rgba(78,168,245,0.08); border-color: rgba(78,168,245,0.2); color: var(--blue); }
+  .wf-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(32,32,48,0.4); }
+  .wf-row:last-child { border-bottom: none; }
+  .wf-row-title { font-size: 11px; color: var(--text); }
+  .wf-row-badge { font-size: 9px; padding: 2px 6px; border-radius: 2px; }
+  .wf-badge-writing { background: rgba(62,201,138,0.12); color: var(--green); }
+  .wf-badge-prod { background: rgba(160,127,248,0.12); color: var(--purple); }
+  .wf-badge-mixing { background: rgba(223,194,58,0.1); color: var(--gold); }
+  .wf-badge-prep { background: rgba(240,71,104,0.1); color: var(--red); }
+  .wf-badge-idea { background: rgba(78,168,245,0.08); color: var(--blue); }
+  .wf-badge-hook { background: rgba(232,120,200,0.08); color: var(--pink); }
+  .wf-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .wf-card { background: var(--s2); border: 1px solid var(--b2); border-radius: 4px; padding: 10px 12px; }
+  .wf-card-title { font-size: 11px; color: var(--white); margin-bottom: 4px; }
+  .wf-card-props { display: flex; gap: 5px; flex-wrap: wrap; }
+  .wf-card-prop { font-size: 9px; padding: 1px 5px; border-radius: 2px; background: var(--s3); color: var(--dim); border: 1px solid var(--b1); }
+  .wf-nav-row { display: flex; justify-content: space-around; padding: 12px; flex-wrap: wrap; gap: 8px; }
+  .wf-nav-item { font-size: 10px; color: var(--dim); padding: 6px 14px; background: var(--s2); border: 1px solid var(--b1); border-radius: 3px; }
+  .wf-pipeline-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(32,32,48,0.4); }
+  .wf-pipeline-row:last-child { border-bottom: none; }
+  .wf-pipeline-title { font-size: 11px; color: var(--text); }
+  .wf-pipeline-meta { display: flex; gap: 8px; align-items: center; }
+  .wf-pipeline-date { font-size: 10px; color: var(--dim); }
+  .wf-width-note { font-size: 10px; color: var(--muted); font-style: italic; padding: 8px 14px; border-top: 1px solid var(--b1); }
+
+  /* HUB REVIEW */
+  .hub-cards { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+  .hub-card { background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; }
+  .hub-head { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 16px 22px; border-bottom: 1px solid var(--b1); gap: 16px; }
+  .hub-name { font-family: var(--display); font-size: 26px; letter-spacing: 1px; color: var(--white); }
+  .hub-verdict { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; white-space: nowrap; }
+  .hv-strong { background: rgba(62,201,138,0.1); color: var(--green); border: 1px solid rgba(62,201,138,0.2); }
+  .hv-fix { background: rgba(223,194,58,0.09); color: var(--gold); border: 1px solid rgba(223,194,58,0.2); }
+  .hv-cut { background: rgba(240,71,104,0.1); color: var(--red); border: 1px solid rgba(240,71,104,0.2); }
+  .hv-ref { background: rgba(78,168,245,0.08); color: var(--blue); border: 1px solid rgba(78,168,245,0.2); }
+  .hv-warn { background: rgba(245,146,74,0.09); color: var(--orange); border: 1px solid rgba(245,146,74,0.2); }
+  .hub-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .hub-col { padding: 18px 22px; border-right: 1px solid var(--b1); }
+  .hub-col:last-child { border-right: none; }
+  @media(max-width:640px) { .hub-body { grid-template-columns: 1fr; } .hub-col { border-right: none; border-bottom: 1px solid var(--b1); } }
+  .hc-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; margin-top: 16px; }
+  .hc-label:first-child { margin-top: 0; }
+  .hub-col p { font-size: 13.5px; color: var(--dim); margin-bottom: 8px; }
+  .hub-col p:last-child { margin-bottom: 0; }
+  .hub-col strong { color: var(--white); }
+  .notion-spec { font-family: var(--mono); font-size: 11px; color: var(--blue); background: rgba(78,168,245,0.07); border: 1px solid rgba(78,168,245,0.15); border-radius: 3px; padding: 2px 7px; display: inline-block; margin-bottom: 4px; }
+
+  /* VIEW TYPE TABLE */
+  .view-table { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; margin: 16px 0; }
+  .vtr { display: grid; grid-template-columns: 180px 120px 1fr; border-bottom: 1px solid rgba(32,32,48,0.5); }
+  .vtr:last-child { border-bottom: none; }
+  .vtr.head { background: var(--s2); font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .vtc { padding: 10px 14px; font-size: 12.5px; color: var(--dim); border-right: 1px solid rgba(32,32,48,0.3); }
+  .vtc:last-child { border-right: none; }
+  .vtc.name { font-family: var(--mono); font-size: 11px; color: var(--white); }
+  .view-badge { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; }
+  .vb-table { background: rgba(62,201,138,0.09); color: var(--green); }
+  .vb-gallery { background: rgba(160,127,248,0.09); color: var(--purple); }
+  .vb-list { background: rgba(78,168,245,0.08); color: var(--blue); }
+  .vb-button { background: rgba(223,194,58,0.08); color: var(--gold); }
+  .vb-board { background: rgba(240,71,104,0.08); color: var(--red); }
+  .vb-none { background: rgba(74,74,98,0.15); color: var(--muted); }
+  @media(max-width:640px) { .vtr { grid-template-columns: 1fr; } }
+
+  /* FRICTION AUDIT */
+  .friction-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+  .friction-item { display: grid; grid-template-columns: 24px 1fr; gap: 12px; padding: 14px 18px; background: var(--s1); border: 1px solid var(--b1); border-radius: 5px; }
+  .friction-item.high { border-left: 3px solid var(--red); }
+  .friction-item.med { border-left: 3px solid var(--gold); }
+  .friction-item.low { border-left: 3px solid var(--blue); }
+  .fi-icon { font-size: 16px; text-align: center; padding-top: 2px; }
+  .fi-body {}
+  .fi-title { font-family: var(--mono); font-size: 11.5px; color: var(--white); margin-bottom: 3px; }
+  .fi-desc { font-size: 13px; color: var(--dim); line-height: 1.6; }
+  .fi-fix { font-family: var(--mono); font-size: 11px; color: var(--green); margin-top: 5px; }
+
+  /* MOBILE AUDIT */
+  .mobile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  @media(max-width:600px) { .mobile-grid { grid-template-columns: 1fr; } }
+  .mob-card { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; }
+  .mob-head { padding: 10px 14px; border-bottom: 1px solid var(--b1); font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  .mob-head.ok { color: var(--green); background: rgba(62,201,138,0.07); }
+  .mob-head.bad { color: var(--red); background: rgba(240,71,104,0.07); }
+  .mob-head.warn { color: var(--gold); background: rgba(223,194,58,0.07); }
+  .mob-item { padding: 9px 14px; border-bottom: 1px solid rgba(32,32,48,0.4); font-size: 12.5px; color: var(--dim); }
+  .mob-item:last-child { border-bottom: none; }
+  .mob-item strong { color: var(--white); font-size: 12px; display: block; }
+
+  /* VISUAL HIERARCHY */
+  .vh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  @media(max-width:640px) { .vh-grid { grid-template-columns: 1fr; } }
+  .vh-card { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; padding: 18px 20px; }
+  .vh-element { font-family: var(--display); font-size: 18px; letter-spacing: 1px; color: var(--white); margin-bottom: 5px; }
+  .vh-rule { font-family: var(--mono); font-size: 11px; color: var(--gold); margin-bottom: 8px; }
+  .vh-detail { font-size: 13px; color: var(--dim); line-height: 1.6; }
+  .vh-avoid { font-family: var(--mono); font-size: 10px; color: var(--red); margin-top: 6px; }
+
+  /* CALLOUT */
+  .callout { display: flex; gap: 14px; background: var(--s2); border: 1px solid var(--b2); border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; padding: 14px 18px; margin: 14px 0; }
+  .callout.red { border-left-color: var(--red); }
+  .callout.green { border-left-color: var(--green); }
+  .callout.blue { border-left-color: var(--blue); }
+  .callout .icon { font-size: 17px; flex-shrink: 0; }
+  .callout p { margin: 0; font-size: 13.5px; color: var(--dim); }
+
+  /* FINAL LAYOUT */
+  .final-layout { background: var(--s1); border: 1px solid var(--b2); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .fl-header { background: var(--s3); border-bottom: 1px solid var(--b2); padding: 18px 24px; }
+  .fl-page-title { font-family: var(--display); font-size: 32px; letter-spacing: 2px; color: var(--white); }
+  .fl-page-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+  .fl-body { padding: 0; }
+  .fl-zone { border-bottom: 1px solid var(--b1); padding: 16px 22px; }
+  .fl-zone:last-child { border-bottom: none; }
+  .fl-zone-label { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .fl-zone-label.gold { color: var(--gold); }
+  .fl-zone-label.red { color: var(--red); }
+  .fl-zone-label.blue { color: var(--blue); }
+  .fl-zone-label.green { color: var(--green); }
+  .fl-zone-label.dim { color: var(--muted); }
+  .fl-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:640px) { .fl-cols { grid-template-columns: 1fr; } }
+  .fl-widget { background: var(--bg); border: 1px solid var(--b1); border-radius: 4px; padding: 12px 14px; }
+  .fl-widget-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .fl-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(32,32,48,0.4); font-size: 12px; }
+  .fl-row:last-child { border-bottom: none; }
+  .fl-row-title { color: var(--text); }
+  .fl-badge { font-family: var(--mono); font-size: 9px; padding: 2px 5px; border-radius: 2px; }
+  .fl-capture { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fl-cap-btn { background: rgba(223,194,58,0.09); border: 1px solid rgba(223,194,58,0.22); border-radius: 4px; padding: 11px 16px; font-family: var(--mono); font-size: 11px; color: var(--gold); text-align: center; }
+  .fl-cap-btn.session { background: rgba(78,168,245,0.07); border-color: rgba(78,168,245,0.18); color: var(--blue); }
+  .fl-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fl-song-card { background: var(--s2); border: 1px solid var(--b2); border-radius: 4px; padding: 10px 12px; }
+  .fl-song-name { font-family: var(--mono); font-size: 11px; color: var(--white); margin-bottom: 4px; }
+  .fl-song-props { display: flex; gap: 5px; }
+  .fl-sp { font-size: 9px; padding: 1px 5px; border-radius: 2px; background: var(--s3); color: var(--dim); border: 1px solid var(--b1); }
+  .fl-nav-row { display: flex; justify-content: space-between; padding: 6px 0; gap: 8px; flex-wrap: wrap; }
+  .fl-nav-link { font-family: var(--mono); font-size: 10px; color: var(--dim); padding: 5px 12px; background: var(--s2); border: 1px solid var(--b1); border-radius: 3px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+  th { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--b2); background: var(--s2); }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(32,32,48,0.5); color: var(--dim); vertical-align: top; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--white); font-family: var(--mono); font-size: 12px; }
+
+  .doc-footer { text-align: center; padding-top: 36px; border-top: 1px solid var(--b1); font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="stamp">Dashboard UX Review — Workspace Design Audit</div>
+  <h1>JaZeR Music OS <span>v2</span></h1>
+  <div style="font-family:var(--display);font-size:24px;color:var(--dim);letter-spacing:1.5px;margin-top:2px;">Dashboard · Navigation · Visual Hierarchy · Friction · Mobile</div>
+  <div class="header-sub">UX Audit · Wireframe · Hub Review · Build Spec · May 2026</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 01 — UX VERDICT -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-pk">01 — UX Verdict</div>
+  <h2>Dashboard Score</h2>
+
+  <div class="verdict-block">
+    <div class="vs">
+      <div class="vs-l">UX Score</div>
+      <div class="vs-score">5.5</div>
+      <div class="vs-d">out of 10</div>
+      <div class="vs-r">Structurally Confused</div>
+    </div>
+    <div class="vt">
+      <div class="vt-l">Verdict</div>
+      <p>The dashboard concept is pointed in the right direction — one question, filtered views, no reference material — but <strong>the section order is wrong, the information architecture confuses types of data with stages of action, and the key UX mechanisms are undefined</strong> at a Notion-build level.</p>
+      <p>The root problem: the current section order is organized around <em>what kind of thing it is</em> (Songs, Sessions, Ideas, Tasks, Releases) instead of <em>what you do with it</em> (Capture → Execute → Surface → Plan). When you open the dashboard asking "what do I work on right now?" you hit two passive information sections (Active Songs, Unattached Ideas) before you see a single actionable task. That's backwards.</p>
+      <p><strong>"Content/Brand Tasks This Week"</strong> is the worst-named section in any Notion dashboard I can evaluate. It conflates two different task types (Content vs. Brand), adds a time qualifier ("This Week") that the underlying filter should handle, and uses a slash that signals internal confusion about the section's job. It will be renamed and rebuilt.</p>
+      <p><strong>The dashboard is not clear enough for daily use</strong> in its current form. Nothing about the layout guides you from opening → deciding → acting. After corrections: <strong>8.5/10</strong>, capped by Notion's inherent UX limitations (no custom animations, no conditional rendering, fixed block hierarchy).</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 02 — KEEP / CHANGE / CUT / MOVE -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-g">02 — Dashboard Keep / Change / Cut / Move</div>
+  <h2>Section-by-Section Verdict</h2>
+
+  <div class="kcc-grid">
+    <div class="kcc-col">
+      <div class="kcc-head keep">✓ Keep</div>
+      <div class="kcc-item"><strong>Quick Capture Zone</strong> The concept is right. Implementation needs to be two template buttons, not a section header. The mechanism must be defined at build time.</div>
+      <div class="kcc-item"><strong>Active Songs</strong> Correct concept. Change: demote to middle section below Today's Focus. Change: use Gallery view, not Board, on the dashboard.</div>
+      <div class="kcc-item"><strong>Unattached Ideas</strong> The most unique and valuable section. Keep. Move to right column alongside Active Songs.</div>
+      <div class="kcc-item"><strong>Release Pipeline</strong> Correct. Move below the fold. Change: show only when Status ≠ Complete — hide completely between releases.</div>
+    </div>
+    <div class="kcc-col">
+      <div class="kcc-head change">⟳ Change</div>
+      <div class="kcc-item"><strong>Production Queue → "Today's Focus"</strong> A production queue is just filtered tasks. Rename to Today's Focus, filter on Focus = true. This is the real primary section.</div>
+      <div class="kcc-item"><strong>Content/Brand Tasks This Week → "Open Tasks"</strong> Rename. Remove the time qualifier from the label (filter handles it). Shows Focus Tasks across all types — not only content.</div>
+      <div class="kcc-item"><strong>Weekly Review Anchor → Weekly Reset button</strong> Replace two vague text rows with one Notion button that creates a Weekly Review page from a template. The button is the review, not a reminder about the review.</div>
+    </div>
+    <div class="kcc-col">
+      <div class="kcc-head cut">✕ Cut</div>
+      <div class="kcc-item"><strong>Recent Sessions</strong> History, not decisions. No one opens the dashboard to see what they did — they open it to decide what to do. Killed entirely from the dashboard.</div>
+      <div class="kcc-item"><strong>Any link dump section</strong> Any section that becomes a list of links to other pages (hubs, resources, tools) needs to be reduced to the hub navigation footer — max 5 links in a single row.</div>
+      <div class="kcc-item"><strong>Section count above 5</strong> The dashboard currently lists 8 sections. The maximum is 5. Every section above 5 should live in a hub, not the dashboard. Count the sections before building.</div>
+    </div>
+    <div class="kcc-col">
+      <div class="kcc-head move">→ Move to Hub</div>
+      <div class="kcc-item"><strong>Session history → Song Lab</strong> The Sessions DB full view belongs in Song Lab, accessible from a Song page or the Song Lab hub page. Not on the dashboard.</div>
+      <div class="kcc-item"><strong>Full task lists → Song Lab / Launch Hub</strong> Complete production task views and complete content task views belong in their respective hubs. Dashboard shows only Focus Tasks.</div>
+      <div class="kcc-item"><strong>Content Calendar → Launch Hub</strong> The 4-Week Rollout page belongs inside Launch Hub. A dashboard link to it is fine; the embedded content is not.</div>
+      <div class="kcc-item"><strong>Brand reference → Brand Reference page</strong> Any brand-related links, identity docs, or Drive references belong on the Brand Reference page — linked from the footer, not the dashboard.</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 03 — WIREFRAME -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-p">03 — Recommended Dashboard Wireframe</div>
+  <h2>Section-by-Section Layout</h2>
+
+  <div class="callout">
+    <span class="icon">📐</span>
+    <p><strong>The design principle behind this layout:</strong> Each zone answers a different question in sequence. Zone 1 answers "do I have something to capture?" Zone 2 answers "what am I doing right now?" Zone 3 answers "which song is it for, and what else is floating?" Zone 4 answers "what's on the horizon?" Zone 5 answers "where do I go deeper?" You should be able to exit Zone 2 into your DAW within 15 seconds of opening Notion.</p>
+  </div>
+
+  <div class="wireframe">
+    <div class="wf-topbar">
+      <div class="wf-dot r"></div><div class="wf-dot y"></div><div class="wf-dot g"></div>
+      <span class="wf-title">🎯 JAZER MUSIC OS — MASTER DASHBOARD</span>
+    </div>
+    <div class="wf-body">
+
+      <!-- ZONE 1 -->
+      <div class="wf-section capture">
+        <div class="wf-sh">
+          <span class="wf-sh-label gold">Zone 1 — Capture</span>
+          <span class="wf-sh-type">Notion Template Buttons · Full Width</span>
+        </div>
+        <div class="wf-content">
+          <div class="wf-capture-row">
+            <div class="wf-btn">+ Capture Idea / Hook / Freestyle</div>
+            <div class="wf-btn session">+ Log a Session</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;">Two Notion Template Buttons. First creates a Writing Asset (Type = Idea, Status = Raw). Second creates a Session (Type = prompt, Date = today, Song = prompt). Each opens immediately on creation.</div>
+        </div>
+      </div>
+
+      <!-- ZONE 2 -->
+      <div class="wf-section focus">
+        <div class="wf-sh">
+          <span class="wf-sh-label red">Zone 2 — Today's Focus</span>
+          <span class="wf-sh-type">Tasks DB — Table · Full Width</span>
+        </div>
+        <div class="wf-content">
+          <div class="wf-row"><span class="wf-row-title">Mix vocal chain — Transformative Trance</span><span class="wf-row-badge wf-badge-prod">Production · High</span></div>
+          <div class="wf-row"><span class="wf-row-title">Finalize chorus melody — Mission Statement</span><span class="wf-row-badge wf-badge-writing">Writing · High</span></div>
+          <div class="wf-row"><span class="wf-row-title">Submit artwork to DistroKid — Cosmic Beam</span><span class="wf-row-badge wf-badge-prep">Release Prep · High</span></div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;">Filter: Focus = true, Status ≠ Done. Columns shown: Task title · Task Type · Priority. Max 5–7 rows. No pagination. If more than 7 tasks are in focus simultaneously, the Focus property is being misused.</div>
+        </div>
+        <div class="wf-width-note">Empty state: "No focus tasks. Open a song and mark one task as Focus to appear here." → Links to Song Lab.</div>
+      </div>
+
+      <!-- ZONE 3 — Two Columns -->
+      <div class="wf-section col-wrap">
+
+        <div class="wf-section main">
+          <div class="wf-sh">
+            <span class="wf-sh-label blue">Zone 3L — Active Songs</span>
+            <span class="wf-sh-type">Songs DB — Gallery · Left Column</span>
+          </div>
+          <div class="wf-content">
+            <div class="wf-gallery">
+              <div class="wf-card">
+                <div class="wf-card-title">Transformative Trance</div>
+                <div class="wf-card-props"><span class="wf-card-prop">Producing</span><span class="wf-card-prop">High</span><span class="wf-card-prop">3 tasks</span></div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-title">Mission Statement</div>
+                <div class="wf-card-props"><span class="wf-card-prop">Writing</span><span class="wf-card-prop">High</span><span class="wf-card-prop">1 task</span></div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-title">The Divine Rerun</div>
+                <div class="wf-card-props"><span class="wf-card-prop">Mixing</span><span class="wf-card-prop">Medium</span><span class="wf-card-prop">⚠️ Stale</span></div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-title">Cosmic Beam</div>
+                <div class="wf-card-props"><span class="wf-card-prop">Release Prep</span><span class="wf-card-prop">High</span></div>
+              </div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;">Filter: Status ≠ Concept, ≠ Released, ≠ Shelved. 2-per-row gallery. Properties shown: Status · Priority · Open Tasks · Stale Warning. No covers — property-only cards. Max 6 cards before view scrolls.</div>
+          </div>
+        </div>
+
+        <div class="wf-section main">
+          <div class="wf-sh">
+            <span class="wf-sh-label blue">Zone 3R — Unattached Ideas</span>
+            <span class="wf-sh-type">Writing Assets DB — Table · Right Column</span>
+          </div>
+          <div class="wf-content">
+            <div class="wf-row"><span class="wf-row-title">Hook fragment — soulful defiance</span><span class="wf-row-badge wf-badge-hook">Hook</span></div>
+            <div class="wf-row"><span class="wf-row-title">Title idea: "The Exhale"</span><span class="wf-row-badge wf-badge-idea">Idea</span></div>
+            <div class="wf-row"><span class="wf-row-title">Freestyle — May 14</span><span class="wf-row-badge wf-badge-idea">Freestyle</span></div>
+            <div class="wf-row"><span class="wf-row-title">Concept note — neo-soul confessional</span><span class="wf-row-badge wf-badge-idea">Concept Note</span></div>
+            <div class="wf-row"><span class="wf-row-title">Verse sketch — redemption arc theme</span><span class="wf-row-badge wf-badge-idea">Verse</span></div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;">Filter: Floating = true (Song = empty, Status ≠ Archived). Columns: Title · Asset Type. Max 6–8 rows. Sorted by Date Created desc. No covers, no property badges other than Asset Type.</div>
+          </div>
+          <div class="wf-width-note">Empty state: "Nothing floating — all ideas are attached to songs." This empty state is a success signal, not a bug.</div>
+        </div>
+
+      </div>
+
+      <!-- ZONE 4 -->
+      <div class="wf-section pipeline">
+        <div class="wf-sh">
+          <span class="wf-sh-label green">Zone 4 — Release Pipeline</span>
+          <span class="wf-sh-type">Releases DB — Table · Full Width · Conditional</span>
+        </div>
+        <div class="wf-content">
+          <div class="wf-pipeline-row">
+            <span class="wf-pipeline-title">Cosmic Beam (Single)</span>
+            <div class="wf-pipeline-meta">
+              <span class="wf-row-badge wf-badge-prep">In Prep</span>
+              <span class="wf-pipeline-date">Jun 15 · 30 days · 5 tasks open</span>
+              <span class="wf-row-badge" style="background:rgba(223,194,58,0.1);color:var(--gold);">⚡ Active</span>
+            </div>
+          </div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;">Filter: Status ≠ Complete. Columns: Release Title · Format · Status · Release Date · Days Until Release · Open Tasks · Release Health. If no active releases (Status = Complete or DB empty), <strong>hide this section entirely</strong> — it should not render an empty table between release cycles.</div>
+        </div>
+        <div class="wf-width-note">Between releases: this zone disappears. The dashboard stays clean.</div>
+      </div>
+
+      <!-- ZONE 5 -->
+      <div class="wf-section nav">
+        <div class="wf-sh">
+          <span class="wf-sh-label dim">Zone 5 — Navigation</span>
+          <span class="wf-sh-type">Plain text links · Full Width · Footer</span>
+        </div>
+        <div class="wf-content">
+          <div class="wf-nav-row">
+            <span class="wf-nav-item">🎵 Song Lab</span>
+            <span class="wf-nav-item">🚀 Launch Hub</span>
+            <span class="wf-nav-item">🎛️ FL Studio Plugin CC</span>
+            <span class="wf-nav-item">🏷️ Brand Reference</span>
+            <span class="wf-nav-item">📦 Vault</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px;">5 links maximum. Styled as buttons (callout-styled or background-tinted text blocks). No icons competing with each other — one emoji per link, consistent. This is the exit ramp, not a table of contents.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <h3>View Type Decisions</h3>
+  <div class="view-table">
+    <div class="vtr head">
+      <div class="vtc">Dashboard Section</div>
+      <div class="vtc">Notion View</div>
+      <div class="vtc">Why This View, Not the Others</div>
+    </div>
+    <div class="vtr">
+      <div class="vtc name">Quick Capture</div>
+      <div class="vtc"><span class="view-badge vb-button">Template Button</span></div>
+      <div class="vtc">Not a database view at all — a Notion Template Button block that creates a record and opens it immediately. Any alternative (link to DB, mention of a page) adds friction. The button is the only zero-friction mechanism Notion offers for record creation from a page.</div>
+    </div>
+    <div class="vtr">
+      <div class="vtc name">Today's Focus</div>
+      <div class="vtc"><span class="view-badge vb-table">Table</span></div>
+      <div class="vtc">Tasks are text records, not visual objects. Table view shows Task · Type · Priority in three narrow columns — fastest scanning format for action items. Board view would show task cards in columns which is too visual for a quick-decision surface. List view hides the Type/Priority which matters for context.</div>
+    </div>
+    <div class="vtr">
+      <div class="vtc name">Active Songs</div>
+      <div class="vtc"><span class="view-badge vb-gallery">Gallery</span></div>
+      <div class="vtc">Songs are creative projects that benefit from visual recognition — you know "Transformative Trance" the way you know a song, not a row in a table. Gallery shows 2 cards per row with Status, Priority, and Open Tasks as property chips. NOT board: board view on a dashboard requires horizontal scroll and shows pipeline stages you're not deciding between — you're just seeing what's active.</div>
+    </div>
+    <div class="vtr">
+      <div class="vtc name">Unattached Ideas</div>
+      <div class="vtc"><span class="view-badge vb-table">Table</span></div>
+      <div class="vtc">Ideas are text fragments, not visual objects. A table with two columns (Title + Asset Type) is the fastest way to scan 6–8 floating ideas. Gallery view would show blank cards. List view hides Asset Type. Table is correct.</div>
+    </div>
+    <div class="vtr">
+      <div class="vtc name">Release Pipeline</div>
+      <div class="vtc"><span class="view-badge vb-table">Table</span></div>
+      <div class="vtc">Releases have critical structured metadata — dates, countdowns, task counts, health status. Table shows 5 data columns at once. Gallery would hide the date/task data behind a click. Calendar view would be useful in Launch Hub for scheduling but not on the dashboard where you need urgency signals visible immediately.</div>
+    </div>
+    <div class="vtr">
+      <div class="vtc name">Board view (anywhere)</div>
+      <div class="vtc"><span class="view-badge vb-board">Avoid on Dashboard</span></div>
+      <div class="vtc">Board views use horizontal scroll, which is painful on a dashboard page and completely breaks on mobile. Boards belong inside hubs where they're the primary view and you're actively using them, not scanning them. The one exception: Song Lab uses a full-width board as its primary Songs view — that's the right place for it.</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 04 — HUB UX REVIEW -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-b">04 — Hub UX Review</div>
+  <h2>Each Hub Evaluated</h2>
+
+  <div class="hub-cards">
+
+    <!-- SONG LAB -->
+    <div class="hub-card">
+      <div class="hub-head">
+        <div class="hub-name">🎵 Song Lab</div>
+        <div class="hub-verdict hv-strong">Strongest Hub · Refine Landing</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-col">
+          <div class="hc-label">Landing Experience</div>
+          <p><strong>Cover image: yes.</strong> One dark, abstract waveform or moody music visual. Consistent with the workspace's premium feel. Full-width page layout for the board view to breathe.</p>
+          <p><strong>Opening callout:</strong> One line. <em>"Every song, every idea, every session."</em> Not a paragraph of instructions — one line that orients without explaining.</p>
+          <p>Then: the two template buttons from the dashboard (Capture Idea + Log Session) replicated here. The hub should be as immediately actionable as the dashboard.</p>
+
+          <div class="hc-label">Primary View — Active Songs Board</div>
+          <p><strong>Full-width Kanban board by Status.</strong> This is the right place for the board view — it's the primary working surface, not a scan. All 8 status columns visible. Song cards show: Title · Priority · Open Tasks count · Stale Warning.</p>
+          <p>The board in Song Lab is where you drag songs from Writing to Recording to Producing. The dashboard gallery is where you see which ones are active. Different jobs, different views.</p>
+
+          <div class="hc-label">Notion-Specific Elements</div>
+          <div class="notion-spec">Full-width page toggle: ON</div>
+          <div class="notion-spec">DB title: hidden on all linked views</div>
+          <div class="notion-spec">Board: sort by Priority desc within each column</div>
+        </div>
+        <div class="hub-col">
+          <div class="hc-label">Secondary Views — Two-Column Layout Below Board</div>
+          <p><strong>Left column: Writing Assets</strong> — two tabs on the same linked view: "Unattached" (Floating = true) and "Hook Bank" (Type = Hook). Switching tabs keeps you in the same column without navigating away.</p>
+          <p><strong>Right column: Recent Sessions</strong> — a simple table showing the last 8 sessions (sort: Date desc). This is the correct home for session history — in Song Lab, not the dashboard.</p>
+
+          <div class="hc-label">The Book of JaZeR Sub-Page</div>
+          <p>Link to The Book of JaZeR as a prominent sub-page reference, not buried in the sidebar. A callout block with a direct link: <em>"📖 Open The Book of JaZeR →"</em>. One block, one click.</p>
+
+          <div class="hc-label">What Must Not Appear Here</div>
+          <p>No Drive links. No plugin references. No release information. No brand assets. Song Lab is the writing room — every element should be about creating and developing songs. The moment a Drive link to a production guide appears here, it starts becoming a general reference page.</p>
+
+          <div class="hc-label">AI Agent Links</div>
+          <p>The Lyrics Refinement Agent and Song Development Agent pages should be linked in a collapsed toggle at the bottom of Song Lab labeled "Writing Tools →". They belong here but should not compete with the active work surface.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTION HUB -->
+    <div class="hub-card">
+      <div class="hub-head">
+        <div class="hub-name">🎛️ Production Hub</div>
+        <div class="hub-verdict hv-cut">Absorb → Not a Standalone Hub</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-col">
+          <div class="hc-label">The UX Argument Against This Hub</div>
+          <p>A hub page needs a reason to exist as a navigation destination — something that requires dedicated context you'd lose on the dashboard. Production Hub as described contains: a filtered Songs view (already on the dashboard as Active Songs) and a filtered Tasks view (already on the dashboard as Today's Focus). There is no third layer of context that justifies a dedicated page.</p>
+          <p>The test: if someone navigates to Production Hub after looking at the dashboard, what do they see that they couldn't see on the dashboard? If the answer is "nothing new," the hub is a redundant click.</p>
+
+          <div class="hc-label">What Production Hub Would Need to Exist</div>
+          <p>A legitimate Production Hub requires content that <em>cannot live on the dashboard</em>: song-level production checklists, A/B reference comparisons, LUFS tracking spreadsheets, plugin chain notes per song. If those exist, build the hub. If not, the hub is a folder masquerading as a workspace destination.</div>
+        </div>
+        <div class="hub-col">
+          <div class="hc-label">Recommended Resolution</div>
+          <p><strong>Absorb production views into the dashboard and Song Lab.</strong> The "Production Queue" sections become dashboard Zone 2 (Today's Focus, filtered). The "Songs in production" becomes a sub-view in Song Lab's Active Songs board (filtered to Recording/Producing/Mixing statuses).</p>
+          <p><strong>FL Studio Plugin CC link</strong> belongs in Zone 5 of the dashboard navigation footer and as a callout link inside each Song's page body. That's the complete integration surface — a linked sibling, not an embedded hub.</p>
+
+          <div class="hc-label">If You Still Want a Production Sub-Page</div>
+          <p>Create a sub-page inside Song Lab called "Production View" that shows Songs filtered to active production stages + linked production tasks. That's a sub-page of Song Lab, not a top-level hub. It doesn't get a sidebar slot.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAUNCH HUB -->
+    <div class="hub-card">
+      <div class="hub-head">
+        <div class="hub-name">🚀 Launch Hub</div>
+        <div class="hub-verdict hv-warn">Conditional Value · Design for Dormancy</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-col">
+          <div class="hc-label">The Temporal Gap Problem</div>
+          <p>Between releases, Launch Hub is effectively empty. If you design it purely for active-release mode and don't address the dormant state, it will feel broken for most of the year. The hub needs two explicit design modes: <strong>Active Mode</strong> (release in progress) and <strong>Dormant Mode</strong> (between releases).</p>
+
+          <div class="hc-label">Dormant Mode Design</div>
+          <p>When no release is active (Releases DB Status ≠ In Prep, ≠ Submitted): the hub top shows a minimal callout — <em>"No active release. When a release is within 60 days, this hub activates."</em> Below it: one button to create a new Release record. Nothing else. Clean, intentional, honest.</p>
+          <p>Do not fill the dormant hub with decorative content, "coming soon" notes, or reference links. An empty hub that knows it's empty is better than a filled hub that looks abandoned.</p>
+
+          <div class="hc-label">Notion-Specific Tip</div>
+          <div class="notion-spec">Hide DB views that show 0 results using a conditional callout above: "When a release appears here, this section activates." The DB view stays but the callout provides context for the empty state.</div>
+        </div>
+        <div class="hub-col">
+          <div class="hc-label">Active Mode Design (60 days before release)</div>
+          <p><strong>Top section:</strong> Releases DB — single active release card with all fields visible: Status, Release Date, Days Until, Health badge, Song Count, Open Tasks. One record in focus.</p>
+          <p><strong>Middle section:</strong> Release prep tasks (Tasks DB filtered to Type = Release Prep + linked to this Release). Table view, Status column prominent. Checkmark-driven.</p>
+          <p><strong>Lower section:</strong> Content tasks (Tasks DB filtered to Type = Content). Same table format. Then: link to Content Calendar Generator page. Then: IG Release Caption examples (linked sub-pages, not embedded).</p>
+
+          <div class="hc-label">What Doesn't Belong Here</div>
+          <p>No Drive links to the 90-Day Launch report or Waterfall Release Ecosystem embedded inline. Those are reference documents — link to them from a collapsed toggle labeled "Release Strategy Docs →" at the bottom of the hub. They're not part of the daily workflow surface.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRAND HUB -->
+    <div class="hub-card">
+      <div class="hub-head">
+        <div class="hub-name">🏷️ Brand Hub</div>
+        <div class="hub-verdict hv-ref">Demote to Reference Page · Not a Hub</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-col">
+          <div class="hc-label">Why It Fails the Hub Test</div>
+          <p>A hub requires: a primary database or workflow surface, recurring use (daily or weekly), and content that requires navigation context (you need to be "in" the hub to do the work). Brand Hub fails all three. About JaZeR is a reference document. Persona reports are Drive PDFs. The website is an external link. None of these require a dedicated navigation destination.</p>
+          <p>The consequence of keeping it as a hub: it occupies a sidebar slot that builds a false expectation of daily utility. You click it twice, find reference docs, and stop going there.</p>
+
+          <div class="hc-label">Promotion Criteria</div>
+          <p>Brand Hub earns hub status when: active website development tasks are tracked here (Brand tasks in Tasks DB, volume > 10/month), a content voice guide is actively referenced during song writing sessions, or a brand refresh project is in progress with open decisions.</p>
+        </div>
+        <div class="hub-col">
+          <div class="hc-label">Recommended: Brand Reference Page</div>
+          <p>Create one page called "Brand Reference" — pinned in the sidebar, not a top-level hub. Structure it as three sections:</p>
+          <p><strong>Identity:</strong> About JaZeR (linked), one-line persona/archetype summary extracted from the Drive reports, artist voice note (2–3 sentences about the creative identity — written once, rarely updated).</p>
+          <p><strong>Website:</strong> JaZeR Brand Website link, live site URL, website status note.</p>
+          <p><strong>Drive Research:</strong> Linked list of Listener Persona, Archetype, Ideal Fan, and 90-Day Launch report. No embedded content — just clean linked references.</p>
+
+          <div class="hc-label">Notion Placement</div>
+          <div class="notion-spec">Location: Sidebar "Favorites" or pinned link in dashboard Zone 5 footer</div>
+          <div class="notion-spec">Page width: Normal (not full — it should feel compact)</div>
+          <div class="notion-spec">Cover: No cover — pure reference pages don't need covers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAULT -->
+    <div class="hub-card">
+      <div class="hub-head">
+        <div class="hub-name">📦 Vault</div>
+        <div class="hub-verdict hv-fix">Right Concept · Design for Friction</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-col">
+          <div class="hc-label">Design Principle — Make It Deliberately Less Inviting</div>
+          <p>The Vault should feel slightly more effort to enter than the active hubs. This is intentional — you want a small amount of friction that makes you pause and ask "do I actually need to go here, or am I avoiding active work?"</p>
+          <p>Implementation: <strong>no cover image</strong>. No decorative elements. Plain page width (not full). Muted icon (📦, not something exciting). A pinned callout at the top with the Phase 3I Archive Protocol governs this page — linked, not embedded.</p>
+
+          <div class="hc-label">Structural Design</div>
+          <p>Three toggle sections — no open content. Every legacy item lives inside a collapsed toggle. You only see the category label until you open it. This prevents the Vault from looking like active content.</p>
+          <p><strong>Toggle 1: Legacy Hubs</strong> — Funky Futuristic CC, Music Hub v1.0. Each with: name · what it was · date archived. No embedded views.</p>
+          <p><strong>Toggle 2: Backup Tree</strong> — JaZeR Musician Page, 10_Music_Creative_Projects, JaZeR Life OS Architecture. Same format.</p>
+          <p><strong>Toggle 3: Planning Docs</strong> — Old architecture plans, structure snapshots, Mermaid Planning Pack v1. Same format.</p>
+        </div>
+        <div class="hub-col">
+          <div class="hc-label">The Gate — Archive Protocol</div>
+          <p>The top of the Vault page shows one callout block: <em>"Vault governance: Phase 3I Archive Protocol Plan →"</em> with a link to the existing protocol page. Everything that enters the Vault must pass through this protocol. The callout is the visual gate — you see it every time you enter the Vault.</p>
+
+          <div class="hc-label">No Embedded Databases in the Vault</div>
+          <p>Do not embed linked database views from legacy systems inside the Vault. Page links only. If you embed a view of the old Songs DB from Funky Futuristic, it makes the Vault feel like an active system with live data. The Vault is a list of links, not a workspace.</p>
+
+          <div class="hc-label">Access Path</div>
+          <p>The Vault is in the dashboard Zone 5 navigation footer as the last link. It is not in the sidebar favorites. Finding it requires going through the dashboard — the extra navigation step is the friction mechanism.</p>
+
+          <div class="hc-label">Notion Placement</div>
+          <div class="notion-spec">Page width: Normal</div>
+          <div class="notion-spec">Cover: None</div>
+          <div class="notion-spec">Lock icon in title: optional but effective signal</div>
+          <div class="notion-spec">All content inside collapsed toggles: required</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 05 — VISUAL HIERARCHY -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-gr">05 — Visual Hierarchy Recommendations</div>
+  <h2>Notion-Specific Design Rules</h2>
+
+  <div class="callout red">
+    <span class="icon">⚠️</span>
+    <p><strong>The Notion Museum Syndrome warning:</strong> This is when a workspace becomes more beautiful to look at than useful to work in. The signs: gallery views of everything, a different icon for every block, colored dividers between every section, property badges everywhere, cover images on every sub-page. The treatment: <em>reserve all decoration for hub pages</em>. The dashboard should be spare. The work should be visible, not the system.</p>
+  </div>
+
+  <div class="vh-grid">
+    <div class="vh-card">
+      <div class="vh-element">Page Title</div>
+      <div class="vh-rule">One per page. No subtitle. No status note.</div>
+      <div class="vh-detail">Dashboard: "JaZeR Music OS" — nothing else. Hub pages: "Song Lab" · "Launch Hub" · "Brand Reference." Never put the date, version number, or emoji in the page title. The icon carries the identity. The title states the purpose.</div>
+      <div class="vh-avoid">✕ Avoid: "🎵 Song Lab v2 · Updated May 2026"</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Section Headers</div>
+      <div class="vh-rule">All-caps mono text OR Notion H3. Never H1/H2 within a page body.</div>
+      <div class="vh-detail">On the dashboard, section labels should be visually subordinate to the content they introduce. Use a small all-caps mono text block or a lightweight Notion H3 (gray, not the default black) — not bold H2 headers that compete with the database views for visual weight. The content is the star.</div>
+      <div class="vh-avoid">✕ Avoid: Using H1/H2 inside dashboard body — reserve H1/H2 for document-style hub pages only</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Callout Blocks</div>
+      <div class="vh-rule">One per section maximum. Reserved for actions and alerts only.</div>
+      <div class="vh-detail">Callout blocks are visually prominent — they draw the eye. If every section has a callout, none of them work. Use callouts ONLY for: (1) the Quick Capture buttons in Zone 1, (2) the "No active release" dormant state in Launch Hub, (3) the Vault governance gate. Three callouts across the entire workspace. No more.</div>
+      <div class="vh-avoid">✕ Avoid: Informational callouts that describe what the section does — the section label and content should be self-explanatory</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Dividers</div>
+      <div class="vh-rule">Horizontal rule only. No colored text dividers.</div>
+      <div class="vh-detail">Use Notion's native divider (---) between major dashboard zones. Not colored, not emoji-bordered, not heading-styled. A simple gray line. The space itself creates separation; the divider just makes it explicit. Inside hub pages, use spacing (empty lines between sections) rather than dividers — it feels lighter.</div>
+      <div class="vh-avoid">✕ Avoid: "═══ 🎵 SONGS ═══" or colored callout blocks used as dividers</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Database View Titles</div>
+      <div class="vh-rule">Always hidden on dashboard. Visible only inside hub pages.</div>
+      <div class="vh-detail">When you embed a linked database view, Notion shows the database name above it by default. Hide this — it creates visual clutter and states what your section label already states. The section header IS the view title. Inside hub pages where multiple views of the same DB are shown, keep the view name visible to distinguish between views.</div>
+      <div class="vh-avoid">✕ Avoid: "Songs — Active Songs Board View" header above an embedded view that's already under a "ACTIVE SONGS" section label</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Icons & Covers</div>
+      <div class="vh-rule">One emoji per hub page. No icons inside page bodies.</div>
+      <div class="vh-detail">Page icon (the emoji that appears in the sidebar and at the top of the page): one per hub, consistent set. Dashboard: 🎯 Song Lab: 🎵 Launch Hub: 🚀 Brand Reference: 🏷️ Vault: 📦. Cover images: Dashboard (yes — abstract dark image). Song Lab (yes — same style). All other pages: no cover. The cover's job is to signal "this is an important destination," not "this is pretty."</div>
+      <div class="vh-avoid">✕ Avoid: Different emoji icon per section within a page body · Cover images on reference pages and sub-pages</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Synced Blocks</div>
+      <div class="vh-rule">One legitimate use case: status snapshot across hubs.</div>
+      <div class="vh-detail">A synced block is a block that appears identically on multiple pages. The one place this is genuinely useful: a "Current Focus" one-liner that appears on both the dashboard and Song Lab. Update it once (e.g., "Focus: Cosmic Beam release prep · Mixing Transformative Trance") and it's current everywhere. Do not over-use synced blocks — they create hidden dependencies that become confusing.</div>
+      <div class="vh-avoid">✕ Avoid: Syncing entire sections between pages — if two sections need the same content, the content belongs in one place and should be linked, not synced</div>
+    </div>
+    <div class="vh-card">
+      <div class="vh-element">Database Properties on Views</div>
+      <div class="vh-rule">Show only decision-relevant properties. 2–4 columns max on dashboard views.</div>
+      <div class="vh-detail">When configuring a linked database view, every property you show is a column the eye has to process. On the dashboard: Songs gallery shows Status + Priority + Open Tasks (3 properties). Tasks table shows Task + Type + Priority (3 properties). Ideas table shows Title + Asset Type (2 properties). Release table shows Title + Status + Date + Days Until + Health (5 — the maximum). Any more than 5 visible properties on a dashboard view is cognitive overload.</div>
+      <div class="vh-avoid">✕ Avoid: Showing BPM, Key, LUFS, and ISRC on the dashboard Songs view — those belong on the Song record page, not the dashboard card</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 06 — FRICTION AUDIT -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-o">06 — Friction Audit</div>
+  <h2>What Slows You Down</h2>
+
+  <div class="friction-list">
+
+    <div class="friction-item high">
+      <div class="fi-icon">🔴</div>
+      <div class="fi-body">
+        <div class="fi-title">CRITICAL — Quick Capture is undefined at the mechanism level</div>
+        <div class="fi-desc">The dashboard lists "Quick Capture" as a section but the actual Notion mechanism isn't specified. If capture requires: navigating to Writing Assets DB → clicking New → selecting a template → filling in properties → returning to dashboard, that's 6–8 steps. In a creative moment, anything more than 2 steps loses the idea. The mechanism must be a Notion Template Button block directly on the dashboard page that creates a record AND opens it with one click.</div>
+        <div class="fi-fix">Fix: Use Notion's native "Button" block (⌘ + / → Button) or a Template Button linked to Writing Assets with pre-filled Asset Type = Idea, Status = Raw, Date Created = auto. Opens immediately on click. Total friction: 1 click + type the idea.</div>
+      </div>
+    </div>
+
+    <div class="friction-item high">
+      <div class="fi-icon">🔴</div>
+      <div class="fi-body">
+        <div class="fi-title">CRITICAL — Session logging has no zero-friction path</div>
+        <div class="fi-desc">The current dashboard has no "Log a Session" button. Logging a session requires navigating to Sessions DB → creating a new record → selecting template → filling in 3+ fields. After a creative session when momentum is high, this path gets skipped. The dashboard must have a session log button alongside the capture button — same zone, same level of access.</div>
+        <div class="fi-fix">Fix: Second template button in Zone 1 — "Log a Session" — creates a Session record with Session Type (select prompt) and Date = today pre-filled, Song relation prompted on open. Total friction: 1 click + select type + select song.</div>
+      </div>
+    </div>
+
+    <div class="friction-item high">
+      <div class="fi-icon">🔴</div>
+      <div class="fi-body">
+        <div class="fi-title">CRITICAL — "Weekly Review Anchor" is two text rows going nowhere</div>
+        <div class="fi-desc">The current design shows: "What got done this week?" and "What's the top priority next?" as text rows on the dashboard. These are questions, not systems. They don't link to anything. They don't generate a page. They don't pull from data. After the first week, you stop reading them because they never change and nothing happens when you read them.</div>
+        <div class="fi-fix">Fix: Replace with a Notion Button block labeled "Start Weekly Review →" that creates a new page from a Weekly Review template. The template auto-populates the date and links to filtered views of: songs advanced this week, sessions logged, tasks completed, open focus tasks, and a "Next priority" prompt. One click creates a real review session, not a reminder to have one.</div>
+      </div>
+    </div>
+
+    <div class="friction-item high">
+      <div class="fi-icon">🔴</div>
+      <div class="fi-body">
+        <div class="fi-title">HIGH — Section order doesn't match the decision sequence</div>
+        <div class="fi-desc">Current order: Capture → Active Songs → Unattached Ideas → Production Queue → Recent Sessions → Release Pipeline → Content Tasks → Weekly Review. The decision sequence should be: Capture (if needed) → Execute (what am I doing now) → Context (which songs, what's floating) → Plan (what's coming). Putting Active Songs before Today's Focus means you process an entire song gallery before you see the specific tasks you're doing today. That's backwards — you decide what to DO before you contextualize WHERE.</div>
+        <div class="fi-fix">Fix: Reorder to the five-zone system: Capture → Today's Focus → Active Songs + Unattached Ideas (side by side) → Release Pipeline → Hub Navigation.</div>
+      </div>
+    </div>
+
+    <div class="friction-item med">
+      <div class="fi-icon">🟡</div>
+      <div class="fi-body">
+        <div class="fi-title">MEDIUM — No Focus task path from the dashboard</div>
+        <div class="fi-desc">Today's Focus shows tasks where Focus = true. But how does a task get Focus = true? There's no mechanism for this on the dashboard. The workflow requires: go to Tasks DB or Song page → find a task → open it → toggle Focus = true → return to dashboard. That's 4 steps to surface one task. If the friction of marking Focus is higher than the value of the Focus view, it won't be used.</div>
+        <div class="fi-fix">Fix: Inside each Song page, add a Tasks linked view with a "Mark as Focus" action. The best Notion solution is a button inside each Song record that creates a new task with Focus = true pre-checked. Alternatively, configure the Task DB to show Focus as a checkbox column in table views — one click to check it. Make it a 1-click action from wherever you are when you decide what to work on.</div>
+      </div>
+    </div>
+
+    <div class="friction-item med">
+      <div class="fi-icon">🟡</div>
+      <div class="fi-body">
+        <div class="fi-title">MEDIUM — Content/Brand Tasks section name signals confusion</div>
+        <div class="fi-desc">"Content / Brand Tasks This Week" is a section name that reveals the system hasn't decided what it is. The slash says "I couldn't choose between content and brand." "This Week" says the filter is doing the label's job. A section that can't describe its own purpose in 2 words is a section that needs to be rethought.</div>
+        <div class="fi-fix">Fix: This section doesn't exist in the new layout — all task types surface through the Today's Focus view (Focus = true across all Task Types). Content tasks appear there when they're marked as Focus. Separate task-type views belong in Launch Hub, not the dashboard.</div>
+      </div>
+    </div>
+
+    <div class="friction-item med">
+      <div class="fi-icon">🟡</div>
+      <div class="fi-body">
+        <div class="fi-title">MEDIUM — No empty state design for Release Pipeline</div>
+        <div class="fi-desc">Between release cycles, the Release Pipeline section shows an empty table with a "No pages found" state (Notion default). This makes the section look broken rather than dormant. A broken-looking empty state is worse than no section at all — it erodes trust in the system.</div>
+        <div class="fi-fix">Fix: Place a callout block above the Release Pipeline table with conditional intent: "Release Pipeline activates when a release is within 60 days." When it's empty, users understand why. When it has data, the callout is invisible context. Between releases, consider hiding this zone entirely behind a toggle.</div>
+      </div>
+    </div>
+
+    <div class="friction-item low">
+      <div class="fi-icon">🔵</div>
+      <div class="fi-body">
+        <div class="fi-title">LOW — Hub navigation footer has no visual differentiation from body content</div>
+        <div class="fi-desc">If the hub navigation links at the bottom of the dashboard look like regular text or regular Notion links, they blend into the page body and don't feel like navigation controls. Users may scroll past them without registering that they're navigation.</div>
+        <div class="fi-fix">Fix: Style each hub link as a small "button-style" block — a callout with a background color (subtle, consistent), or use a 5-column layout with each column holding one hub link styled as a mini-card. Make them feel visually distinct from the database views above them.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 07 — MOBILE AUDIT -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-r">07 — Mobile Usability Audit</div>
+  <h2>What Breaks on Mobile</h2>
+
+  <div class="callout blue">
+    <span class="icon">📱</span>
+    <p><strong>Notion mobile critical behavior:</strong> All column layouts collapse into a single vertical stack, left column then right column. There is no responsive layout control — you cannot tell Notion "show column A before column B on mobile" beyond the column order you set on desktop. Mobile also does not support hover states, and database views are smaller and require more precise tapping. Build the desktop layout with mobile stack order in mind.</p>
+  </div>
+
+  <div class="mobile-grid">
+
+    <div class="mob-card">
+      <div class="mob-head ok">✓ Works Well on Mobile</div>
+      <div class="mob-item"><strong>Template Buttons (Zone 1)</strong> Full-width tap targets. One of the best Notion mobile interactions — large, clear, immediate. Quick Capture and Log Session buttons work perfectly on mobile.</div>
+      <div class="mob-item"><strong>Today's Focus Table (Zone 2)</strong> Table with 2–3 narrow columns reads well on mobile. Task title is most important and appears first. Tapping opens the full task record.</div>
+      <div class="mob-item"><strong>Unattached Ideas Table (Zone 3R)</strong> Simple 2-column table (Title + Asset Type) renders well on mobile. Fast-scan format that doesn't require horizontal scrolling.</div>
+      <div class="mob-item"><strong>Release Pipeline Table (Zone 4)</strong> 5 columns is near the mobile limit. Renders horizontally scrollable which is acceptable for a planning view you check less frequently than action views.</div>
+      <div class="mob-item"><strong>Hub Navigation (Zone 5)</strong> Collapses to a vertical stack of 5 button-style blocks. Each is a large tap target. Works perfectly on mobile.</div>
+    </div>
+
+    <div class="mob-card">
+      <div class="mob-head bad">✕ Breaks or Degrades on Mobile</div>
+      <div class="mob-item"><strong>Two-column layout (Zone 3)</strong> Desktop: Active Songs (left) and Unattached Ideas (right) side by side. Mobile: Active Songs stacks on top, Unattached Ideas below. This is acceptable IF column order is correct — Songs before Ideas is the right stack order for mobile priority. Verify this in build.</div>
+      <div class="mob-item"><strong>Gallery view — Active Songs</strong> A 2-per-row gallery on desktop becomes 1-per-row on mobile, making it scrollable. 4 song cards become 4 separate rows — still readable but requires scrolling. If this becomes a problem, use a table view as the mobile fallback.</div>
+      <div class="mob-item"><strong>Board views (anywhere)</strong> Kanban boards require horizontal scrolling on mobile — extremely painful. Never use Board view on the dashboard. Keep Board view inside Song Lab where it's the intentional primary working surface, even if that's also painful on mobile.</div>
+      <div class="mob-item"><strong>Database view property columns</strong> Views with 4+ visible property columns will require horizontal scroll on mobile. Keep dashboard views to 3 columns max for mobile comfort. The Release Pipeline at 5 columns is the exception — it's used for planning, not daily execution.</div>
+    </div>
+
+    <div class="mob-card">
+      <div class="mob-head warn">△ Design Decisions for Mobile</div>
+      <div class="mob-item"><strong>Zone 2 is the most important mobile zone</strong> On mobile, Today's Focus is the primary daily interaction. It must render immediately above the fold after Zone 1 (Capture buttons). On a phone screen, Zone 1 + Zone 2 should be visible without scrolling — or Zone 1 at minimum. Design Zone 1 to be compact (2 buttons side by side, not stacked).</div>
+      <div class="mob-item"><strong>Column order determines mobile stack order</strong> Zone 3 two-column layout: put Active Songs in the LEFT column on desktop so it stacks ABOVE Unattached Ideas on mobile. Active Songs is more important for daily decisions — it should come first in the mobile stack.</div>
+      <div class="mob-item"><strong>Gallery card height on mobile</strong> Property-only gallery cards (no covers) render shorter on mobile than on desktop. 4 songs = 4 compact cards ≈ one screen on most phones. That's acceptable. Gallery with cover images would be too tall — confirms the "no covers on dashboard gallery" rule.</div>
+      <div class="mob-item"><strong>Create the workspace on desktop, use it on mobile</strong> Notion databases are built and configured on desktop. Use mobile primarily for capture (Quick Capture button), quick task status updates (Done checkbox in Today's Focus), and checking the release pipeline. Deep database editing, view configuration, and hub work happens on desktop.</div>
+    </div>
+
+    <div class="mob-card">
+      <div class="mob-head warn">△ Mobile-First Quick Capture</div>
+      <div class="mob-item"><strong>The most important mobile flow</strong> Idea → tap "Capture Idea" button → new Writing Asset opens → type the idea title → done. This must work with zero friction on mobile. Test this flow specifically on iPhone/Android before launch.</div>
+      <div class="mob-item"><strong>Session log on mobile</strong> The "Log a Session" button must default Date to today and prompt only Session Type + Song. Do not require more than 3 taps after button press before the record is saved. Everything else is optional and can be added later from desktop.</div>
+      <div class="mob-item"><strong>Notion sidebar on mobile</strong> Notion mobile shows the sidebar as a slide-out panel. Hub navigation in Zone 5 is less relevant on mobile because the sidebar already provides hub access. Zone 5 is primarily a desktop convenience.</div>
+      <div class="mob-item"><strong>Bookmark the dashboard</strong> Add the JaZeR Music OS dashboard to your phone's home screen or pin it in Notion's mobile "Favorites." The fastest mobile workflow is: unlock phone → tap dashboard → tap Capture or check Focus. Any additional navigation before that is friction.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 08 — FINAL DASHBOARD LAYOUT -->
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-pk">08 — Final Recommended Dashboard Layout</div>
+  <h2>The Cleanest Version</h2>
+
+  <div class="final-layout">
+    <div class="fl-header">
+      <div style="font-size:28px;margin-bottom:4px;">🎯</div>
+      <div class="fl-page-title">JaZeR Music OS</div>
+      <div class="fl-page-sub">What do I work on right now?</div>
+    </div>
+
+    <div class="fl-body">
+
+      <!-- ZONE 1 -->
+      <div class="fl-zone">
+        <div class="fl-zone-label gold">Zone 1 — Capture · Full Width</div>
+        <div class="fl-capture">
+          <div class="fl-cap-btn">+ Capture Idea / Hook / Freestyle</div>
+          <div class="fl-cap-btn session">+ Log a Session</div>
+        </div>
+        <p class="dim" style="margin-top:10px;font-size:12px;">Two Notion Template Buttons side by side. No section label above them — they are self-labeling. No callout block around them — the gold/blue tint is sufficient visual distinction. One divider below.</p>
+      </div>
+
+      <!-- ZONE 2 -->
+      <div class="fl-zone">
+        <div class="fl-zone-label red">Zone 2 — Today's Focus · Full Width</div>
+        <div class="fl-widget">
+          <div class="fl-widget-label">TODAY'S FOCUS</div>
+          <div class="fl-row"><span class="fl-row-title">Mix vocal chain — Transformative Trance</span><span class="fl-badge" style="background:rgba(160,127,248,0.1);color:var(--purple);">Production</span></div>
+          <div class="fl-row"><span class="fl-row-title">Finalize chorus — Mission Statement</span><span class="fl-badge" style="background:rgba(62,201,138,0.1);color:var(--green);">Writing</span></div>
+          <div class="fl-row"><span class="fl-row-title">Submit artwork — Cosmic Beam</span><span class="fl-badge" style="background:rgba(240,71,104,0.1);color:var(--red);">Release Prep</span></div>
+        </div>
+        <p class="dim" style="margin-top:8px;font-size:12px;">Tasks DB linked view. Filter: Focus = true, Status ≠ Done. Columns: Task title (wide) + Task Type + Priority. 5–7 rows max. Sorted by Priority desc. DB title hidden. Empty state: "No focus tasks. Open a Song → mark a task as Focus."</p>
+      </div>
+
+      <!-- ZONE 3 -->
+      <div class="fl-zone">
+        <div class="fl-zone-label blue">Zone 3 — Active Context · Two Columns (Left first on mobile)</div>
+        <div class="fl-cols">
+          <div>
+            <div class="fl-widget">
+              <div class="fl-widget-label">ACTIVE SONGS</div>
+              <div class="fl-gallery">
+                <div class="fl-song-card"><div class="fl-song-name">Transformative Trance</div><div class="fl-song-props"><span class="fl-sp">Producing</span><span class="fl-sp">High</span><span class="fl-sp">3 open</span></div></div>
+                <div class="fl-song-card"><div class="fl-song-name">Mission Statement</div><div class="fl-song-props"><span class="fl-sp">Writing</span><span class="fl-sp">High</span></div></div>
+                <div class="fl-song-card"><div class="fl-song-name">The Divine Rerun</div><div class="fl-song-props"><span class="fl-sp">Mixing</span><span class="fl-sp">⚠️ Stale</span></div></div>
+                <div class="fl-song-card"><div class="fl-song-name">Cosmic Beam</div><div class="fl-song-props"><span class="fl-sp">Release Prep</span><span class="fl-sp">High</span></div></div>
+              </div>
+            </div>
+            <p class="dim" style="margin-top:6px;font-size:12px;">Songs DB linked gallery. Filter: Status ≠ Concept, Released, Shelved. 2-per-row. Properties: Status · Priority · Open Tasks · Stale Warning. No covers. DB title hidden.</p>
+          </div>
+          <div>
+            <div class="fl-widget">
+              <div class="fl-widget-label">UNATTACHED IDEAS</div>
+              <div class="fl-row"><span class="fl-row-title">Hook — soulful defiance theme</span><span class="fl-badge" style="background:rgba(232,120,200,0.08);color:var(--pink);">Hook</span></div>
+              <div class="fl-row"><span class="fl-row-title">Title idea: "The Exhale"</span><span class="fl-badge" style="background:rgba(78,168,245,0.08);color:var(--blue);">Idea</span></div>
+              <div class="fl-row"><span class="fl-row-title">Freestyle — May 14 session</span><span class="fl-badge" style="background:rgba(78,168,245,0.08);color:var(--blue);">Freestyle</span></div>
+              <div class="fl-row"><span class="fl-row-title">Concept — neo-soul confessional arc</span><span class="fl-badge" style="background:rgba(78,168,245,0.08);color:var(--blue);">Concept Note</span></div>
+            </div>
+            <p class="dim" style="margin-top:6px;font-size:12px;">Writing Assets linked table. Filter: Floating = true. Columns: Title + Asset Type. Max 6–8 rows. Date desc sort. DB title hidden. Empty state: "All ideas attached — good." (Not a warning — a success signal.)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZONE 4 -->
+      <div class="fl-zone">
+        <div class="fl-zone-label green">Zone 4 — Release Pipeline · Full Width · Hidden between releases</div>
+        <div class="fl-widget">
+          <div class="fl-widget-label">RELEASE PIPELINE</div>
+          <div class="fl-row">
+            <span class="fl-row-title">Cosmic Beam (Single)</span>
+            <span style="display:flex;gap:8px;align-items:center;">
+              <span class="fl-badge" style="background:rgba(240,71,104,0.1);color:var(--red);">In Prep</span>
+              <span class="fl-badge" style="background:rgba(223,194,58,0.1);color:var(--gold);">Jun 15 · 30d</span>
+              <span class="fl-badge" style="background:rgba(245,146,74,0.1);color:var(--orange);">⚡ Active</span>
+            </span>
+          </div>
+        </div>
+        <p class="dim" style="margin-top:8px;font-size:12px;">Releases DB linked table. Filter: Status ≠ Complete. Columns: Title · Format · Status · Release Date · Days Until Release · Release Health. Sort: Release Date asc. <strong>Hide this zone entirely between releases by wrapping it in a toggle labeled "Release Pipeline"</strong> — when no data, toggle collapses and the dashboard stays clean.</p>
+      </div>
+
+      <!-- ZONE 5 -->
+      <div class="fl-zone" style="border-bottom:none;">
+        <div class="fl-zone-label dim">Zone 5 — Navigation · Full Width · Footer</div>
+        <div class="fl-nav-row">
+          <div class="fl-nav-link">🎵 Song Lab</div>
+          <div class="fl-nav-link">🚀 Launch Hub</div>
+          <div class="fl-nav-link">🎛️ FL Studio CC</div>
+          <div class="fl-nav-link">🏷️ Brand Reference</div>
+          <div class="fl-nav-link">📦 Vault</div>
+        </div>
+        <p class="dim" style="margin-top:8px;font-size:12px;">5 links, no more. Button-style styling (background-tinted, not plain text). One emoji + hub name each. This is the exit ramp from the dashboard — it leads to depth. On mobile, renders as a 2–3 per row grid of tap targets.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <h3>Dashboard Build Rules — Non-Negotiable</h3>
+  <table>
+    <thead><tr><th>Rule</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>5 zones maximum</td><td>Any zone above 5 competes with zones 1–2 for attention. The dashboard answers one question — it doesn't need more than 5 sections to do that.</td></tr>
+      <tr><td>No database title visible on any linked view</td><td>The zone label is the title. Showing both creates redundancy that signals "this wasn't designed, it was assembled."</td></tr>
+      <tr><td>No board views on the dashboard</td><td>Horizontal scroll on dashboard = friction. Board views belong in hubs where they're the primary working surface.</td></tr>
+      <tr><td>Zone 1 must be interactive, not informational</td><td>The first thing you interact with sets the tone of the session. A read-only status summary is passive. A template button is active. Start with action.</td></tr>
+      <tr><td>Zone 2 must show only Focus = true tasks</td><td>If Zone 2 shows anything other than explicitly flagged focus tasks, it becomes a full task list. That's a different page. The dashboard shows focus, not everything.</td></tr>
+      <tr><td>Empty states must be intentional, not default</td><td>Notion's default "No pages found" empty state is jarring. Every DB view on the dashboard should have custom empty state text that explains what the empty state means (success or dormancy — not an error).</td></tr>
+      <tr><td>Cover image: yes. Decorative body elements: no.</td><td>The cover image gives the dashboard a premium feel from the moment it loads. Decorative elements inside the body (colored dividers, icon-heavy headers) compete with the data. One in, one out.</td></tr>
+      <tr><td>Column order = mobile stack order</td><td>Left column stacks before right column on mobile. Active Songs must be LEFT so it stacks above Unattached Ideas on mobile. Verify this in the Notion mobile app immediately after build.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green" style="margin-top:24px;">
+    <span class="icon">🎯</span>
+    <p><strong>The test for a finished dashboard:</strong> Open Notion cold — no context, no recent history in mind. From the moment the dashboard loads, you should be able to answer "what do I work on right now?" within 10 seconds without scrolling below Zone 3. If you can't, the dashboard isn't done. The five-zone layout above passes this test. Zone 2 (Today's Focus) shows your tasks. Zone 3L (Active Songs) shows which project. Zone 3R (Unattached Ideas) shows what needs attention. Three zones, one answer, 10 seconds.</p>
+  </div>
+</div>
+
+<div class="doc-footer">
+  JaZeR Music OS v2 — Dashboard UX Review · May 2026<br>
+  <span style="color:var(--b2);">Wireframe · Hub Design · Visual Hierarchy · Friction Audit · Mobile · Build Spec</span>
+</div>
+
+</body>
+</html>

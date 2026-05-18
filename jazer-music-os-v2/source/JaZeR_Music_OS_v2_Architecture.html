@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Architecture Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111115;
+    --surface2: #18181f;
+    --border: #222230;
+    --accent: #e8c94a;
+    --accent2: #7b5cf0;
+    --accent3: #3ecf8e;
+    --muted: #555570;
+    --text: #dddde8;
+    --text-dim: #888899;
+    --danger: #f04560;
+    --mono: 'DM Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Lora', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* ---- HEADER ---- */
+  .doc-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+  .doc-header .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+  .doc-header h1 {
+    font-family: var(--display);
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .doc-header h1 span { color: var(--accent); }
+  .doc-header .subtitle {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ---- SECTION HEADERS ---- */
+  .section {
+    margin-bottom: 64px;
+  }
+  .section-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(232,201,74,0.08);
+    border: 1px solid rgba(232,201,74,0.2);
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+  .section-tag.purple { color: var(--accent2); background: rgba(123,92,240,0.08); border-color: rgba(123,92,240,0.2); }
+  .section-tag.green { color: var(--accent3); background: rgba(62,207,142,0.08); border-color: rgba(62,207,142,0.2); }
+  .section-tag.red { color: var(--danger); background: rgba(240,69,96,0.08); border-color: rgba(240,69,96,0.2); }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 38px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  h3 {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  h3.purple { color: var(--accent2); border-color: rgba(123,92,240,0.2); }
+  h3.green { color: var(--accent3); border-color: rgba(62,207,142,0.2); }
+  h4 {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    margin: 20px 0 6px;
+    letter-spacing: 0.5px;
+  }
+
+  p { margin-bottom: 14px; color: var(--text); }
+  p.dim { color: var(--text-dim); font-size: 14px; }
+  strong { color: #fff; font-weight: 600; }
+  em { color: var(--accent); font-style: italic; }
+
+  /* ---- ARCHITECTURE TREE ---- */
+  .arch-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px 32px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.9;
+    margin: 20px 0;
+  }
+  .arch-tree .hub { color: #fff; font-weight: 500; }
+  .arch-tree .sub { color: var(--text-dim); }
+  .arch-tree .accent { color: var(--accent); }
+  .arch-tree .purple { color: var(--accent2); }
+  .arch-tree .green { color: var(--accent3); }
+  .arch-tree .red { color: var(--danger); }
+
+  /* ---- DB CARDS ---- */
+  .db-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  @media (max-width: 640px) { .db-grid { grid-template-columns: 1fr; } }
+
+  .db-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .db-card:hover { border-color: var(--accent); }
+  .db-card.full { grid-column: 1 / -1; }
+  .db-card .db-name {
+    font-family: var(--display);
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .db-card .db-purpose {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .db-card .db-section { margin-bottom: 10px; }
+  .db-card .db-section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .pill.accent { color: var(--accent); border-color: rgba(232,201,74,0.25); background: rgba(232,201,74,0.07); }
+  .pill.purple { color: var(--accent2); border-color: rgba(123,92,240,0.25); background: rgba(123,92,240,0.07); }
+  .pill.green { color: var(--accent3); border-color: rgba(62,207,142,0.25); background: rgba(62,207,142,0.07); }
+  .pill.red { color: var(--danger); border-color: rgba(240,69,96,0.25); background: rgba(240,69,96,0.07); }
+
+  /* ---- PRIORITY BADGE ---- */
+  .priority {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .priority.p1 { background: rgba(232,201,74,0.15); color: var(--accent); }
+  .priority.p2 { background: rgba(62,207,142,0.1); color: var(--accent3); }
+  .priority.p3 { background: rgba(123,92,240,0.1); color: var(--accent2); }
+
+  /* ---- WORKFLOW STEPS ---- */
+  .workflow {
+    margin: 20px 0;
+    border-left: 2px solid var(--border);
+    padding-left: 0;
+  }
+  .wf-step {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0;
+    position: relative;
+    padding: 0 0 0 28px;
+    margin-bottom: 0;
+  }
+  .wf-step::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 14px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .wf-step.purple::before { background: var(--accent2); }
+  .wf-step.green::before { background: var(--accent3); }
+  .wf-step.red::before { background: var(--danger); }
+
+  .wf-left {
+    padding: 12px 16px 12px 0;
+    border-right: 1px solid var(--border);
+  }
+  .wf-stage {
+    font-family: var(--display);
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: #fff;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .wf-db {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .wf-right {
+    padding: 12px 0 12px 20px;
+  }
+  .wf-what {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .wf-next {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .wf-next.purple { color: var(--accent2); }
+  .wf-next.green { color: var(--accent3); }
+
+  /* ---- DECISION BOX ---- */
+  .decision {
+    background: var(--surface2);
+    border: 1px solid rgba(232,201,74,0.25);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .decision.purple { border-left-color: var(--accent2); border-color: rgba(123,92,240,0.25); }
+  .decision .verdict {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .decision.purple .verdict { color: var(--accent2); }
+  .decision p { margin-bottom: 8px; font-size: 14px; }
+  .decision p:last-child { margin-bottom: 0; }
+
+  /* ---- RELATION MAP ---- */
+  .rel-map {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px 32px;
+    margin: 20px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2.2;
+  }
+  .rel-line { color: var(--text-dim); }
+  .rel-db { color: #fff; font-weight: 500; }
+  .rel-arrow { color: var(--accent); }
+  .rel-note { color: var(--muted); font-size: 11px; }
+
+  /* ---- DASHBOARD MOCKUP ---- */
+  .dashboard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+  .dash-topbar {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .dash-topbar .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dash-topbar .dot.r { background: #ff5f57; }
+  .dash-topbar .dot.y { background: #febc2e; }
+  .dash-topbar .dot.g { background: #28c840; }
+  .dash-topbar .title { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 8px; letter-spacing: 1px; }
+  .dash-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .dash-widget {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px;
+  }
+  .dash-widget.wide { grid-column: span 2; }
+  .dash-widget.full { grid-column: 1 / -1; }
+  .dw-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .dw-item { font-size: 12px; color: var(--text-dim); padding: 4px 0; border-bottom: 1px solid rgba(34,34,48,0.5); display: flex; justify-content: space-between; align-items: center; }
+  .dw-item:last-child { border-bottom: none; }
+  .dw-badge { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 2px; }
+  .dw-badge.active { background: rgba(232,201,74,0.15); color: var(--accent); }
+  .dw-badge.prod { background: rgba(123,92,240,0.15); color: var(--accent2); }
+  .dw-badge.writing { background: rgba(62,207,142,0.15); color: var(--accent3); }
+  .dw-badge.review { background: rgba(240,69,96,0.15); color: var(--danger); }
+  .dw-capture { background: rgba(232,201,74,0.1); border: 1px dashed rgba(232,201,74,0.3); border-radius: 3px; padding: 8px 12px; font-family: var(--mono); font-size: 11px; color: var(--accent); text-align: center; margin-top: 4px; }
+
+  /* ---- TABLES ---- */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(34,34,48,0.5); color: var(--text-dim); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--text); font-weight: 500; }
+
+  /* ---- CALLOUT ---- */
+  .callout {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 12px;
+  }
+  .callout .icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .callout p { margin: 0; color: var(--text-dim); }
+
+  /* ---- TOC ---- */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+  }
+  .toc-title { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .toc ol { list-style: none; padding: 0; }
+  .toc li { font-family: var(--mono); font-size: 12px; padding: 5px 0; border-bottom: 1px solid rgba(34,34,48,0.4); display: flex; gap: 12px; }
+  .toc li:last-child { border-bottom: none; }
+  .toc-num { color: var(--muted); width: 24px; flex-shrink: 0; }
+  .toc-text { color: var(--text-dim); }
+  .toc-text strong { color: var(--text); font-weight: 500; }
+
+  /* ---- DIVIDER ---- */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  /* ---- STATUS FLOW ---- */
+  .status-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 12px 0; }
+  .sf-step { font-family: var(--mono); font-size: 11px; padding: 5px 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); position: relative; }
+  .sf-step:first-child { border-radius: 4px 0 0 4px; }
+  .sf-step:last-child { border-radius: 0 4px 4px 0; }
+  .sf-arrow { font-family: var(--mono); font-size: 12px; color: var(--muted); padding: 0 2px; }
+
+  /* ---- NO-DB BOX ---- */
+  .nodb {
+    background: rgba(240,69,96,0.05);
+    border: 1px solid rgba(240,69,96,0.15);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .nodb .nodb-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--danger); margin-bottom: 10px; }
+  .nodb li { font-size: 13px; color: var(--text-dim); margin-left: 20px; margin-bottom: 4px; list-style: disc; }
+  .nodb li span { color: var(--danger); font-style: italic; font-size: 12px; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="label">Architecture Specification — Build Ready</div>
+  <h1>JaZeR Music<br><span>OS v2</span></h1>
+  <div class="subtitle">CREATIVE OPERATIONS SYSTEM · NOTION WORKSPACE · MAY 2026</div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><span class="toc-num">01</span><span class="toc-text"><strong>New Workspace Architecture</strong> — Hubs, hierarchy, what lives where</span></li>
+    <li><span class="toc-num">02</span><span class="toc-text"><strong>Essential Database Ecosystem</strong> — 5 databases, why each earns its place</span></li>
+    <li><span class="toc-num">03</span><span class="toc-text"><strong>Creative Database Strategy</strong> — The unified Writing Assets decision</span></li>
+    <li><span class="toc-num">04</span><span class="toc-text"><strong>Creative Workflow</strong> — Idea → Release, stage by stage</span></li>
+    <li><span class="toc-num">05</span><span class="toc-text"><strong>Production / FL Studio Integration</strong> — Linked hub, not embedded archive</span></li>
+    <li><span class="toc-num">06</span><span class="toc-text"><strong>Master Dashboard Design</strong> — Daily decision surface</span></li>
+    <li><span class="toc-num">07</span><span class="toc-text"><strong>Relational Database Map</strong> — How everything connects</span></li>
+  </ol>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 1 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag">01 — Workspace Architecture</div>
+  <h2>The Hub System</h2>
+  <p>The workspace is organized around <strong>one master dashboard</strong> and <strong>five focused hubs</strong>. Nothing more. Each hub has exactly one job. When a resource doesn't clearly belong to a hub, it goes to the Vault.</p>
+
+  <div class="arch-tree">
+<span class="accent">🎯 JaZeR Music OS v2</span> <span style="color:var(--muted)">← Master Dashboard (daily driver)</span><br>
+<span class="sub">│</span><br>
+<span class="sub">├─ </span><span class="hub">🎵 Song Lab</span> <span class="sub">← All creative work: ideas → finished songs</span><br>
+<span class="sub">│     ├─ Writing Assets DB (embedded view)</span><br>
+<span class="sub">│     ├─ Songs DB (embedded view)</span><br>
+<span class="sub">│     ├─ Sessions DB (embedded view)</span><br>
+<span class="sub">│     └─ The Book of JaZeR (songbook page)</span><br>
+<span class="sub">│</span><br>
+<span class="sub">├─ </span><span class="purple">🎛️ Production Hub</span> <span class="sub">← Lightweight production tracking</span><br>
+<span class="sub">│     ├─ Songs in production (filtered DB view)</span><br>
+<span class="sub">│     ├─ Production Tasks (filtered Tasks view)</span><br>
+<span class="sub">│     └─ → FL Studio Plugin CC (linked sibling)</span><br>
+<span class="sub">│</span><br>
+<span class="sub">├─ </span><span class="green">🚀 Launch Hub</span> <span class="sub">← Releases + content + marketing</span><br>
+<span class="sub">│     ├─ Releases DB (embedded view)</span><br>
+<span class="sub">│     ├─ Content Tasks (filtered Tasks view)</span><br>
+<span class="sub">│     └─ Content Calendar Generator (linked)</span><br>
+<span class="sub">│</span><br>
+<span class="sub">├─ </span><span class="accent">🏷️ Brand Hub</span> <span class="sub">← Identity + website + public presence</span><br>
+<span class="sub">│     ├─ About JaZeR (identity canon)</span><br>
+<span class="sub">│     ├─ JaZeR Brand Website (linked)</span><br>
+<span class="sub">│     └─ Persona / Archetype references (Drive links)</span><br>
+<span class="sub">│</span><br>
+<span class="sub">└─ </span><span class="red">📦 Vault</span> <span class="sub">← Archive + reference only. Never daily-use.</span><br>
+<span class="sub">      ├─ Funky Futuristic CC (post-audit)</span><br>
+<span class="sub">      ├─ Backup tree pages</span><br>
+<span class="sub">      └─ Legacy Music Hub v1</span>
+  </div>
+
+  <h3>Hub Purpose Breakdown</h3>
+  <table>
+    <thead>
+      <tr><th>Hub</th><th>One-line Purpose</th><th>Enters Daily?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>🎯 Music OS Dashboard</td><td>Answer "what do I work on next?" in one glance</td><td>Yes — first stop every session</td></tr>
+      <tr><td>🎵 Song Lab</td><td>Home for every creative object from raw idea to finished track</td><td>Yes — creative sessions</td></tr>
+      <tr><td>🎛️ Production Hub</td><td>Track production progress; gateway to FL Studio system</td><td>Yes — during production</td></tr>
+      <tr><td>🚀 Launch Hub</td><td>Manage releases, content drops, promo tasks</td><td>Weekly or per release cycle</td></tr>
+      <tr><td>🏷️ Brand Hub</td><td>Single source of truth for identity, voice, and public assets</td><td>Reference — not daily</td></tr>
+      <tr><td>📦 Vault</td><td>Archive of legacy resources; locked, read-only</td><td>Never (only for migration reference)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <span class="icon">📌</span>
+    <p><strong>Architecture rule:</strong> The Master Dashboard surfaces filtered views from the databases — it does not contain content itself. The hubs organize access to full databases. The databases hold the actual data. These three layers must stay distinct or the system collapses into an archive.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 2 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag">02 — Database Ecosystem</div>
+  <h2>The 5 Core Databases</h2>
+  <p>Every database below was put through a strict filter: <em>does it improve workflow, clarity, or scalability enough to justify maintenance overhead?</em> If not, it was cut. The result is five databases. No more.</p>
+
+  <div class="nodb">
+    <div class="nodb-title">⛔ Databases that were cut and why</div>
+    <ul>
+      <li>Plugins DB <span>→ already live in FL Studio Plugin CC with 141 rows. Don't duplicate.</span></li>
+      <li>Samples/Sounds DB <span>→ reference only. Lives in FL Studio hub as a page.</span></li>
+      <li>Collaborators DB <span>→ solo artist. A contacts page is sufficient until a team emerges.</span></li>
+      <li>Finance / Income DB <span>→ no data volume yet. Use a simple spreadsheet until streaming revenue is tracked regularly.</span></li>
+      <li>Hooks DB <span>→ hooks are a Type in Writing Assets, not a separate database.</span></li>
+      <li>Ideas DB <span>→ same: a Type in Writing Assets.</span></li>
+      <li>Lyrics DB <span>→ same: a Type in Writing Assets.</span></li>
+    </ul>
+  </div>
+
+  <div class="db-grid">
+
+    <!-- DB 1: Songs -->
+    <div class="db-card full">
+      <div class="db-name">Songs DB <span class="priority p1">Priority 1</span></div>
+      <div class="db-purpose">The central catalog. Every song project — from sketch to released — lives here. This is the spine of the entire system. Everything else relates back to it.</div>
+
+      <div class="db-section">
+        <div class="db-section-label">Key Properties</div>
+        <div class="pill-row">
+          <span class="pill accent">Title</span>
+          <span class="pill accent">Status</span>
+          <span class="pill">BPM</span>
+          <span class="pill">Key</span>
+          <span class="pill">Genre / Vibe</span>
+          <span class="pill">Type (Single/EP/Cut)</span>
+          <span class="pill">ISRC</span>
+          <span class="pill">LUFS (target)</span>
+          <span class="pill">DAW Project Link</span>
+          <span class="pill">Priority</span>
+          <span class="pill purple">→ Writing Assets</span>
+          <span class="pill purple">→ Sessions</span>
+          <span class="pill purple">→ Releases</span>
+          <span class="pill purple">→ Tasks</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Status Flow</div>
+        <div class="status-flow">
+          <div class="sf-step">Idea</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Writing</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Recording</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Producing</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Mixing</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Review</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Release Prep</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Released</div>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Views</div>
+        <div class="pill-row">
+          <span class="pill green">Active Songs (board by Status)</span>
+          <span class="pill green">All Songs (table)</span>
+          <span class="pill green">Writing Queue (Status = Idea/Writing)</span>
+          <span class="pill green">Production Queue (Status = Recording/Producing/Mixing)</span>
+          <span class="pill green">Release Pipeline (Status = Release Prep)</span>
+          <span class="pill green">Catalog (Status = Released, gallery)</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Example Records</div>
+        <div class="pill-row">
+          <span class="pill">Transformative Trance</span>
+          <span class="pill">Mission Statement</span>
+          <span class="pill">The Divine Rerun</span>
+          <span class="pill">Cosmic Beam</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB 2: Writing Assets -->
+    <div class="db-card full">
+      <div class="db-name">Writing Assets DB <span class="priority p1">Priority 1</span></div>
+      <div class="db-purpose">One unified database for everything written: ideas, hooks, lyrics, verses, freestyles, concepts, and full lyric sheets. The Type property replaces five separate databases. Linked to Songs so assets can be promoted from "floating idea" to "attached to a track."</div>
+
+      <div class="db-section">
+        <div class="db-section-label">Key Properties</div>
+        <div class="pill-row">
+          <span class="pill accent">Title</span>
+          <span class="pill accent">Type</span>
+          <span class="pill accent">Status</span>
+          <span class="pill">Mood / Energy</span>
+          <span class="pill">Genre Fit</span>
+          <span class="pill">Recorded? (checkbox)</span>
+          <span class="pill">Date Created</span>
+          <span class="pill purple">→ Song (relation)</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Type Options</div>
+        <div class="pill-row">
+          <span class="pill accent">Idea</span>
+          <span class="pill accent">Hook</span>
+          <span class="pill accent">Verse</span>
+          <span class="pill accent">Chorus</span>
+          <span class="pill accent">Bridge</span>
+          <span class="pill accent">Freestyle</span>
+          <span class="pill accent">Concept</span>
+          <span class="pill accent">Full Lyric Sheet</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Status Flow</div>
+        <div class="status-flow">
+          <div class="sf-step">Raw</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Developing</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Attached to Song</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Recorded</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Archived</div>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Views</div>
+        <div class="pill-row">
+          <span class="pill green">Unattached Ideas (filter: no Song relation)</span>
+          <span class="pill green">By Type (board)</span>
+          <span class="pill green">Freestyles (Type = Freestyle)</span>
+          <span class="pill green">Hook Bank (Type = Hook, gallery)</span>
+          <span class="pill green">Linked to [Song] (relation view from Songs)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB 3: Sessions -->
+    <div class="db-card">
+      <div class="db-name">Sessions DB <span class="priority p2">Priority 2</span></div>
+      <div class="db-purpose">Time-stamped records of writing, recording, and production sessions. Distinct from Writing Assets because sessions are <em>events</em>, not content. Tracks what happened, not what was created.</div>
+
+      <div class="db-section">
+        <div class="db-section-label">Key Properties</div>
+        <div class="pill-row">
+          <span class="pill accent">Session Name</span>
+          <span class="pill accent">Type</span>
+          <span class="pill accent">Date</span>
+          <span class="pill">Duration</span>
+          <span class="pill">Key Outputs</span>
+          <span class="pill">Mood / Energy</span>
+          <span class="pill">Rating (1–5)</span>
+          <span class="pill purple">→ Songs</span>
+          <span class="pill purple">→ Writing Assets created</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Type Options</div>
+        <div class="pill-row">
+          <span class="pill accent">Writing</span>
+          <span class="pill accent">Freestyle</span>
+          <span class="pill accent">Recording</span>
+          <span class="pill accent">Production</span>
+          <span class="pill accent">Mix Review</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Views</div>
+        <div class="pill-row">
+          <span class="pill green">Recent Sessions (sort by Date desc)</span>
+          <span class="pill green">By Type (board)</span>
+          <span class="pill green">Calendar view</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB 4: Releases -->
+    <div class="db-card">
+      <div class="db-name">Releases DB <span class="priority p2">Priority 2</span></div>
+      <div class="db-purpose">Tracks every planned and published release. Connects songs to distribution metadata, timelines, and promo tasks. Keeps release planning separate from song development.</div>
+
+      <div class="db-section">
+        <div class="db-section-label">Key Properties</div>
+        <div class="pill-row">
+          <span class="pill accent">Release Title</span>
+          <span class="pill accent">Status</span>
+          <span class="pill accent">Release Date</span>
+          <span class="pill">Format (Single/EP/Album)</span>
+          <span class="pill">Distributor</span>
+          <span class="pill">UPC</span>
+          <span class="pill">Pitch Deadline</span>
+          <span class="pill">Distribution Link</span>
+          <span class="pill purple">→ Songs</span>
+          <span class="pill purple">→ Tasks (promo)</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Status Flow</div>
+        <div class="status-flow">
+          <div class="sf-step">Planned</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Prep</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Submitted</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Live</div><div class="sf-arrow">→</div>
+          <div class="sf-step">Promoting</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB 5: Tasks -->
+    <div class="db-card full">
+      <div class="db-name">Tasks DB <span class="priority p3">Priority 3</span></div>
+      <div class="db-purpose">One task database covering all action items: production steps, release prep, content creation, admin, brand work. The Type property routes tasks to the right hub view without creating separate task databases for each domain. This eliminates the most common Notion mistake: 4 task databases that all partially overlap.</div>
+
+      <div class="db-section">
+        <div class="db-section-label">Key Properties</div>
+        <div class="pill-row">
+          <span class="pill accent">Task</span>
+          <span class="pill accent">Type</span>
+          <span class="pill accent">Status</span>
+          <span class="pill accent">Due Date</span>
+          <span class="pill">Priority</span>
+          <span class="pill purple">→ Song</span>
+          <span class="pill purple">→ Release</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Type Options</div>
+        <div class="pill-row">
+          <span class="pill accent">Production</span>
+          <span class="pill accent">Release Prep</span>
+          <span class="pill accent">Content</span>
+          <span class="pill accent">Brand / Website</span>
+          <span class="pill accent">Admin</span>
+          <span class="pill accent">Review</span>
+        </div>
+      </div>
+
+      <div class="db-section">
+        <div class="db-section-label">Views (used across hubs by filter)</div>
+        <div class="pill-row">
+          <span class="pill green">Production Queue (Type=Production, linked to Song)</span>
+          <span class="pill green">Release Tasks (Type=Release Prep, linked to Release)</span>
+          <span class="pill green">Content Tasks (Type=Content, due soon)</span>
+          <span class="pill green">This Week (Due = this week, all types)</span>
+          <span class="pill green">Open Tasks (Status ≠ Done, board by Type)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 3 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag purple">03 — Creative Database Strategy</div>
+  <h2>The Unified Writing Assets Decision</h2>
+
+  <p>This is the most important architecture choice in the system. Here are the three realistic options and the tradeoffs:</p>
+
+  <table>
+    <thead>
+      <tr><th>Option</th><th>Structure</th><th>Strength</th><th>Weakness</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>A — Separate DBs</td>
+        <td>Ideas DB + Lyrics DB + Hooks DB + Freestyles DB</td>
+        <td>Clean visual separation per content type</td>
+        <td>An idea becomes a hook becomes a verse. 4 databases means you track the same asset in 3 places as it evolves. Maintenance nightmare.</td>
+      </tr>
+      <tr>
+        <td>B — Unified DB</td>
+        <td>One Writing Assets DB with a Type property</td>
+        <td>An asset evolves in one place. Type changes. Relations stay intact. Zero double-entry.</td>
+        <td>Requires discipline with the Type property. The database gets large, so you need strong views to filter it.</td>
+      </tr>
+      <tr>
+        <td>C — Hybrid</td>
+        <td>Songs DB + separate Freestyles DB, everything else unified</td>
+        <td>Freestyles feel distinct enough that separation has some logic</td>
+        <td>This is a compromise that brings back the weakness of Option A for a very narrow gain. The Freestyle Session template already distinguishes them as a Type, which is sufficient.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="decision">
+    <div class="verdict">Final Decision — Option B: One Unified Writing Assets DB</div>
+    <p>A freestyle that turns into a verse that becomes the hook of a song should be <em>one record</em> that changes its Type and gets linked to a Song — not three separate records in three databases. The Type property handles what 4 databases were doing. The views handle the filtering.</p>
+    <p>Your existing Freestyle Hub structure is preserved as a filtered view (Type = Freestyle) inside Writing Assets, not as a separate database. The Book of JaZeR becomes the home page of Song Lab, surfacing Writing Assets linked to active songs.</p>
+  </div>
+
+  <h3>Why Sessions is Separate</h3>
+  <p>Sessions are time-based events. A Session record answers: "What happened on this date? How long? What was produced?" Writing Assets answer: "What exists creatively?" These are fundamentally different objects. Merging them would mean you couldn't answer "how many writing sessions did I have in April" without parsing non-event records. Sessions stay separate.</p>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 4 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag green">04 — Creative Workflow</div>
+  <h2>Idea → Release</h2>
+  <p>This is the full lifecycle map. Every stage identifies what happens, where it lives, how it's tracked, and what you do next.</p>
+
+  <div class="workflow">
+
+    <div class="wf-step">
+      <div class="wf-left">
+        <span class="wf-stage">Capture</span>
+        <span class="wf-db">Writing Assets DB</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Voice memo, lyric fragment, title idea, groove concept. Create a Writing Asset record (Type = Idea or Hook). Two sentences max. The goal is <em>speed</em> — never let capture become editing.</div>
+        <div class="wf-next">→ Status: Raw. No song attached yet. Surfaces in "Unattached Ideas" dashboard view.</div>
+      </div>
+    </div>
+
+    <div class="wf-step purple">
+      <div class="wf-left">
+        <span class="wf-stage">Develop</span>
+        <span class="wf-db">Writing Assets + Sessions</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Flesh out the idea over one or more writing sessions. Create a Session record (Type = Writing). Attach Writing Assets created during the session. Update asset Status to Developing.</div>
+        <div class="wf-next wf-next purple">→ Status on asset: Developing. Appears in "Writing Queue" dashboard view.</div>
+      </div>
+    </div>
+
+    <div class="wf-step green">
+      <div class="wf-left">
+        <span class="wf-stage">Write</span>
+        <span class="wf-db">Songs + Writing Assets</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Once an idea has enough to become a song project: create a Song record (Status = Writing). Link Writing Assets to the Song. From here, all lyrics, verses, and sheets are created as Writing Assets attached to this Song record.</div>
+        <div class="wf-next wf-next green">→ Song Status: Writing. Appears in "Active Songs" view. Writing Assets status: Attached to Song.</div>
+      </div>
+    </div>
+
+    <div class="wf-step">
+      <div class="wf-left">
+        <span class="wf-stage">Record</span>
+        <span class="wf-db">Songs + Sessions</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Log a Session (Type = Recording). Link it to the Song. Notes on takes, mic chain, energy level. The Session record is the paper trail. The Song record's status advances.</div>
+        <div class="wf-next">→ Song Status: Recording. Appears in Production Hub's "Production Queue" view.</div>
+      </div>
+    </div>
+
+    <div class="wf-step purple">
+      <div class="wf-left">
+        <span class="wf-stage">Produce</span>
+        <span class="wf-db">Songs + Tasks + Sessions</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Production work happens in FL Studio. Each major production task (drum programming, bass, arrangement, sound design) gets a Task record (Type = Production) linked to the Song. Reference plugins from the FL Studio Plugin CC via link — do not re-enter plugin data.</div>
+        <div class="wf-next wf-next purple">→ Song Status: Producing. Tasks surface in Production Hub's task view.</div>
+      </div>
+    </div>
+
+    <div class="wf-step green">
+      <div class="wf-left">
+        <span class="wf-stage">Review</span>
+        <span class="wf-db">Songs + Sessions</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Critical listening session. Log as a Session (Type = Mix Review). Key outputs: notes on what needs fixing, LUFS target, reference track comparison. Update Song record with LUFS reading. Use Critical Coaches framework from existing resource.</div>
+        <div class="wf-next">→ Song Status: Mixing → Review (cycle as needed).</div>
+      </div>
+    </div>
+
+    <div class="wf-step">
+      <div class="wf-left">
+        <span class="wf-stage">Release Prep</span>
+        <span class="wf-db">Releases + Tasks</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Create a Release record. Link the Song. Generate release prep Tasks (Type = Release Prep): artwork, metadata, distribution submission, pitch deadline. Song status advances to Release Prep.</div>
+        <div class="wf-next wf-next purple">→ Release Status: Prep. Tasks surface in Launch Hub's release task view.</div>
+      </div>
+    </div>
+
+    <div class="wf-step green">
+      <div class="wf-left">
+        <span class="wf-stage">Publish</span>
+        <span class="wf-db">Releases + Songs</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Distribution submitted. Release date locked. Mark Release Status = Submitted → Live. Update Song Status = Released. Add distribution link and ISRC to Song record.</div>
+        <div class="wf-next wf-next green">→ Song moves to Catalog view. Release status: Live.</div>
+      </div>
+    </div>
+
+    <div class="wf-step purple">
+      <div class="wf-left">
+        <span class="wf-stage">Promote</span>
+        <span class="wf-db">Tasks + Releases</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">Content Tasks linked to the Release: IG posts, short-form video, playlist pitching, press outreach. Generated from the Content Calendar Generator tool. Track as Tasks (Type = Content).</div>
+        <div class="wf-next">→ Release Status: Promoting. Tasks surface in Launch Hub content view.</div>
+      </div>
+    </div>
+
+    <div class="wf-step green">
+      <div class="wf-left">
+        <span class="wf-stage">Analyze</span>
+        <span class="wf-db">Songs + Releases</span>
+      </div>
+      <div class="wf-right">
+        <div class="wf-what">After 30/60/90 days: add a review note to the Song record. Stream count snapshot (manual or via linked Drive doc). What worked? What to do differently? This feeds the next cycle.</div>
+        <div class="wf-next wf-next green">→ Song stays in Released Catalog. Release archived. Insights loop back into next writing session.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 5 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag">05 — Production / FL Studio</div>
+  <h2>Linked Hub, Not Embedded Archive</h2>
+
+  <div class="decision purple">
+    <div class="verdict">Architecture Decision</div>
+    <p><strong>The FL Studio Plugin Command Center stays exactly where it is</strong> — as a sibling hub with its own 7 databases (141 plugins, parameters, presets, plugin families, scorecard, build tasks, document index). It does not move inline into Music OS v2. It does not get simplified. It does not get archived.</p>
+    <p>What changes is how Music OS v2 <em>connects to it</em>: lightweight link in the sidebar, a single linked view of production tasks in the Production Hub, and a reference link in each Song record's page body. That's the entire integration surface.</p>
+  </div>
+
+  <h3>What Stays in FL Studio Plugin CC</h3>
+  <div class="pill-row">
+    <span class="pill">All 7 inline databases</span>
+    <span class="pill">Plugin scorecard system</span>
+    <span class="pill">Build task history</span>
+    <span class="pill">Parameter documentation</span>
+    <span class="pill">Plugin families</span>
+    <span class="pill">Presets reference</span>
+    <span class="pill">Document index</span>
+    <span class="pill">Producer's Guide trilogy (Drive)</span>
+    <span class="pill">Sample pack licenses</span>
+  </div>
+
+  <h3>What Appears in Production Hub (Music OS v2)</h3>
+  <table>
+    <thead>
+      <tr><th>What</th><th>How</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Songs in production</td>
+        <td>Filtered view of Songs DB (Status = Recording / Producing / Mixing)</td>
+        <td>See what's in the pipeline without going to FL Studio hub</td>
+      </tr>
+      <tr>
+        <td>Production Tasks</td>
+        <td>Filtered Tasks view (Type = Production)</td>
+        <td>Actionable production checklist without plugin reference clutter</td>
+      </tr>
+      <tr>
+        <td>FL Studio Plugin CC link</td>
+        <td>Linked mention / button at top of Production Hub</td>
+        <td>One click to the full plugin system when needed</td>
+      </tr>
+      <tr>
+        <td>Plugin reference (per Song)</td>
+        <td>Manual notes block inside each Song page body</td>
+        <td>Quick "which chain did I use" note without importing the DB</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <span class="icon">🎛️</span>
+    <p><strong>The rule:</strong> If it's about a plugin as a tool, it lives in FL Studio Plugin CC. If it's about a specific song's production, it lives in a Task or a note inside the Song record. The two systems should never blur.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 6 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag green">06 — Master Dashboard</div>
+  <h2>Daily Decision Surface</h2>
+  <p>The dashboard answers one question: <strong>"What do I work on right now?"</strong> It is not a full system overview. It is not an archive. Every widget is a filtered database view that disappears when there's nothing to show. Here is the layout:</p>
+
+  <div class="dashboard">
+    <div class="dash-topbar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="title">🎯 JAZER MUSIC OS v2 — MASTER DASHBOARD</span>
+    </div>
+    <div class="dash-body">
+
+      <div class="dash-widget full">
+        <div class="dw-label">Quick Capture</div>
+        <div class="dw-capture">+ New Idea / Hook / Freestyle</div>
+      </div>
+
+      <div class="dash-widget wide">
+        <div class="dw-label">Active Songs</div>
+        <div class="dw-item"><span>Transformative Trance</span><span class="dw-badge prod">Producing</span></div>
+        <div class="dw-item"><span>Mission Statement</span><span class="dw-badge writing">Writing</span></div>
+        <div class="dw-item"><span>The Divine Rerun</span><span class="dw-badge review">Mix Review</span></div>
+        <div class="dw-item"><span>Cosmic Beam</span><span class="dw-badge active">Release Prep</span></div>
+      </div>
+
+      <div class="dash-widget">
+        <div class="dw-label">Unattached Ideas</div>
+        <div class="dw-item"><span>Hook fragment #7</span><span class="dw-badge writing">Hook</span></div>
+        <div class="dw-item"><span>Concept: "the exhale"</span><span class="dw-badge writing">Idea</span></div>
+        <div class="dw-item"><span>Freestyle 05-14</span><span class="dw-badge writing">Freestyle</span></div>
+      </div>
+
+      <div class="dash-widget">
+        <div class="dw-label">Production Queue</div>
+        <div class="dw-item"><span>Drum arrangement — TT</span><span class="dw-badge prod">Open</span></div>
+        <div class="dw-item"><span>Bass layer — MS</span><span class="dw-badge prod">Open</span></div>
+        <div class="dw-item"><span>Mix bounce — Divine</span><span class="dw-badge review">Due</span></div>
+      </div>
+
+      <div class="dash-widget">
+        <div class="dw-label">Recent Sessions</div>
+        <div class="dw-item"><span>Writing — May 15</span><span class="dw-badge writing">Writing</span></div>
+        <div class="dw-item"><span>Production — May 13</span><span class="dw-badge prod">Production</span></div>
+        <div class="dw-item"><span>Freestyle — May 11</span><span class="dw-badge writing">Freestyle</span></div>
+      </div>
+
+      <div class="dash-widget">
+        <div class="dw-label">Release Pipeline</div>
+        <div class="dw-item"><span>Cosmic Beam — Jun 15</span><span class="dw-badge active">Prep</span></div>
+        <div class="dw-item"><span>EP: TBD — Q3</span><span class="dw-badge writing">Planned</span></div>
+      </div>
+
+      <div class="dash-widget">
+        <div class="dw-label">Content / Brand Tasks (This Week)</div>
+        <div class="dw-item"><span>IG caption — Cosmic Beam</span><span class="dw-badge active">Content</span></div>
+        <div class="dw-item"><span>Website bio update</span><span class="dw-badge active">Brand</span></div>
+      </div>
+
+      <div class="dash-widget full">
+        <div class="dw-label">Weekly Review Anchor</div>
+        <div class="dw-item"><span>What got done this week?</span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">→ Open Weekly Review</span></div>
+        <div class="dw-item"><span>What's the top priority next?</span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">→ Active Songs view</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <h3>Dashboard Rules</h3>
+  <table>
+    <thead>
+      <tr><th>Rule</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>No full-table views on the dashboard</td><td>Tables become archives. Only board or gallery-style views with strong filters belong here.</td></tr>
+      <tr><td>Every section must filter out noise</td><td>"Active Songs" = Status ≠ Idea AND Status ≠ Released. Otherwise it becomes a full catalog.</td></tr>
+      <tr><td>Quick Capture must be one click</td><td>If capture takes more than 10 seconds, ideas get lost. Use a new Writing Asset template button right on the dashboard.</td></tr>
+      <tr><td>Weekly Review is a link, not content</td><td>The review workflow lives inside Song Lab. The dashboard just surfaces a reminder anchor.</td></tr>
+      <tr><td>Reference links are relegated to hubs</td><td>No Drive links, no plugin system links on the main dashboard. Those live in their respective hubs.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 7 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-tag purple">07 — Relational Database Map</div>
+  <h2>How Everything Connects</h2>
+
+  <div class="rel-map">
+<span class="rel-db">Songs DB</span><br>
+<span style="color:var(--muted)">  ↔  </span><span class="rel-db">Writing Assets DB</span>  <span class="rel-note">← Many-to-many. A song can have many assets; an asset can float before being attached.</span><br>
+<span style="color:var(--muted)">  ↔  </span><span class="rel-db">Sessions DB</span>        <span class="rel-note">← Many-to-many. A song has many sessions; a session can cover multiple songs.</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Tasks DB</span>           <span class="rel-note">← One-to-many. One song spawns many production and admin tasks.</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Releases DB</span>        <span class="rel-note">← Many-to-one (usually). Multiple songs can appear on one EP/album release.</span><br>
+<br>
+<span class="rel-db">Releases DB</span><br>
+<span style="color:var(--muted)">  ↔  </span><span class="rel-db">Songs DB</span>           <span class="rel-note">← Synced relation (reverse of above)</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Tasks DB</span>           <span class="rel-note">← One-to-many. Release prep + promo tasks link to a Release.</span><br>
+<br>
+<span class="rel-db">Sessions DB</span><br>
+<span style="color:var(--muted)">  ↔  </span><span class="rel-db">Songs DB</span>           <span class="rel-note">← Synced relation</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Writing Assets DB</span>  <span class="rel-note">← Optional: link assets created in a session to that session record.</span><br>
+<br>
+<span class="rel-db">Writing Assets DB</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Songs DB</span>           <span class="rel-note">← Synced relation (reverse of Songs → Writing Assets)</span><br>
+<br>
+<span class="rel-db">Tasks DB</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Songs DB</span>           <span class="rel-note">← Optional relation (production tasks)</span><br>
+<span style="color:var(--muted)">  →  </span><span class="rel-db">Releases DB</span>        <span class="rel-note">← Optional relation (release prep / promo tasks)</span><br>
+<br>
+<span style="color:var(--muted)">— — — — EXTERNAL CONNECTIONS — — — —</span><br>
+<br>
+<span class="rel-db">FL Studio Plugin CC</span><br>
+<span style="color:var(--muted)">  ·  </span><span class="rel-note">Not relationally linked. Connected by URL reference inside Song page bodies and Production Hub sidebar link. Intentionally NOT a Notion relation — the plugin system is a standalone reference hub, not part of the data model.</span><br>
+<br>
+<span class="rel-db">Google Drive (Brand / Persona / Guides)</span><br>
+<span style="color:var(--muted)">  ·  </span><span class="rel-note">Referenced by URL embed in Brand Hub and Release pages. Not a Notion relation. Drive holds large PDFs and reports; Notion holds structured metadata and tasks.</span>
+  </div>
+
+  <h3>Rollup Properties to Build</h3>
+  <table>
+    <thead>
+      <tr><th>Database</th><th>Rollup Property</th><th>What It Shows</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Songs</td><td>Writing Assets Count</td><td>How many lyric blocks / hooks exist for this song</td></tr>
+      <tr><td>Songs</td><td>Open Tasks Count</td><td>Production / release tasks still open</td></tr>
+      <tr><td>Songs</td><td>Session Count</td><td>How many sessions have been logged</td></tr>
+      <tr><td>Releases</td><td>Song Count</td><td>How many songs are on this release</td></tr>
+      <tr><td>Releases</td><td>Open Release Tasks</td><td>How many prep tasks are incomplete</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <span class="icon">⚡</span>
+    <p><strong>Build order:</strong> Songs DB first → Writing Assets DB → link them. Then Sessions. Then Releases. Tasks last — they're the most maintenance-heavy, so get the core creative data model solid before layering task tracking.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- FOOTER -->
+<div style="text-align:center; padding: 32px 0; font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px;">
+  JAZER MUSIC OS v2 — ARCHITECTURE SPEC · MAY 2026<br>
+  <span style="color: var(--border);">Built for: JaZeR · CreativeOps Framework · Notion Workspace</span>
+</div>
+
+</body>
+</html>

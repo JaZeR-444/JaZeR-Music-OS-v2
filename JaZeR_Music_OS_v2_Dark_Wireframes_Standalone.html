@@ -1,0 +1,3438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Standalone Dark theme wireframes generated from uploaded package. Requires internet only for React/Babel/font CDN. -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Wireframes (Dark)</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=Cutive+Mono&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   JaZeR Music OS v2 — Notion-style Wireframes (sketchy / low-fi)
+   =========================================================== */
+
+:root {
+  /* ============================================================
+     NOTION COLOR PALETTE — source of truth
+     All wireframe pills, tags, accents, and document colors
+     are built off these. Updating these updates the whole site.
+     ============================================================ */
+
+  /* Notion text colors */
+  --notion-default: #37352f;
+  --notion-gray:    #9b9a97;
+  --notion-brown:   #64473a;
+  --notion-orange:  #d9730d;
+  --notion-yellow:  #dfab01;
+  --notion-green:   #0f7b6c;
+  --notion-blue:    #0b6e99;
+  --notion-purple:  #6940a5;
+  --notion-pink:    #ad1a72;
+  --notion-red:     #e03e3e;
+
+  /* Notion background colors */
+  --notion-default-bg: #ffffff;
+  --notion-gray-bg:    #f1f1ef;
+  --notion-brown-bg:   #f4eeee;
+  --notion-orange-bg:  #faebdd;
+  --notion-yellow-bg:  #fbf3db;
+  --notion-green-bg:   #ddedea;
+  --notion-blue-bg:    #ddebf1;
+  --notion-purple-bg:  #eae4f2;
+  --notion-pink-bg:    #f4dfeb;
+  --notion-red-bg:     #fbe4e4;
+
+  /* ============================================================
+     Wireframe theme — paper/ink + role mappings to Notion palette
+     ============================================================ */
+
+  --paper:   #fdfaf3;
+  --paper-2: #f5f1e6;
+  --paper-3: #ebe5d2;
+  --ink:     var(--notion-default);
+  --ink-2:   #5a5345;
+  --ink-3:   var(--notion-gray);
+  --line:    #c8c1ac;
+  --line-2:  #a8a190;
+  --rule:    #d8d2bd;
+
+  /* Role aliases — the wireframe's three accents now point at Notion hues */
+  --accent:   var(--notion-orange);   /* warm marker (was #c96442) */
+  --accent-2: var(--notion-yellow);   /* highlight        */
+  --accent-3: var(--notion-green);    /* affirmative      */
+  --post-it:  var(--notion-yellow-bg);
+
+  --font-hand:  'Caveat', 'Bradley Hand', cursive;
+  --font-print: 'Kalam', 'Comic Sans MS', cursive;
+  --font-mono:  'Cutive Mono', 'Courier New', monospace;
+}
+
+/* Notion color utility classes — usable directly in markup */
+.notion-default { color: var(--notion-default); }
+.notion-gray    { color: var(--notion-gray); }
+.notion-brown   { color: var(--notion-brown); }
+.notion-orange  { color: var(--notion-orange); }
+.notion-yellow  { color: var(--notion-yellow); }
+.notion-green   { color: var(--notion-green); }
+.notion-blue    { color: var(--notion-blue); }
+.notion-purple  { color: var(--notion-purple); }
+.notion-pink    { color: var(--notion-pink); }
+.notion-red     { color: var(--notion-red); }
+
+.notion-default-bg { background-color: var(--notion-default-bg); }
+.notion-gray-bg    { background-color: var(--notion-gray-bg); }
+.notion-brown-bg   { background-color: var(--notion-brown-bg); }
+.notion-orange-bg  { background-color: var(--notion-orange-bg); }
+.notion-yellow-bg  { background-color: var(--notion-yellow-bg); }
+.notion-green-bg   { background-color: var(--notion-green-bg); }
+.notion-blue-bg    { background-color: var(--notion-blue-bg); }
+.notion-purple-bg  { background-color: var(--notion-purple-bg); }
+.notion-pink-bg    { background-color: var(--notion-pink-bg); }
+.notion-red-bg     { background-color: var(--notion-red-bg); }
+
+/* ============================================================
+   DARK THEME — Notion dark mode palette
+   Apply via `<body class="theme-dark">` (or any ancestor).
+   ============================================================ */
+.theme-dark {
+  /* Notion dark-mode text colors */
+  --notion-default: #ffffff;
+  --notion-gray:    #9b9a97;
+  --notion-brown:   #937264;
+  --notion-orange:  #ffa344;
+  --notion-yellow:  #ffdc49;
+  --notion-green:   #4dab9a;
+  --notion-blue:    #529cca;
+  --notion-purple:  #9a6dd7;
+  --notion-pink:    #e255a1;
+  --notion-red:     #ff7369;
+
+  /* Notion dark-mode background colors */
+  --notion-default-bg: #191919;
+  --notion-gray-bg:    #2f2f2f;
+  --notion-brown-bg:   #4a3228;
+  --notion-orange-bg:  #5c3b23;
+  --notion-yellow-bg:  #564328;
+  --notion-green-bg:   #243d3a;
+  --notion-blue-bg:    #143047;
+  --notion-purple-bg:  #3c2d49;
+  --notion-pink-bg:    #4e2c3c;
+  --notion-red-bg:     #522e2a;
+
+  /* Paper / ink role mappings for dark */
+  --paper:   #191919;
+  --paper-2: #232323;
+  --paper-3: #2f2f2f;
+  --ink:     #e5e5e2;
+  --ink-2:   #b8b6af;
+  --ink-3:   #6f6e6a;
+  --line:    #3a3a36;
+  --line-2:  #4a4a44;
+  --rule:    #2a2a26;
+
+  --post-it: var(--notion-yellow-bg);
+}
+
+/* Pill borders need re-tuning for dark surfaces — slightly transparent
+   versions of the text color blend with the dark bg better than the
+   light-mode hard borders. */
+.theme-dark .wf-pill         { border-color: rgba(255,255,255,0.12); }
+.theme-dark .wf-pill.warn    { border-color: rgba(255,163,68,0.4); }
+.theme-dark .wf-pill.go      { border-color: rgba(77,171,154,0.4); }
+.theme-dark .wf-pill.idea    { border-color: rgba(255,220,73,0.4); }
+.theme-dark .wf-pill.todo    { border-color: rgba(154,109,215,0.4); }
+.theme-dark .wf-pill.info    { border-color: rgba(82,156,202,0.4); }
+.theme-dark .wf-pill.alert   { border-color: rgba(255,115,105,0.4); }
+.theme-dark .wf-pill.brown   { border-color: rgba(147,114,100,0.4); }
+.theme-dark .wf-pill.pink    { border-color: rgba(226,85,161,0.4); }
+
+/* ---- Wireframe artboard base ---- */
+.wf {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-print);
+  font-size: 13px;
+  line-height: 1.4;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Subtle paper texture via subtle noise */
+.wf::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(180,168,140,.08) 0, transparent 30%),
+    radial-gradient(circle at 88% 70%, rgba(180,168,140,.06) 0, transparent 30%);
+  pointer-events: none;
+  z-index: 0;
+}
+.wf > * { position: relative; z-index: 1; }
+
+/* ---- Notion-style chrome ---- */
+.wf-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  background: var(--paper-2);
+}
+.wf-topbar .crumb { display: flex; align-items: center; gap: 6px; }
+.wf-topbar .crumb-sep { color: var(--line-2); }
+.wf-topbar .crumb-now { color: var(--ink); }
+.wf-topbar .spacer { flex: 1; }
+.wf-topbar .icon-row { display: flex; gap: 6px; color: var(--ink-3); }
+.wf-topbar .icon-row span { font-size: 11px; }
+
+.wf-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  min-height: 0;
+}
+
+.wf-sidebar {
+  background: var(--paper-2);
+  border-right: 1px dashed var(--line);
+  padding: 10px 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.wf-sb-section {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 8px 4px 2px;
+}
+.wf-sb-section:first-child { margin-top: 0; }
+.wf-sb-item {
+  padding: 3px 6px;
+  border-radius: 3px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: default;
+}
+.wf-sb-item.active {
+  background: var(--paper-3);
+  color: var(--ink);
+  font-weight: 600;
+}
+.wf-sb-item .ico { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+
+.wf-main {
+  padding: 14px 18px;
+  overflow: auto;
+  background: var(--paper);
+}
+
+/* ---- Page chrome inside main ---- */
+.wf-pagehead { margin-bottom: 14px; }
+.wf-pagehead .breadcrumb {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-3);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.wf-pagehead h1 {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wf-pagehead h1 .emoji { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; font-size: 22px; }
+
+.wf-pagehead .subtitle {
+  font-family: var(--font-print);
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
+/* Blocks */
+.wf-block { margin-bottom: 14px; }
+.wf-block-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.wf-block-h {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+/* ---- Capture button (template button) ---- */
+.wf-capture {
+  border: 2px dashed var(--accent);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--accent);
+  background: rgba(201,100,66,0.04);
+  margin-bottom: 14px;
+  transform: rotate(-0.3deg);
+}
+.wf-capture .plus { font-weight: bold; margin-right: 6px; font-size: 22px; }
+
+/* ---- Database views ---- */
+
+/* Board / kanban */
+.wf-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 8px 0;
+}
+.wf-board.cols-5 { grid-template-columns: repeat(5, 1fr); }
+.wf-board.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.wf-col {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 8px;
+  min-height: 100px;
+}
+.wf-col-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.wf-col-title .count { color: var(--ink-2); }
+.wf-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 5px 7px;
+  font-size: 11px;
+  color: var(--ink);
+  margin-bottom: 5px;
+  line-height: 1.3;
+  transform: rotate(-0.15deg);
+}
+.wf-card:nth-child(2) { transform: rotate(0.3deg); }
+.wf-card:nth-child(3) { transform: rotate(-0.2deg); }
+.wf-card .card-meta {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+.wf-card.has-warn { border-color: var(--accent); border-style: dashed; }
+.wf-card.has-go { border-left: 3px solid var(--accent-3); }
+
+/* Table */
+.wf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin: 8px 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+.wf-table th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: left;
+  padding: 6px 8px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--line);
+  font-weight: normal;
+}
+.wf-table td {
+  padding: 6px 8px;
+  border-bottom: 1px dotted var(--line);
+  color: var(--ink-2);
+  vertical-align: middle;
+}
+.wf-table tr:last-child td { border-bottom: none; }
+.wf-table .first-col { color: var(--ink); font-weight: 600; }
+
+/* Property pill */
+.wf-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--notion-gray-bg);
+  border: 1px solid var(--line);
+  color: var(--notion-default);
+  margin-right: 3px;
+  letter-spacing: 0.3px;
+}
+/* Status / role pill colors — now Notion palette */
+.wf-pill.warn   { background: var(--notion-orange-bg); color: var(--notion-orange); border-color: #e8c79e; }
+.wf-pill.go     { background: var(--notion-green-bg);  color: var(--notion-green);  border-color: #a8c7b3; }
+.wf-pill.idea   { background: var(--notion-yellow-bg); color: var(--notion-yellow); border-color: #e3cf85; }
+.wf-pill.todo   { background: var(--notion-purple-bg); color: var(--notion-purple); border-color: #c4b1d9; }
+.wf-pill.mute   { background: var(--notion-gray-bg);   color: var(--notion-gray); }
+.wf-pill.info   { background: var(--notion-blue-bg);   color: var(--notion-blue);   border-color: #a8c7d6; }
+.wf-pill.alert  { background: var(--notion-red-bg);    color: var(--notion-red);    border-color: #e8b8b8; }
+.wf-pill.brown  { background: var(--notion-brown-bg);  color: var(--notion-brown);  border-color: #d9c2bd; }
+.wf-pill.pink   { background: var(--notion-pink-bg);   color: var(--notion-pink);   border-color: #e3b8d2; }
+
+/* Gallery */
+.wf-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 8px 0;
+}
+.wf-gal {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 11px;
+  transform: rotate(0.2deg);
+}
+.wf-gal:nth-child(even) { transform: rotate(-0.2deg); }
+.wf-gal .gal-img {
+  height: 50px;
+  background:
+    repeating-linear-gradient(135deg, var(--paper-2) 0 6px, var(--paper-3) 6px 12px);
+  border-radius: 3px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-3);
+}
+.wf-gal .gal-title {
+  font-family: var(--font-hand);
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 2px;
+  line-height: 1;
+}
+.wf-gal .gal-meta {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--ink-3);
+  letter-spacing: 0.3px;
+}
+
+/* List row (Notion-style list) */
+.wf-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-bottom: 1px dotted var(--line);
+  font-size: 11px;
+  color: var(--ink);
+}
+.wf-list-row:last-child { border-bottom: none; }
+.wf-list-row .check {
+  width: 12px; height: 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.wf-list-row.done .check { background: var(--accent-3); border-color: var(--accent-3); }
+.wf-list-row.done .text { text-decoration: line-through; color: var(--ink-3); }
+.wf-list-row .text { flex: 1; }
+.wf-list-row .meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-3);
+}
+
+/* Section divider */
+.wf-divider {
+  border: 0;
+  border-top: 1.5px dashed var(--line);
+  margin: 14px 0;
+}
+
+/* ---- Sticky-note annotation overlay ---- */
+.wf-note {
+  position: absolute;
+  background: var(--post-it);
+  color: var(--ink);
+  font-family: var(--font-hand);
+  font-size: 16px;
+  line-height: 1.15;
+  padding: 8px 10px;
+  border-radius: 1px;
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.15);
+  max-width: 160px;
+  z-index: 5;
+  transform: rotate(-2.5deg);
+  pointer-events: none;
+}
+.wf-note.right { transform: rotate(1.8deg); }
+.wf-note.flat { transform: rotate(0deg); }
+.wf-note .arrow {
+  position: absolute;
+  width: 20px; height: 14px;
+  pointer-events: none;
+}
+
+/* Hide notes when annotations off (toggled via root class) */
+body.notes-off .wf-note { display: none; }
+
+/* ---- 2-col layout helper inside main ---- */
+.wf-2col {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin: 10px 0;
+}
+.wf-2col.even { grid-template-columns: 1fr 1fr; }
+
+/* ---- Property meta line ---- */
+.wf-props {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-3);
+  margin: 6px 0 10px;
+  padding: 6px 0;
+  border-top: 1px dotted var(--line);
+  border-bottom: 1px dotted var(--line);
+}
+.wf-props span b {
+  color: var(--ink);
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+/* ---- Big "lyric writing" block ---- */
+.wf-lyric {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 18px, var(--line) 18px 19px);
+  background-attachment: local;
+  padding: 0 4px;
+  min-height: 72px;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  line-height: 19px;
+  color: var(--ink-2);
+}
+
+/* ---- Tab control inside main ---- */
+.wf-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+.wf-tabs .tab {
+  padding: 5px 10px;
+  color: var(--ink-3);
+  border-bottom: 2px solid transparent;
+  cursor: default;
+}
+.wf-tabs .tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+/* ---- Calendar mini ---- */
+.wf-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  margin: 6px 0;
+}
+.wf-cal .day {
+  aspect-ratio: 1;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 2px;
+  color: var(--ink-3);
+  position: relative;
+}
+.wf-cal .day .num { font-size: 8px; }
+.wf-cal .day.has-evt { background: var(--notion-orange-bg); color: var(--notion-default); }
+.wf-cal .day.has-evt::after {
+  content: ""; position: absolute; bottom: 2px; left: 2px; right: 2px; height: 2px;
+  background: var(--notion-orange); border-radius: 1px;
+}
+
+/* ---- Search bar mock ---- */
+.wf-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+.wf-search .kbd {
+  font-size: 8px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 1px 4px;
+  margin-left: auto;
+  background: var(--paper-2);
+}
+
+/* ---- Tweak panel (custom for this wireframe) ---- */
+.wf-tweaks {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  background: var(--paper);
+  border: 2px dashed var(--ink);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: var(--font-print);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+  transform: rotate(-0.3deg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 220px;
+}
+.wf-tweaks h4 {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.wf-tweaks .tw-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.wf-tweaks .tw-toggle {
+  width: 36px; height: 20px;
+  background: var(--paper-2);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.wf-tweaks .tw-toggle::after {
+  content: "";
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 14px; height: 14px;
+  background: var(--ink);
+  border-radius: 50%;
+  transition: transform .15s ease;
+}
+.wf-tweaks .tw-toggle.on { background: var(--accent); border-color: var(--accent); }
+.wf-tweaks .tw-toggle.on::after {
+  transform: translateX(16px);
+  background: var(--paper);
+}
+.wf-tweaks .tw-label { flex: 1; color: var(--ink); }
+.wf-tweaks .tw-hint {
+  font-size: 11px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  border-top: 1px dotted var(--line);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+/* ---- Page header / intro card on canvas ---- */
+.canvas-intro {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px dashed var(--ink-3);
+  border-radius: 4px;
+  padding: 14px 18px;
+  max-width: 540px;
+  line-height: 1.25;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.05);
+  transform: rotate(-0.5deg);
+}
+.canvas-intro h2 {
+  font-family: var(--font-hand);
+  font-size: 36px;
+  line-height: 1;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.canvas-intro p { margin: 4px 0; }
+.canvas-intro .badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  background: var(--accent);
+  color: var(--paper);
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+</style>
+<style>
+  html, body { margin: 0; padding: 0; background: #0e0e0e; font-family: 'Kalam', sans-serif; color: #e5e5e2; }
+  .flat {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 40px 80px;
+  }
+  .flat-hero {
+    text-align: center;
+    margin-bottom: 64px;
+    padding-bottom: 32px;
+    border-bottom: 2px dashed #3a3a36;
+  }
+  .flat-hero .mark {
+    font-family: 'Cutive Mono', monospace;
+    font-size: 11px;
+    color: #ffa344;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .flat-hero h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 84px;
+    font-weight: 700;
+    line-height: 0.95;
+    color: #ffffff;
+    margin: 0;
+  }
+  .flat-hero h1 .v { color: #ffa344; }
+  .flat-hero .sub {
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    color: #b8b6af;
+    max-width: 720px;
+    margin: 14px auto 0;
+    line-height: 1.2;
+  }
+  .flat-hero .meta {
+    margin-top: 18px;
+    font-family: 'Cutive Mono', monospace;
+    font-size: 10px;
+    color: #6f6e6a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .flat-section {
+    margin-bottom: 80px;
+  }
+  .flat-section .head {
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px dashed #3a3a36;
+  }
+  .flat-section .head .num {
+    font-family: 'Cutive Mono', monospace;
+    font-size: 10px;
+    color: #ffa344;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .flat-section .head h2 {
+    font-family: 'Caveat', cursive;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    color: #ffffff;
+    margin: 0;
+  }
+  .flat-section .head .desc {
+    font-family: 'Kalam', cursive;
+    font-size: 15px;
+    color: #b8b6af;
+    margin-top: 6px;
+    max-width: 760px;
+  }
+
+  /* Each row of artboards */
+  .flat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 28px;
+    align-items: flex-start;
+  }
+  .flat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .flat-label {
+    font-family: 'Cutive Mono', monospace;
+    font-size: 11px;
+    color: #b8b6af;
+    letter-spacing: 1px;
+  }
+  .flat-board {
+    /* Each artboard becomes a dark-paper card */
+    background: #191919;
+    border: 1px solid #4a4a44;
+    border-radius: 4px;
+    box-shadow: 3px 4px 0 rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .flat-board > .wf {
+    border: none;
+    border-radius: 0;
+  }
+  /* No tweaks panel in flat mode */
+  .wf-tweaks { display: none !important; }
+</style>
+</head>
+<body class="theme-dark">
+
+<div class="flat">
+
+  <div class="flat-hero">
+    <div class="mark">JaZeR · CreativeOps · Planning Library</div>
+    <h1>JaZeR Music OS <span class="v">v2</span></h1>
+    <div class="sub">Notion-style wireframes for the workspace described in the planning library. Nine sections, 36 screens — every page-level surface the Music OS needs.</div>
+    <div class="meta">May 2026 · Pre-Build · Sketchy · Low-Fi</div>
+  </div>
+
+  <div id="flat-root"></div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- design-canvas not needed; we just need its components -->
+<script type="text/babel">
+/* JaZeR Music OS v2 — Wireframe Screens
+   Notion-style page mocks (low-fi, sketchy)
+   Each function returns the inside of a single artboard.
+*/
+
+// ============================================================
+// Shared chrome bits
+// ============================================================
+
+function Sidebar({ active }) {
+  return (
+    <div className="wf-sidebar">
+      <div className="wf-sb-section">Workspace</div>
+      <div className={"wf-sb-item" + (active === 'dash' ? ' active' : '')}><span className="ico">🎯</span><span>Music OS</span></div>
+
+      <div className="wf-sb-section">Hubs</div>
+      <div className={"wf-sb-item" + (active === 'song-lab' ? ' active' : '')}><span className="ico">🎵</span><span>Song Lab</span></div>
+      <div className="wf-sb-item"><span className="ico">🚀</span><span>Launch Hub</span></div>
+      <div className="wf-sb-item"><span className="ico">🏷️</span><span>Brand Ref</span></div>
+      <div className="wf-sb-item"><span className="ico">📦</span><span>Vault</span></div>
+
+      <div className="wf-sb-section">Databases</div>
+      <div className={"wf-sb-item" + (active === 'songs' ? ' active' : '')}><span className="ico">♪</span><span>Songs</span></div>
+      <div className={"wf-sb-item" + (active === 'assets' ? ' active' : '')}><span className="ico">✎</span><span>Writing Assets</span></div>
+      <div className="wf-sb-item"><span className="ico">⏱</span><span>Sessions</span></div>
+      <div className="wf-sb-item"><span className="ico">✓</span><span>Tasks</span></div>
+      <div className="wf-sb-item"><span className="ico">⚡</span><span>Releases</span></div>
+
+      <div className="wf-sb-section">External</div>
+      <div className="wf-sb-item"><span className="ico">↗</span><span>FL Plugin CC</span></div>
+    </div>
+  );
+}
+
+function TopBar({ crumb }) {
+  return (
+    <div className="wf-topbar">
+      <span className="crumb">
+        {crumb.map((c, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="crumb-sep">/</span>}
+            <span className={i === crumb.length - 1 ? 'crumb-now' : ''}>{c}</span>
+          </React.Fragment>
+        ))}
+      </span>
+      <span className="spacer"></span>
+      <span className="icon-row">
+        <span>🔍</span><span>↗</span><span>⋯</span>
+      </span>
+    </div>
+  );
+}
+
+function Capture({ rotate }) {
+  return (
+    <div className="wf-capture" style={{ transform: `rotate(${rotate || -0.3}deg)` }}>
+      <span className="plus">+</span> New Idea · Hook · Freestyle
+    </div>
+  );
+}
+
+// ============================================================
+// 1 · MASTER DASHBOARD — 4 variants
+// ============================================================
+
+function DashLinear() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Workspace', 'Music OS']} />
+      <div className="wf-body">
+        <Sidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">Daily decision surface</div>
+            <h1><span className="emoji">🎯</span> JaZeR Music OS</h1>
+            <div className="subtitle">"what do I work on right now?"</div>
+          </div>
+
+          <Capture />
+
+          <div className="wf-block">
+            <div className="wf-block-label">Band 2 · decide</div>
+            <div className="wf-block-h">Active Songs</div>
+            <div className="wf-board cols-3">
+              <div className="wf-col">
+                <div className="wf-col-title">Writing<span className="count">2</span></div>
+                <div className="wf-card">Mission Statement</div>
+                <div className="wf-card">untitled bounce</div>
+              </div>
+              <div className="wf-col">
+                <div className="wf-col-title">Producing<span className="count">1</span></div>
+                <div className="wf-card has-warn">Transformative Trance<div className="card-meta">⚠️ stale 17d</div></div>
+              </div>
+              <div className="wf-col">
+                <div className="wf-col-title">Release Prep<span className="count">1</span></div>
+                <div className="wf-card has-go">Cosmic Beam<div className="card-meta">live Jun 15</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="wf-2col">
+            <div className="wf-block">
+              <div className="wf-block-label">Band 3 · execute</div>
+              <div className="wf-block-h">Focus Tasks</div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Bounce Cosmic Beam master</span><span className="meta">today</span></div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Drum arrangement · TT</span><span className="meta">focus</span></div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Pitch DistroKid playlist</span><span className="meta">mon</span></div>
+              <div className="wf-list-row done"><span className="check"></span><span className="text">Art final · Cosmic Beam</span><span className="meta">done</span></div>
+            </div>
+            <div className="wf-block">
+              <div className="wf-block-label">Floating</div>
+              <div className="wf-block-h">Unattached Ideas</div>
+              <div className="wf-card"><span className="wf-pill idea">hook</span> "the exhale"</div>
+              <div className="wf-card"><span className="wf-pill idea">idea</span> wide pads</div>
+              <div className="wf-card"><span className="wf-pill idea">free</span> 05-14 transcript</div>
+            </div>
+          </div>
+
+          <hr className="wf-divider" />
+          <div className="wf-list-row" style={{ borderBottom: 'none' }}>
+            <span className="text" style={{ fontFamily: 'var(--font-hand)', fontSize: 18 }}>↳ Weekly Review</span>
+            <span className="meta">last logged · may 8</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 80, right: 12 }}>
+        4 bands · capture / decide / execute / anchor
+      </div>
+    </div>
+  );
+}
+
+function DashTwoCol() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Workspace', 'Music OS']} />
+      <div className="wf-body">
+        <Sidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">🎯</span> Music OS Triage</h1>
+            <div className="subtitle">left = decisions · right = floating creative</div>
+          </div>
+
+          <Capture rotate={0.2} />
+
+          <div className="wf-2col">
+            <div>
+              <div className="wf-block-h">In progress</div>
+              <div className="wf-list-row"><span className="text">Cosmic Beam</span><span className="wf-pill warn">prep</span></div>
+              <div className="wf-list-row"><span className="text">Transformative Trance</span><span className="wf-pill">producing</span></div>
+              <div className="wf-list-row"><span className="text">The Divine Rerun</span><span className="wf-pill">mix·2/3</span></div>
+              <div className="wf-list-row"><span className="text">Mission Statement</span><span className="wf-pill">writing</span></div>
+
+              <div className="wf-block-h" style={{ marginTop: 14 }}>Today</div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Bounce CB master</span><span className="meta">2h</span></div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Pitch playlist</span><span className="meta">30m</span></div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Drum arr · TT</span><span className="meta">1h</span></div>
+
+              <div className="wf-block-h" style={{ marginTop: 14 }}>Release pipeline</div>
+              <div className="wf-list-row"><span className="text">Cosmic Beam · Jun 15</span><span className="meta">D-29</span></div>
+            </div>
+
+            <div>
+              <div className="wf-block-h">Floating</div>
+              <div className="wf-card"><span className="wf-pill idea">hook</span> "the exhale"<div className="card-meta">may 14</div></div>
+              <div className="wf-card"><span className="wf-pill idea">idea</span> wide pad melody<div className="card-meta">may 13</div></div>
+              <div className="wf-card"><span className="wf-pill idea">free</span> 05-14 transcript<div className="card-meta">may 14</div></div>
+              <div className="wf-card"><span className="wf-pill idea">hook</span> #7<div className="card-meta">may 11</div></div>
+              <div className="wf-card"><span className="wf-pill idea">idea</span> "soulful defiance"<div className="card-meta">may 10</div></div>
+
+              <div className="wf-block-h" style={{ marginTop: 14 }}>This week's logged sessions</div>
+              <div className="wf-list-row"><span className="text">May 15 · Writing</span><span className="meta">45m</span></div>
+              <div className="wf-list-row"><span className="text">May 13 · Production</span><span className="meta">2h</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ bottom: 14, left: 150 }}>
+        triage shape · two columns by intent
+      </div>
+    </div>
+  );
+}
+
+function DashCommand() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Workspace', 'Music OS']} />
+      <div className="wf-body">
+        <Sidebar active="dash" />
+        <div className="wf-main" style={{ background: 'var(--paper-2)' }}>
+
+          <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 6, padding: '18px 20px', marginTop: 20 }}>
+            <div className="wf-search">
+              <span>›</span>
+              <span style={{ color: 'var(--ink)', fontFamily: 'var(--font-hand)', fontSize: 17 }}>capture an idea…</span>
+              <span className="kbd">⌘ K</span>
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', textAlign: 'center', marginTop: -4, marginBottom: 8 }}>
+              capture · search · jump to song · log session — one bar.
+            </div>
+          </div>
+
+          <div className="wf-block" style={{ marginTop: 18 }}>
+            <div className="wf-block-h" style={{ textAlign: 'center' }}>What's hot right now</div>
+            <div className="wf-2col even">
+              <div className="wf-card has-warn"><span className="wf-pill warn">stale 17d</span><br/>Transformative Trance<div className="card-meta">producing · last session may 1</div></div>
+              <div className="wf-card has-go"><span className="wf-pill go">D-29</span><br/>Cosmic Beam<div className="card-meta">release prep · pitch deadline jun 8</div></div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">Quick links</div>
+            <div className="wf-2col even">
+              <div className="wf-list-row"><span className="text">→ Active Songs</span><span className="meta">4</span></div>
+              <div className="wf-list-row"><span className="text">→ Unattached Ideas</span><span className="meta">12</span></div>
+              <div className="wf-list-row"><span className="text">→ Focus Tasks</span><span className="meta">5</span></div>
+              <div className="wf-list-row"><span className="text">→ Weekly Review</span><span className="meta">due sun</span></div>
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: 16, fontFamily: 'var(--font-hand)', fontSize: 18, color: 'var(--ink-3)' }}>
+            ↓ scroll for full views
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 70, right: 14 }}>
+        command-bar first · everything else collapses
+      </div>
+    </div>
+  );
+}
+
+function DashMobile() {
+  // Render a mobile-frame inside the artboard
+  return (
+    <div className="wf" style={{ background: 'var(--paper-3)', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 18 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', letterSpacing: 1, marginBottom: 10 }}>MOBILE · CAPTURE-FIRST</div>
+      <div style={{
+        width: 240, height: '88%', background: 'var(--paper)',
+        borderRadius: 24, border: '2px solid var(--ink)', boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+        padding: '20px 14px 14px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden'
+      }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', display: 'flex', justifyContent: 'space-between' }}>
+          <span>9:41</span><span>● ▮▮ ▰</span>
+        </div>
+        <div style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)', marginTop: 8 }}>Music OS</div>
+
+        <div className="wf-capture" style={{ padding: 16, fontSize: 19, marginTop: 10 }}>
+          <span className="plus">+</span> Capture
+        </div>
+
+        <div className="wf-block-label" style={{ marginTop: 6 }}>active</div>
+        <div className="wf-card has-warn">Transformative Trance<div className="card-meta">producing · stale</div></div>
+        <div className="wf-card has-go">Cosmic Beam<div className="card-meta">release · D-29</div></div>
+        <div className="wf-card">Mission Statement<div className="card-meta">writing</div></div>
+
+        <div className="wf-block-label" style={{ marginTop: 8 }}>floating</div>
+        <div className="wf-card"><span className="wf-pill idea">hook</span>"the exhale"</div>
+        <div className="wf-card"><span className="wf-pill idea">free</span>05-14</div>
+
+        <div style={{ marginTop: 'auto', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', textAlign: 'center', borderTop: '1px dotted var(--line)', paddingTop: 6 }}>
+          home · capture · ideas · songs
+        </div>
+      </div>
+
+      <div className="wf-note flat" style={{ top: 60, right: 14, fontSize: 14 }}>
+        on phone: capture is dominant. lists are scannable. no boards, no widgets.
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 2 · SONG LAB LANDING — 3 variants
+// ============================================================
+
+function SongLabBoards() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Workspace', 'Song Lab']} />
+      <div className="wf-body">
+        <Sidebar active="song-lab" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">creative hub</div>
+            <h1><span className="emoji">🎵</span> Song Lab</h1>
+            <div className="subtitle">ideas → finished songs. Writing Assets · Songs · Sessions · The Book of JaZeR.</div>
+          </div>
+
+          <Capture />
+
+          <div className="wf-block">
+            <div className="wf-block-label">Active Songs · board by status</div>
+            <div className="wf-board cols-4">
+              <div className="wf-col">
+                <div className="wf-col-title">Writing<span className="count">1</span></div>
+                <div className="wf-card">Mission Statement</div>
+              </div>
+              <div className="wf-col">
+                <div className="wf-col-title">Producing<span className="count">1</span></div>
+                <div className="wf-card has-warn">Transformative Trance</div>
+              </div>
+              <div className="wf-col">
+                <div className="wf-col-title">Mix Review<span className="count">1</span></div>
+                <div className="wf-card">The Divine Rerun<div className="card-meta">pass 2/3</div></div>
+              </div>
+              <div className="wf-col">
+                <div className="wf-col-title">Release Prep<span className="count">1</span></div>
+                <div className="wf-card has-go">Cosmic Beam</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">Unattached Ideas · gallery</div>
+            <div className="wf-gallery">
+              <div className="wf-gal">
+                <div className="gal-img">hook</div>
+                <div className="gal-title">"the exhale"</div>
+                <div className="gal-meta">may 14 · raw</div>
+              </div>
+              <div className="wf-gal">
+                <div className="gal-img">idea</div>
+                <div className="gal-title">wide pad mel.</div>
+                <div className="gal-meta">may 13 · raw</div>
+              </div>
+              <div className="wf-gal">
+                <div className="gal-img">freestyle</div>
+                <div className="gal-title">05-14 take</div>
+                <div className="gal-meta">may 14 · dev'g</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">Recent Sessions</div>
+            <div className="wf-list-row"><span className="text">May 15 · Writing — Mission Statement</span><span className="meta">45m</span></div>
+            <div className="wf-list-row"><span className="text">May 13 · Production — TT</span><span className="meta">2h</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 14, right: 12 }}>
+        boards above · gallery below · history at bottom
+      </div>
+    </div>
+  );
+}
+
+function SongLabSpotlight() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Workspace', 'Song Lab']} />
+      <div className="wf-body">
+        <Sidebar active="song-lab" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">🎵</span> Song Lab</h1>
+            <div className="subtitle">current spotlight: the song you opened last</div>
+          </div>
+
+          <div style={{ background: 'var(--paper-2)', border: '1.5px dashed var(--accent)', borderRadius: 6, padding: '14px 16px', marginBottom: 14, transform: 'rotate(-0.3deg)' }}>
+            <div className="wf-block-label">now editing</div>
+            <h2 style={{ fontFamily: 'var(--font-hand)', fontSize: 28, lineHeight: 1, margin: 0, color: 'var(--ink)' }}>Cosmic Beam</h2>
+            <div className="wf-props">
+              <span>status<b>release prep</b></span>
+              <span>bpm<b>92</b></span>
+              <span>key<b>A min</b></span>
+              <span>release<b>jun 15</b></span>
+              <span>open tasks<b>3</b></span>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+              <span className="wf-pill warn">⚠️ pitch deadline · 14d</span>
+              <span className="wf-pill go">master ✓</span>
+              <span className="wf-pill">art ✓</span>
+            </div>
+          </div>
+
+          <Capture rotate={0.4} />
+
+          <div className="wf-2col">
+            <div>
+              <div className="wf-block-h">All active</div>
+              <div className="wf-list-row"><span className="text">Mission Statement</span><span className="wf-pill">writing</span></div>
+              <div className="wf-list-row"><span className="text">Transformative Trance</span><span className="wf-pill warn">stale</span></div>
+              <div className="wf-list-row"><span className="text">The Divine Rerun</span><span className="wf-pill">mix 2/3</span></div>
+              <div className="wf-list-row"><span className="text">untitled bounce</span><span className="wf-pill mute">concept</span></div>
+            </div>
+            <div>
+              <div className="wf-block-h">Floating</div>
+              <div className="wf-card"><span className="wf-pill idea">hook</span> "the exhale"</div>
+              <div className="wf-card"><span className="wf-pill idea">free</span> 05-14</div>
+              <div className="wf-card"><span className="wf-pill idea">idea</span> wide pad</div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">Stale (open in &gt;14d)</div>
+            <div className="wf-list-row"><span className="text">Transformative Trance · last session may 1</span><span className="meta">17d</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 80, right: 8 }}>
+        opens straight into your current song. one click to floating.
+      </div>
+    </div>
+  );
+}
+
+function SongLabTimeline() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Workspace', 'Song Lab']} />
+      <div className="wf-body">
+        <Sidebar active="song-lab" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">🎵</span> Song Lab · Calendar</h1>
+            <div className="subtitle">creative output over time. month view.</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Boards</div>
+            <div className="tab active">Calendar</div>
+            <div className="tab">Stale</div>
+            <div className="tab">All Songs</div>
+          </div>
+
+          <div className="wf-block-label">May 2026</div>
+          <div className="wf-cal">
+            <div className="day"><span className="num">28</span></div>
+            <div className="day"><span className="num">29</span></div>
+            <div className="day"><span className="num">30</span></div>
+            <div className="day"><span className="num">1</span></div>
+            <div className="day has-evt"><span className="num">2</span></div>
+            <div className="day"><span className="num">3</span></div>
+            <div className="day"><span className="num">4</span></div>
+
+            <div className="day has-evt"><span className="num">5</span></div>
+            <div className="day"><span className="num">6</span></div>
+            <div className="day has-evt"><span className="num">7</span></div>
+            <div className="day"><span className="num">8</span></div>
+            <div className="day has-evt"><span className="num">9</span></div>
+            <div className="day"><span className="num">10</span></div>
+            <div className="day has-evt"><span className="num">11</span></div>
+
+            <div className="day"><span className="num">12</span></div>
+            <div className="day has-evt"><span className="num">13</span></div>
+            <div className="day has-evt"><span className="num">14</span></div>
+            <div className="day has-evt"><span className="num">15</span></div>
+            <div className="day"><span className="num">16</span></div>
+            <div className="day"><span className="num">17</span></div>
+            <div className="day"><span className="num">18</span></div>
+
+            <div className="day"><span className="num">19</span></div>
+            <div className="day"><span className="num">20</span></div>
+            <div className="day"><span className="num">21</span></div>
+            <div className="day"><span className="num">22</span></div>
+            <div className="day"><span className="num">23</span></div>
+            <div className="day"><span className="num">24</span></div>
+            <div className="day"><span className="num">25</span></div>
+          </div>
+
+          <div className="wf-block-label" style={{ marginTop: 14 }}>This week's sessions</div>
+          <div className="wf-list-row"><span className="text">May 15 · Writing — Mission Statement</span><span className="meta">45m · ⚡</span></div>
+          <div className="wf-list-row"><span className="text">May 14 · Freestyle</span><span className="meta">20m · 🔥</span></div>
+          <div className="wf-list-row"><span className="text">May 13 · Production — TT</span><span className="meta">2h · ⚡</span></div>
+          <div className="wf-list-row"><span className="text">May 11 · Mix Review — Divine</span><span className="meta">90m · 😐</span></div>
+          <div className="wf-list-row"><span className="text">May 9 · Writing — Cosmic</span><span className="meta">30m · 🔥</span></div>
+
+          <div className="wf-block-label" style={{ marginTop: 10 }}>output this month</div>
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)' }}>
+            12 sessions · 4 songs touched · 7 new assets
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 50, right: 12 }}>
+        time-forward view. answers "am I working?" not "what next?"
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 3 · SONGS DB views — 3 variants
+// ============================================================
+
+function SongsBoard() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Databases', 'Songs', 'Active Board']} />
+      <div className="wf-body">
+        <Sidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">♪</span> Songs</h1>
+            <div className="subtitle">board · grouped by Status</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab active">Active Board</div>
+            <div className="tab">All Songs</div>
+            <div className="tab">Catalog</div>
+            <div className="tab">Stale</div>
+            <div className="tab">By Priority</div>
+          </div>
+
+          <div className="wf-board cols-5">
+            <div className="wf-col">
+              <div className="wf-col-title">Concept<span className="count">2</span></div>
+              <div className="wf-card">untitled bounce<div className="card-meta">90 bpm · F maj</div></div>
+              <div className="wf-card">"shadow work"<div className="card-meta">— · —</div></div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Writing<span className="count">1</span></div>
+              <div className="wf-card">Mission Statement<div className="card-meta">100 bpm · D min</div></div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Producing<span className="count">1</span></div>
+              <div className="wf-card has-warn">Transformative Trance<div className="card-meta">⚠️ stale · 17d</div></div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Mixing<span className="count">1</span></div>
+              <div className="wf-card">The Divine Rerun<div className="card-meta">pass 2/3</div></div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Release Prep<span className="count">1</span></div>
+              <div className="wf-card has-go">Cosmic Beam<div className="card-meta">🚨 D-14 pitch</div></div>
+            </div>
+          </div>
+
+          <div className="wf-block-label" style={{ marginTop: 12 }}>filters</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <span className="wf-pill">status ≠ Released</span>
+            <span className="wf-pill">status ≠ Shelved</span>
+            <span className="wf-pill mute">+ add filter</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 14, right: 12 }}>
+        kanban board · status is the dimension
+      </div>
+    </div>
+  );
+}
+
+function SongsTable() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Databases', 'Songs', 'All Songs']} />
+      <div className="wf-body">
+        <Sidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">♪</span> Songs · All</h1>
+            <div className="subtitle">table view · everything</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Active Board</div>
+            <div className="tab active">All Songs</div>
+            <div className="tab">Catalog</div>
+            <div className="tab">Stale</div>
+            <div className="tab">By Priority</div>
+          </div>
+
+          <table className="wf-table">
+            <thead>
+              <tr>
+                <th>Title</th><th>Status</th><th>Bpm</th><th>Key</th><th>Energy</th>
+                <th>Sessions</th><th>Tasks</th><th>Last</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="first-col">Cosmic Beam</td>
+                <td><span className="wf-pill warn">release prep</span></td>
+                <td>88</td><td>A min</td><td>Med</td>
+                <td>8</td><td>3</td><td>1d</td>
+              </tr>
+              <tr>
+                <td className="first-col">Transformative Trance</td>
+                <td><span className="wf-pill">producing</span></td>
+                <td>120</td><td>D min</td><td>High</td>
+                <td>11</td><td>4</td><td>17d ⚠️</td>
+              </tr>
+              <tr>
+                <td className="first-col">The Divine Rerun</td>
+                <td><span className="wf-pill">mixing</span></td>
+                <td>96</td><td>F# min</td><td>Med</td>
+                <td>6</td><td>2</td><td>4d</td>
+              </tr>
+              <tr>
+                <td className="first-col">Mission Statement</td>
+                <td><span className="wf-pill">writing</span></td>
+                <td>100</td><td>D min</td><td>High</td>
+                <td>3</td><td>0</td><td>1d</td>
+              </tr>
+              <tr>
+                <td className="first-col">untitled bounce</td>
+                <td><span className="wf-pill mute">concept</span></td>
+                <td>90</td><td>F maj</td><td>—</td>
+                <td>1</td><td>0</td><td>3d</td>
+              </tr>
+              <tr>
+                <td className="first-col">"shadow work"</td>
+                <td><span className="wf-pill mute">concept</span></td>
+                <td>—</td><td>—</td><td>—</td>
+                <td>0</td><td>0</td><td>—</td>
+              </tr>
+              <tr>
+                <td className="first-col">Black Hole Sun (cover)</td>
+                <td><span className="wf-pill go">released</span></td>
+                <td>84</td><td>G min</td><td>High</td>
+                <td>14</td><td>0</td><td>120d</td>
+              </tr>
+              <tr>
+                <td className="first-col">Edge of Static</td>
+                <td><span className="wf-pill mute">shelved</span></td>
+                <td>140</td><td>E min</td><td>—</td>
+                <td>9</td><td>0</td><td>200d</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginTop: 8 }}>
+            8 records · sort: last session ↓ · +new song
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 60, right: 12 }}>
+        table view = full catalog. used for triage, not daily.
+      </div>
+    </div>
+  );
+}
+
+function SongsGallery() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Databases', 'Songs', 'Catalog']} />
+      <div className="wf-body">
+        <Sidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">♪</span> Catalog</h1>
+            <div className="subtitle">gallery · status = Released</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Active Board</div>
+            <div className="tab">All Songs</div>
+            <div className="tab active">Catalog</div>
+            <div className="tab">Stale</div>
+            <div className="tab">By Priority</div>
+          </div>
+
+          <div className="wf-gallery">
+            <div className="wf-gal">
+              <div className="gal-img">cover art</div>
+              <div className="gal-title">Black Hole Sun</div>
+              <div className="gal-meta">jan 2026 · single</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">cover art</div>
+              <div className="gal-title">Late Bloomers</div>
+              <div className="gal-meta">nov 2025 · single</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">cover art</div>
+              <div className="gal-title">Soft Engine</div>
+              <div className="gal-meta">aug 2025 · ep cut</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">cover art</div>
+              <div className="gal-title">Atlas Wakes</div>
+              <div className="gal-meta">jun 2025 · single</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">cover art</div>
+              <div className="gal-title">Furnace</div>
+              <div className="gal-meta">mar 2025 · single</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">cover art</div>
+              <div className="gal-title">Quiet Hands</div>
+              <div className="gal-meta">jan 2025 · ep cut</div>
+            </div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginTop: 8 }}>
+            6 records · sort: release date ↓
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 50, right: 12 }}>
+        gallery view = catalog. browsing past work.
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 4 · SONG DETAIL PAGE — 3 variants
+// ============================================================
+
+function SongPageStrict() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Databases', 'Songs', 'Cosmic Beam']} />
+      <div className="wf-body">
+        <Sidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">song record</div>
+            <h1><span className="emoji">♪</span> Cosmic Beam</h1>
+          </div>
+
+          <div className="wf-props">
+            <span>status<b>release prep</b></span>
+            <span>bpm<b>88</b></span>
+            <span>key<b>A min</b></span>
+            <span>energy<b>med</b></span>
+            <span>release<b>jun 15</b></span>
+            <span>lufs<b>−10 / −9.8</b></span>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">reference track</div>
+            <div className="wf-list-row"><span className="text">↗ open.spotify.com/track/…</span><span className="meta">primary ref</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">lyrics · working area</div>
+            <div className="wf-lyric">
+              <div>standin' on the edge of static,</div>
+              <div>feels like cosmic radio noise — </div>
+              <div>tellin' me to keep walkin'…</div>
+              <div>&nbsp;</div>
+              <div>(hook from "the exhale" — try here?)</div>
+            </div>
+          </div>
+
+          <div className="wf-2col">
+            <div className="wf-block">
+              <div className="wf-block-label">linked Writing Assets</div>
+              <div className="wf-card"><span className="wf-pill idea">hook</span> "the exhale"</div>
+              <div className="wf-card"><span className="wf-pill idea">verse</span> CB v1</div>
+              <div className="wf-card"><span className="wf-pill idea">lyric sheet</span> CB final</div>
+            </div>
+            <div className="wf-block">
+              <div className="wf-block-label">sessions (8)</div>
+              <div className="wf-list-row"><span className="text">may 14 · writing</span><span className="meta">45m</span></div>
+              <div className="wf-list-row"><span className="text">may 9 · writing</span><span className="meta">30m</span></div>
+              <div className="wf-list-row"><span className="text">may 3 · mix review</span><span className="meta">90m</span></div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">production notes</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-2)', padding: '4px 8px', background: 'var(--paper-2)', borderRadius: 3 }}>
+              kick chain: SSL bus → kclip. vocal: c-suite eq → fab pro-c2 → soothe.<br/>
+              FL project: /Music/2026/Cosmic Beam.flp
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">release checklist (linked tasks)</div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">master ≤ −10 LUFS</span></div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">artwork final</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">pitch DistroKid editorial</span><span className="meta">jun 8</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">short-form video v1</span><span className="meta">jun 10</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 80, right: 12 }}>
+        locked template · same shape on every song page
+      </div>
+    </div>
+  );
+}
+
+function SongPageTabbed() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Databases', 'Songs', 'Cosmic Beam']} />
+      <div className="wf-body">
+        <Sidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">♪</span> Cosmic Beam</h1>
+          </div>
+
+          <div className="wf-props">
+            <span>status<b>release prep</b></span>
+            <span>D-29</span>
+            <span>tasks<b>2 open</b></span>
+            <span>sessions<b>8</b></span>
+            <span>mix passes<b>3/3 ✓</b></span>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Overview</div>
+            <div className="tab active">Lyrics</div>
+            <div className="tab">Production</div>
+            <div className="tab">Release</div>
+            <div className="tab">Sessions</div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-h" style={{ fontSize: 18 }}>Lyrics — working draft</div>
+            <div className="wf-lyric">
+              <div>standin' on the edge of static,</div>
+              <div>feels like cosmic radio noise — </div>
+              <div>tellin' me to keep walkin'…</div>
+              <div>&nbsp;</div>
+              <div>v2 — &nbsp;dust on the speaker, dust on me…</div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">attached Writing Assets · this tab only shows Type ∈ Verse / Chorus / Hook / Lyric Sheet</div>
+            <div className="wf-list-row"><span className="text">"the exhale"</span><span className="wf-pill idea">hook</span></div>
+            <div className="wf-list-row"><span className="text">CB v1</span><span className="wf-pill idea">verse</span></div>
+            <div className="wf-list-row"><span className="text">CB chorus draft</span><span className="wf-pill idea">chorus</span></div>
+            <div className="wf-list-row"><span className="text">CB final sheet</span><span className="wf-pill idea">lyric sheet</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">+ pinned reference</div>
+            <div className="wf-list-row"><span className="text">↗ youtube.com/… — rhythmic phrasing only</span><span className="meta">ref</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 60, right: 8 }}>
+        tabs separate concerns. one song, three workspaces.
+      </div>
+    </div>
+  );
+}
+
+function SongPageNarrative() {
+  return (
+    <div className="wf">
+      <TopBar crumb={['Databases', 'Songs', 'Cosmic Beam']} />
+      <div className="wf-body">
+        <Sidebar active="songs" />
+        <div className="wf-main" style={{ maxWidth: 460 }}>
+          <div className="wf-pagehead">
+            <h1><span className="emoji">♪</span> Cosmic Beam</h1>
+            <div className="subtitle">single · jun 15 · D-29</div>
+          </div>
+
+          <div className="wf-lyric" style={{ minHeight: 40, fontSize: 15, color: 'var(--ink)' }}>
+            <div>about: the feeling of static between signal —</div>
+            <div>finding the inner channel.</div>
+          </div>
+
+          <hr className="wf-divider" />
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)' }}>Where it's at</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-2)', marginBottom: 8 }}>
+            master is locked (−9.8 LUFS, third pass approved). artwork final. pitch deadline jun 8 — that's the next gate. release content is in launch hub.
+          </div>
+
+          <div className="wf-list-row"><span className="check"></span><span className="text">pitch DistroKid editorial</span><span className="meta">jun 8</span></div>
+          <div className="wf-list-row"><span className="check"></span><span className="text">short-form video v1</span><span className="meta">jun 10</span></div>
+
+          <hr className="wf-divider" />
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)' }}>The lyrics</div>
+          <div className="wf-lyric">
+            <div>standin' on the edge of static,</div>
+            <div>feels like cosmic radio noise — </div>
+            <div>tellin' me to keep walkin'…</div>
+          </div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginTop: 4 }}>
+            full sheet linked: "CB final sheet"
+          </div>
+
+          <hr className="wf-divider" />
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)' }}>Production notes</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-2)' }}>
+            kick: SSL bus → kclip. vocal chain: c-suite eq → pro-c2 → soothe. FL proj at /Music/2026/Cosmic Beam.flp. plugin reference → FL Plugin CC.
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 80, right: 14 }}>
+        narrative form · reads like a journal. friendly for writing-first artists.
+      </div>
+    </div>
+  );
+}
+
+// Export to window so the main file can mount them
+Object.assign(window, {
+  WFSidebar: Sidebar,
+  WFTopBar: TopBar,
+  DashLinear, DashTwoCol, DashCommand, DashMobile,
+  SongLabBoards, SongLabSpotlight, SongLabTimeline,
+  SongsBoard, SongsTable, SongsGallery,
+  SongPageStrict, SongPageTabbed, SongPageNarrative,
+});
+
+</script>
+<script type="text/babel">
+/* JaZeR Music OS v2 — Wireframes part 2
+   Extends screens.jsx with more pages and new sections.
+   Reuses Sidebar / TopBar / Capture exposed on window.
+*/
+
+const { WFSidebar, WFTopBar } = window;
+function _Capture({ rotate }) {
+  return (
+    <div className="wf-capture" style={{ transform: `rotate(${rotate || -0.3}deg)` }}>
+      <span className="plus">+</span> New Idea · Hook · Freestyle
+    </div>
+  );
+}
+
+// ============================================================
+// EXTRA SECTION 1 — Dashboard additions
+// ============================================================
+
+function DashCaptureModal() {
+  return (
+    <div className="wf" style={{ background: 'rgba(40,30,20,0.42)' }}>
+      {/* dimmed dashboard underneath */}
+      <div style={{ filter: 'blur(2px) opacity(0.6)' }}>
+        <WFTopBar crumb={['Workspace', 'Music OS']} />
+        <div className="wf-body">
+          <WFSidebar active="dash" />
+          <div className="wf-main">
+            <div className="wf-pagehead">
+              <h1><span className="emoji">🎯</span> Music OS</h1>
+            </div>
+            <div style={{ height: 200, background: 'var(--paper-2)', borderRadius: 4 }} />
+          </div>
+        </div>
+      </div>
+
+      {/* modal */}
+      <div style={{
+        position: 'absolute', top: '22%', left: '50%', transform: 'translateX(-50%) rotate(-0.4deg)',
+        width: '78%', maxWidth: 420, background: 'var(--paper)',
+        border: '2px solid var(--ink)', borderRadius: 8,
+        boxShadow: '4px 6px 0 rgba(0,0,0,0.18)', padding: 18, zIndex: 8
+      }}>
+        <div className="wf-block-label">Quick Capture · template button</div>
+        <div style={{ fontFamily: 'var(--font-hand)', fontSize: 24, color: 'var(--ink)', marginBottom: 4 }}>
+          + New Writing Asset
+        </div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)', marginBottom: 12 }}>
+          pre-filled: Type=Idea · Status=Raw · Date=auto
+        </div>
+
+        <div className="wf-block-label">title</div>
+        <div style={{ border: '1px solid var(--line)', borderRadius: 3, padding: '6px 8px', minHeight: 26, background: 'var(--paper-2)', fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink)', marginBottom: 10 }}>
+          "the exhale" — soulful defiance hook|
+        </div>
+
+        <div className="wf-block-label">type · change to override</div>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
+          <span className="wf-pill warn">Idea ✓</span>
+          <span className="wf-pill">Hook</span>
+          <span className="wf-pill">Freestyle</span>
+          <span className="wf-pill">Verse</span>
+          <span className="wf-pill">Chorus</span>
+          <span className="wf-pill">Bridge</span>
+          <span className="wf-pill">Concept Note</span>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', borderTop: '1px dotted var(--line)', paddingTop: 10 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>esc cancel</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink)', fontWeight: 'bold' }}>↵ save</span>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 18, right: 14, zIndex: 10 }}>
+        8-second capture target. one click. type. enter.
+      </div>
+    </div>
+  );
+}
+
+function WeeklyReview() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Song Lab', 'Weekly Review', 'May 12 — May 18']} />
+      <div className="wf-body">
+        <WFSidebar active="song-lab" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">recurring · sunday</div>
+            <h1><span className="emoji">🔁</span> Weekly Review</h1>
+            <div className="subtitle">may 12 — may 18 · 6th review of 2026</div>
+          </div>
+
+          <div className="wf-2col even">
+            <div className="wf-block">
+              <div className="wf-block-h" style={{ fontSize: 18 }}>What advanced</div>
+              <div className="wf-list-row done"><span className="check"></span><span className="text">Cosmic Beam — Mix Review pass 3 ✓</span></div>
+              <div className="wf-list-row done"><span className="check"></span><span className="text">Mission Statement — first verse</span></div>
+              <div className="wf-list-row done"><span className="check"></span><span className="text">CB artwork v2 final</span></div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginTop: 4 }}>auto: Songs.status changed · this week</div>
+            </div>
+            <div className="wf-block">
+              <div className="wf-block-h" style={{ fontSize: 18 }}>What stalled</div>
+              <div className="wf-list-row"><span className="check"></span><span className="text">Transformative Trance · last touched may 1</span><span className="meta">17d ⚠️</span></div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginTop: 4 }}>auto: Songs.Stale Warning = ⚠️</div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-h" style={{ fontSize: 18 }}>Sessions logged</div>
+            <div className="wf-list-row"><span className="text">May 15 · Writing — Mission Statement</span><span className="meta">45m · ⚡</span></div>
+            <div className="wf-list-row"><span className="text">May 14 · Freestyle</span><span className="meta">20m · 🔥</span></div>
+            <div className="wf-list-row"><span className="text">May 13 · Production — TT</span><span className="meta">2h · ⚡</span></div>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 18, color: 'var(--ink)', marginTop: 6 }}>3 sessions · 3h 5m</div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-h" style={{ fontSize: 18 }}>Triage floating ideas (5)</div>
+            <div className="wf-card"><span className="wf-pill idea">hook</span> "the exhale" — attach to Mission Statement? archive?</div>
+            <div className="wf-card"><span className="wf-pill idea">idea</span> wide pad mel — sit · revisit next week</div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-h" style={{ fontSize: 18 }}>What's next week's priority</div>
+            <div style={{ background: 'var(--paper-2)', border: '1px dashed var(--line)', borderRadius: 4, padding: 10, fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink-2)' }}>
+              Pitch Cosmic Beam. Finish first draft of Mission Statement. Decide on TT — push or shelve.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 80, right: 12 }}>
+        auto-populated views · 3 prompts · 15 min
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// EXTRA SECTION 2 — The Book of JaZeR (Song Lab sub-page)
+// ============================================================
+
+function BookOfJaZeR() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Song Lab', 'The Book of JaZeR']} />
+      <div className="wf-body">
+        <WFSidebar active="song-lab" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">songbook · canonical lyrics</div>
+            <h1><span className="emoji">📖</span> The Book of JaZeR</h1>
+            <div className="subtitle">filtered view: Writing Assets · Type = Lyric Sheet · attached to a song</div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink-2)', borderLeft: '3px solid var(--accent)', paddingLeft: 10, margin: '10px 0 14px' }}>
+            every released song's final lyric sheet, in order. one source of truth — when a song is released, its sheet locks in here.
+          </div>
+
+          <div className="wf-block-label">Released catalog</div>
+          <div className="wf-gallery">
+            <div className="wf-gal">
+              <div className="gal-img">📜</div>
+              <div className="gal-title">Black Hole Sun</div>
+              <div className="gal-meta">jan 2026</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">📜</div>
+              <div className="gal-title">Late Bloomers</div>
+              <div className="gal-meta">nov 2025</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">📜</div>
+              <div className="gal-title">Soft Engine</div>
+              <div className="gal-meta">aug 2025</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img">📜</div>
+              <div className="gal-title">Atlas Wakes</div>
+              <div className="gal-meta">jun 2025</div>
+            </div>
+          </div>
+
+          <div className="wf-block-label" style={{ marginTop: 12 }}>In progress (active songs · filtered)</div>
+          <div className="wf-list-row"><span className="text">Cosmic Beam · final sheet ✓ locks at release</span><span className="meta">jun 15</span></div>
+          <div className="wf-list-row"><span className="text">Mission Statement · draft</span><span className="meta">in writing</span></div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 60, right: 10 }}>
+        sub-page of Song Lab · linked view, not a new database
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// EXTRA SECTION 3 — Songs DB · Timeline / Stale views
+// ============================================================
+
+function SongsTimeline() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Songs', 'Release Pipeline']} />
+      <div className="wf-body">
+        <WFSidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">♪</span> Release Pipeline</h1>
+            <div className="subtitle">timeline · sort by release date</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Active Board</div>
+            <div className="tab">All</div>
+            <div className="tab">Catalog</div>
+            <div className="tab active">Pipeline</div>
+            <div className="tab">Stale</div>
+          </div>
+
+          <div style={{ position: 'relative', marginTop: 16, padding: '32px 0 20px' }}>
+            {/* timeline line */}
+            <div style={{ position: 'absolute', top: 50, left: 0, right: 0, height: 2, background: 'var(--line)' }} />
+
+            {/* month labels */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', position: 'absolute', top: 16, left: 0, right: 0, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', textAlign: 'center' }}>
+              <div>may</div><div>jun</div><div>jul</div><div>aug</div><div>sep</div><div>oct</div>
+            </div>
+
+            {/* events */}
+            <div style={{ position: 'relative', height: 240 }}>
+              {/* Cosmic Beam */}
+              <div style={{ position: 'absolute', left: '18%', top: 36 }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--accent)', border: '2px solid var(--paper)' }} />
+                <div className="wf-card has-go" style={{ position: 'absolute', top: 22, left: -60, width: 140, transform: 'rotate(-0.5deg)' }}>
+                  <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, lineHeight: 1 }}>Cosmic Beam</div>
+                  <div className="card-meta">jun 15 · single · D-29 🚨</div>
+                </div>
+              </div>
+              {/* EP */}
+              <div style={{ position: 'absolute', left: '52%', top: 36 }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--ink-3)', border: '2px solid var(--paper)' }} />
+                <div className="wf-card" style={{ position: 'absolute', top: 22, left: -60, width: 150, transform: 'rotate(0.4deg)' }}>
+                  <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, lineHeight: 1 }}>EP — TBD</div>
+                  <div className="card-meta">aug 2026 · 4 tracks (planned)</div>
+                </div>
+              </div>
+              {/* TT */}
+              <div style={{ position: 'absolute', left: '36%', top: 36 }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--accent-2)', border: '2px solid var(--paper)' }} />
+                <div className="wf-card has-warn" style={{ position: 'absolute', top: 22, left: -50, width: 130, transform: 'rotate(-0.3deg)' }}>
+                  <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, lineHeight: 1 }}>TT</div>
+                  <div className="card-meta">jul · prerelease single</div>
+                </div>
+              </div>
+              {/* Divine */}
+              <div style={{ position: 'absolute', left: '74%', top: 36 }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--ink-3)', border: '2px solid var(--paper)' }} />
+                <div className="wf-card" style={{ position: 'absolute', top: 22, left: -60, width: 150, transform: 'rotate(0.5deg)' }}>
+                  <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, lineHeight: 1 }}>The Divine Rerun</div>
+                  <div className="card-meta">sep · ep cut</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="wf-block-label" style={{ marginTop: 8 }}>filters</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <span className="wf-pill">status = Release Prep OR Released</span>
+            <span className="wf-pill">sort by release date ↑</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 12, right: 12 }}>
+        timeline answers "what's coming" at one glance
+      </div>
+    </div>
+  );
+}
+
+function SongsStale() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Songs', 'Stale Songs']} />
+      <div className="wf-body">
+        <WFSidebar active="songs" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">⚠️</span> Stale Songs</h1>
+            <div className="subtitle">no session in 14+ days · status ≠ Released · status ≠ Shelved</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Active Board</div>
+            <div className="tab">All</div>
+            <div className="tab">Catalog</div>
+            <div className="tab">Pipeline</div>
+            <div className="tab active">Stale</div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 18, color: 'var(--ink-2)', borderLeft: '3px solid var(--accent)', paddingLeft: 10, margin: '12px 0' }}>
+            decide for each: keep going · push to next month · shelve.
+          </div>
+
+          <table className="wf-table">
+            <thead>
+              <tr>
+                <th>Title</th><th>Status</th><th>Days stale</th><th>Last session</th><th>Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="first-col">Transformative Trance</td>
+                <td><span className="wf-pill">producing</span></td>
+                <td>17</td><td>may 1 · production · ⚡</td>
+                <td>
+                  <span className="wf-pill go" style={{ marginRight: 4 }}>keep</span>
+                  <span className="wf-pill mute">shelve</span>
+                </td>
+              </tr>
+              <tr>
+                <td className="first-col">"shadow work"</td>
+                <td><span className="wf-pill mute">concept</span></td>
+                <td>32</td><td>apr 16 · writing · 😐</td>
+                <td>
+                  <span className="wf-pill go">keep</span>
+                  <span className="wf-pill mute" style={{ marginLeft: 4 }}>shelve</span>
+                </td>
+              </tr>
+              <tr>
+                <td className="first-col">Edge of Static</td>
+                <td><span className="wf-pill mute">shelved</span></td>
+                <td>200</td><td>nov 1 · mix · 😩</td>
+                <td><span className="wf-pill mute">already shelved</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style={{ marginTop: 14, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>
+            surfaced via formula: Stale Warning = "⚠️ Stale"
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 50, right: 12 }}>
+        weekly-review surface · forces a decision instead of letting songs drift
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// EXTRA SECTION 4 — Song detail: side-peek
+// ============================================================
+
+function SongPeek() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Workspace', 'Music OS']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        {/* split: dashboard left, peek panel right */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', minHeight: 0 }}>
+          <div className="wf-main">
+            <div className="wf-pagehead">
+              <h1><span className="emoji">🎯</span> Music OS</h1>
+            </div>
+            <_Capture rotate={0.2} />
+            <div className="wf-block-h">Active Songs</div>
+            <div className="wf-list-row"><span className="text">Cosmic Beam</span><span className="wf-pill warn">peek ⬅</span></div>
+            <div className="wf-list-row"><span className="text">Transformative Trance</span><span className="wf-pill">producing</span></div>
+            <div className="wf-list-row"><span className="text">The Divine Rerun</span><span className="wf-pill">mix 2/3</span></div>
+            <div className="wf-list-row"><span className="text">Mission Statement</span><span className="wf-pill">writing</span></div>
+          </div>
+
+          {/* peek panel */}
+          <div style={{ background: 'var(--paper-2)', borderLeft: '2px solid var(--ink)', padding: 12, fontSize: 11, overflow: 'auto', boxShadow: '-4px 0 12px rgba(0,0,0,0.08)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>SIDE PEEK</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink)' }}>✕</span>
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)', margin: 0, lineHeight: 1 }}>Cosmic Beam</h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6, marginBottom: 10 }}>
+              <span className="wf-pill warn">D-29</span>
+              <span className="wf-pill">88bpm</span>
+              <span className="wf-pill">A min</span>
+            </div>
+
+            <div className="wf-block-label">next</div>
+            <div className="wf-list-row"><span className="check"></span><span className="text" style={{ fontSize: 10 }}>pitch DistroKid</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text" style={{ fontSize: 10 }}>short video v1</span></div>
+
+            <div className="wf-block-label" style={{ marginTop: 8 }}>assets</div>
+            <div className="wf-card" style={{ padding: 4, fontSize: 10 }}><span className="wf-pill idea">hook</span>"the exhale"</div>
+            <div className="wf-card" style={{ padding: 4, fontSize: 10 }}><span className="wf-pill idea">verse</span>CB v1</div>
+
+            <div className="wf-block-label" style={{ marginTop: 8 }}>open full →</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 64, left: 150 }}>
+        click any song name · peek opens beside · doesn't lose your place
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SECTION 5 — Writing Assets DB
+// ============================================================
+
+function WAUnattached() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Writing Assets', 'Unattached Ideas']} />
+      <div className="wf-body">
+        <WFSidebar active="assets" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">DEFAULT VIEW · most important</div>
+            <h1><span className="emoji">✎</span> Unattached Ideas</h1>
+            <div className="subtitle">Floating = true · sort: date created ↓</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab active">⭐ Unattached</div>
+            <div className="tab">Hook Bank</div>
+            <div className="tab">By Type</div>
+            <div className="tab">Freestyles</div>
+            <div className="tab">Lyric Sheets</div>
+            <div className="tab">Archived</div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink-2)', borderLeft: '3px solid var(--accent)', paddingLeft: 10, margin: '12px 0' }}>
+            creative inbox · this is what opens when you click "Writing Assets" in the sidebar.
+          </div>
+
+          <table className="wf-table">
+            <thead>
+              <tr><th>Title</th><th>Type</th><th>Status</th><th>Energy</th><th>Created</th></tr>
+            </thead>
+            <tbody>
+              <tr><td className="first-col">"the exhale"</td><td><span className="wf-pill idea">hook</span></td><td>raw</td><td>med</td><td>may 14</td></tr>
+              <tr><td className="first-col">05-14 freestyle take</td><td><span className="wf-pill idea">freestyle</span></td><td>developing</td><td>🔥 high</td><td>may 14</td></tr>
+              <tr><td className="first-col">wide pad melody concept</td><td><span className="wf-pill idea">idea</span></td><td>raw</td><td>—</td><td>may 13</td></tr>
+              <tr><td className="first-col">hook #7</td><td><span className="wf-pill idea">hook</span></td><td>raw</td><td>med</td><td>may 11</td></tr>
+              <tr><td className="first-col">"soulful defiance"</td><td><span className="wf-pill idea">concept note</span></td><td>raw</td><td>—</td><td>may 10</td></tr>
+              <tr><td className="first-col">bridge sketch — call/response</td><td><span className="wf-pill idea">bridge</span></td><td>developing</td><td>low</td><td>may 9</td></tr>
+              <tr><td className="first-col">voice memo · car · "running"</td><td><span className="wf-pill idea">idea</span></td><td>raw</td><td>—</td><td>may 8</td></tr>
+              <tr><td className="first-col">"if the static could sing"</td><td><span className="wf-pill idea">hook</span></td><td>raw</td><td>med</td><td>may 6</td></tr>
+            </tbody>
+          </table>
+
+          <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+            <span className="wf-pill">filter: floating = true</span>
+            <span className="wf-pill">filter: status ≠ archived</span>
+            <span className="wf-pill mute">+ new</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 14, right: 12 }}>
+        the default view IS the experience. lock this before first record.
+      </div>
+    </div>
+  );
+}
+
+function WAHookBank() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Writing Assets', 'Hook Bank']} />
+      <div className="wf-body">
+        <WFSidebar active="assets" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">✎</span> Hook Bank</h1>
+            <div className="subtitle">gallery · Asset Type = Hook · status ≠ archived</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Unattached</div>
+            <div className="tab active">Hook Bank</div>
+            <div className="tab">By Type</div>
+            <div className="tab">Freestyles</div>
+            <div className="tab">Lyric Sheets</div>
+            <div className="tab">Archived</div>
+          </div>
+
+          <div className="wf-gallery">
+            <div className="wf-gal">
+              <div className="gal-img" style={{ fontFamily: 'var(--font-hand)', fontSize: 14, padding: 4 }}>"the exhale"</div>
+              <div className="gal-title">the exhale</div>
+              <div className="gal-meta">may 14 · raw · med</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img" style={{ fontFamily: 'var(--font-hand)', fontSize: 14, padding: 4 }}>"static could sing"</div>
+              <div className="gal-title">static could sing</div>
+              <div className="gal-meta">may 6 · raw</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img" style={{ fontFamily: 'var(--font-hand)', fontSize: 14, padding: 4 }}>hook #7</div>
+              <div className="gal-title">hook #7</div>
+              <div className="gal-meta">may 11 · raw</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img" style={{ fontFamily: 'var(--font-hand)', fontSize: 13, padding: 4 }}>"keep walkin'"</div>
+              <div className="gal-title">keep walkin'</div>
+              <div className="gal-meta">may 3 · used · CB</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img" style={{ fontFamily: 'var(--font-hand)', fontSize: 13, padding: 4 }}>"shadow work"</div>
+              <div className="gal-title">shadow work</div>
+              <div className="gal-meta">apr 28 · attached</div>
+            </div>
+            <div className="wf-gal">
+              <div className="gal-img" style={{ fontFamily: 'var(--font-hand)', fontSize: 13, padding: 4 }}>"divine rerun"</div>
+              <div className="gal-title">divine rerun</div>
+              <div className="gal-meta">apr 14 · used</div>
+            </div>
+          </div>
+
+          <div className="wf-block-label" style={{ marginTop: 8 }}>energy</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <span className="wf-pill go">🔥 high (4)</span>
+            <span className="wf-pill">⚡ med (8)</span>
+            <span className="wf-pill mute">low (3)</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 70, right: 10 }}>
+        gallery = browseable. critical for hook reuse across songs.
+      </div>
+    </div>
+  );
+}
+
+function WAByType() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Writing Assets', 'By Type']} />
+      <div className="wf-body">
+        <WFSidebar active="assets" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">✎</span> Writing Assets · By Type</h1>
+            <div className="subtitle">board · grouped by Asset Type · status ≠ archived</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Unattached</div>
+            <div className="tab">Hook Bank</div>
+            <div className="tab active">By Type</div>
+            <div className="tab">Freestyles</div>
+            <div className="tab">Lyric Sheets</div>
+            <div className="tab">Archived</div>
+          </div>
+
+          <div className="wf-board cols-4">
+            <div className="wf-col">
+              <div className="wf-col-title">Ideas<span className="count">18</span></div>
+              <div className="wf-card">wide pad concept</div>
+              <div className="wf-card">"soulful defiance"</div>
+              <div className="wf-card">running (car memo)</div>
+              <div className="wf-card">+ 15 more</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Hooks<span className="count">15</span></div>
+              <div className="wf-card">"the exhale"</div>
+              <div className="wf-card">"static could sing"</div>
+              <div className="wf-card">hook #7</div>
+              <div className="wf-card">+ 12 more</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Verses<span className="count">9</span></div>
+              <div className="wf-card">CB v1</div>
+              <div className="wf-card">MS verse draft</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Freestyles<span className="count">22</span></div>
+              <div className="wf-card">05-14 take</div>
+              <div className="wf-card">05-09 morning</div>
+              <div className="wf-card">+ 20 more</div>
+            </div>
+          </div>
+
+          <div className="wf-board cols-4" style={{ marginTop: 8 }}>
+            <div className="wf-col">
+              <div className="wf-col-title">Choruses<span className="count">5</span></div>
+              <div className="wf-card">CB chorus draft</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Bridges<span className="count">3</span></div>
+              <div className="wf-card">call/response</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Concept Notes<span className="count">6</span></div>
+              <div className="wf-card">"soulful defiance"</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Lyric Sheets<span className="count">4</span></div>
+              <div className="wf-card">CB final</div>
+              <div className="wf-card">Black Hole Sun final</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 12, right: 12 }}>
+        one DB, 8 Types · the Type IS what 4 separate DBs would have been
+      </div>
+    </div>
+  );
+}
+
+function WAAssetDetail() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Writing Assets', '"the exhale"']} />
+      <div className="wf-body">
+        <WFSidebar active="assets" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">writing asset · Type = Hook</div>
+            <h1 style={{ fontStyle: 'italic' }}>"the exhale"</h1>
+          </div>
+
+          <div className="wf-props">
+            <span>type<b>hook</b></span>
+            <span>status<b>raw</b></span>
+            <span>energy<b>med</b></span>
+            <span>created<b>may 14</b></span>
+            <span>recorded<b>no</b></span>
+            <span>song<b>— (floating)</b></span>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">the hook itself</div>
+            <div className="wf-lyric" style={{ minHeight: 60 }}>
+              <div>let it out, let it out —</div>
+              <div>this is the exhale, the exhale.</div>
+              <div>nobody asked you to hold your breath.</div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">genre fit</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <span className="wf-pill">soul</span>
+              <span className="wf-pill">neo-soul</span>
+              <span className="wf-pill">r&amp;b</span>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">attach to song</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ border: '1px solid var(--line)', borderRadius: 3, padding: 6, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>
+                🔍 search songs… <span style={{ float: 'right' }}>↩</span>
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>
+                suggestions: Mission Statement · Cosmic Beam · untitled bounce
+              </div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">notes</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-2)', padding: '6px 0' }}>
+              came out of the 05-14 freestyle. melodic shape is in the voice memo (linked below).
+              would fit Mission Statement's chorus — try.
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">attachments</div>
+            <div className="wf-list-row"><span className="text">🎙 voice memo · 05-14 · 18s</span><span className="meta">play</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 60, right: 10 }}>
+        the page body holds the actual lyric. searching → song link is the "promote to attached" mechanic.
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SECTION 6 — Sessions DB
+// ============================================================
+
+function SessionsCalendar() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Sessions', 'Calendar']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">⏱</span> Sessions · Calendar</h1>
+            <div className="subtitle">may 2026 · 12 sessions logged</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Recent</div>
+            <div className="tab active">Calendar</div>
+            <div className="tab">By Type</div>
+            <div className="tab">By Song</div>
+          </div>
+
+          <div className="wf-cal">
+            <div className="day"><span className="num">28</span></div>
+            <div className="day"><span className="num">29</span></div>
+            <div className="day"><span className="num">30</span></div>
+            <div className="day"><span className="num">1</span></div>
+            <div className="day has-evt"><span className="num">2</span><div style={{ fontSize: 7, marginTop: 1 }}>writ</div></div>
+            <div className="day"><span className="num">3</span></div>
+            <div className="day"><span className="num">4</span></div>
+
+            <div className="day has-evt"><span className="num">5</span><div style={{ fontSize: 7 }}>mix</div></div>
+            <div className="day"><span className="num">6</span></div>
+            <div className="day has-evt"><span className="num">7</span><div style={{ fontSize: 7 }}>writ</div></div>
+            <div className="day"><span className="num">8</span></div>
+            <div className="day has-evt"><span className="num">9</span><div style={{ fontSize: 7 }}>writ</div></div>
+            <div className="day"><span className="num">10</span></div>
+            <div className="day has-evt"><span className="num">11</span><div style={{ fontSize: 7 }}>mix</div></div>
+
+            <div className="day"><span className="num">12</span></div>
+            <div className="day has-evt"><span className="num">13</span><div style={{ fontSize: 7 }}>prod</div></div>
+            <div className="day has-evt"><span className="num">14</span><div style={{ fontSize: 7 }}>free</div></div>
+            <div className="day has-evt"><span className="num">15</span><div style={{ fontSize: 7 }}>writ</div></div>
+            <div className="day"><span className="num">16</span></div>
+            <div className="day"><span className="num">17</span></div>
+            <div className="day"><span className="num">18</span></div>
+
+            <div className="day"><span className="num">19</span></div>
+            <div className="day"><span className="num">20</span></div>
+            <div className="day"><span className="num">21</span></div>
+            <div className="day"><span className="num">22</span></div>
+            <div className="day"><span className="num">23</span></div>
+            <div className="day"><span className="num">24</span></div>
+            <div className="day"><span className="num">25</span></div>
+          </div>
+
+          <div style={{ marginTop: 14, padding: 10, background: 'var(--paper-2)', border: '1px dashed var(--line)', borderRadius: 4 }}>
+            <div className="wf-block-label">may 15 · selected</div>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 18, color: 'var(--ink)' }}>Writing — Mission Statement</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)', marginTop: 4 }}>45 min · ⚡ focused · key win: locked first verse</div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 20, color: 'var(--ink)', marginTop: 12, textAlign: 'center' }}>
+            12 sessions · 8h 20m · this month
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 50, right: 12 }}>
+        creative output made visible — this is the reward loop
+      </div>
+    </div>
+  );
+}
+
+function SessionsRecent() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Sessions', 'Recent']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">⏱</span> Sessions · Recent</h1>
+            <div className="subtitle">sort: date ↓ · last 10</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab active">Recent</div>
+            <div className="tab">Calendar</div>
+            <div className="tab">By Type</div>
+            <div className="tab">By Song</div>
+          </div>
+
+          <table className="wf-table">
+            <thead><tr><th>Date</th><th>Type</th><th>Song</th><th>Energy</th><th>Key win</th><th>Dur.</th></tr></thead>
+            <tbody>
+              <tr><td className="first-col">may 15</td><td>Writing</td><td>Mission Statement</td><td>⚡</td><td>locked first verse</td><td>45m</td></tr>
+              <tr><td className="first-col">may 14</td><td>Freestyle</td><td>—</td><td>🔥</td><td>"the exhale" hook</td><td>20m</td></tr>
+              <tr><td className="first-col">may 13</td><td>Production</td><td>TT</td><td>⚡</td><td>drum arrangement v2</td><td>2h</td></tr>
+              <tr><td className="first-col">may 11</td><td>Mix Review</td><td>Divine Rerun</td><td>😐</td><td>pass 2 — vox too dry</td><td>1h 30m</td></tr>
+              <tr><td className="first-col">may 9</td><td>Writing</td><td>Cosmic Beam</td><td>🔥</td><td>chorus shape</td><td>30m</td></tr>
+              <tr><td className="first-col">may 7</td><td>Writing</td><td>Mission Statement</td><td>⚡</td><td>concept frame</td><td>55m</td></tr>
+              <tr><td className="first-col">may 5</td><td>Mix Review</td><td>Divine Rerun</td><td>⚡</td><td>pass 1 done</td><td>2h</td></tr>
+              <tr><td className="first-col">may 2</td><td>Writing</td><td>Cosmic Beam</td><td>⚡</td><td>bridge demo</td><td>40m</td></tr>
+            </tbody>
+          </table>
+
+          <div style={{ marginTop: 12, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>
+            8 records · only 3 required fields per session (date, type, song)
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 60, right: 12 }}>
+        flat table · the "did I work this week?" view
+      </div>
+    </div>
+  );
+}
+
+function SessionDetail() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Sessions', 'Writing — May 15']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">session record · auto-named</div>
+            <h1 style={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}>Writing — May 15, 2026</h1>
+          </div>
+
+          <div className="wf-props">
+            <span>type<b>writing</b></span>
+            <span>date<b>may 15</b></span>
+            <span>song<b>Mission Statement</b></span>
+            <span>energy<b>⚡ focused</b></span>
+            <span>duration<b>45m</b></span>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">key win · one sentence</div>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 20, color: 'var(--ink)', borderLeft: '3px solid var(--accent-3)', paddingLeft: 10 }}>
+              Locked the first verse melody.
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">next step · one sentence</div>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 20, color: 'var(--ink)', borderLeft: '3px solid var(--accent)', paddingLeft: 10 }}>
+              Record the verse vocal next session.
+            </div>
+          </div>
+
+          <hr className="wf-divider" />
+
+          <div className="wf-block">
+            <div className="wf-block-label">session notes (page body · optional)</div>
+            <div className="wf-lyric">
+              <div>started with the looped bass figure.</div>
+              <div>tried 4 vocal cadences — the 3rd one stuck.</div>
+              <div>"the exhale" hook fits if we drop the key by 2.</div>
+              <div>&nbsp;</div>
+              <div>didn't get to chorus — that's next session.</div>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">no status property · sessions just are</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>
+              if you want to plan a session, make a Task instead.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 80, right: 12 }}>
+        3 required fields · everything else below the fold · &lt; 10 sec to log
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SECTION 7 — Tasks DB
+// ============================================================
+
+function TasksFocus() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Tasks', 'Focus']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">DEFAULT VIEW</div>
+            <h1><span className="emoji">✓</span> Focus Tasks</h1>
+            <div className="subtitle">Focus = true · Status ≠ Done · sort by Type</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab active">⭐ Focus</div>
+            <div className="tab">Due this week</div>
+            <div className="tab">By Type</div>
+            <div className="tab">Overdue</div>
+            <div className="tab">Production</div>
+            <div className="tab">Release Prep</div>
+            <div className="tab">Content</div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink-2)', borderLeft: '3px solid var(--accent)', paddingLeft: 10, margin: '12px 0' }}>
+            "what do I do right now?" — not "what is due this week"
+          </div>
+
+          <div className="wf-block-label">Production (2)</div>
+          <div className="wf-list-row"><span className="check"></span><span className="text">Drum arrangement v2 · Transformative Trance</span><span className="meta">may 18</span></div>
+          <div className="wf-list-row"><span className="check"></span><span className="text">Bass layer · Mission Statement</span><span className="meta">may 20</span></div>
+
+          <div className="wf-block-label" style={{ marginTop: 12 }}>Release Prep (2)</div>
+          <div className="wf-list-row"><span className="check"></span><span className="text">Pitch DistroKid editorial · Cosmic Beam</span><span className="meta">jun 8 🚨</span></div>
+          <div className="wf-list-row"><span className="check"></span><span className="text">Short-form video v1 · Cosmic Beam</span><span className="meta">jun 10</span></div>
+
+          <div className="wf-block-label" style={{ marginTop: 12 }}>Content (1)</div>
+          <div className="wf-list-row"><span className="check"></span><span className="text">IG caption · Cosmic Beam announce</span><span className="meta">may 22</span></div>
+
+          <div className="wf-block-label" style={{ marginTop: 12 }}>Done · today (collapsed)</div>
+          <div className="wf-list-row done"><span className="check"></span><span className="text">Artwork final · Cosmic Beam</span></div>
+
+          <div style={{ marginTop: 14, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>
+            6 focused · 23 total open · uncheck Focus to demote
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 14, right: 12 }}>
+        Focus property prevents the 40-task wall
+      </div>
+    </div>
+  );
+}
+
+function TasksBoard() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Databases', 'Tasks', 'By Type']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">✓</span> Tasks · By Type</h1>
+            <div className="subtitle">board · grouped by Type · Status ≠ Done</div>
+          </div>
+
+          <div className="wf-tabs">
+            <div className="tab">Focus</div>
+            <div className="tab">Due this week</div>
+            <div className="tab active">By Type</div>
+            <div className="tab">Overdue</div>
+            <div className="tab">Production</div>
+            <div className="tab">Release Prep</div>
+            <div className="tab">Content</div>
+          </div>
+
+          <div className="wf-board cols-3">
+            <div className="wf-col">
+              <div className="wf-col-title">Production<span className="count">7</span></div>
+              <div className="wf-card">Drum arr v2 · TT<div className="card-meta">may 18 · focus</div></div>
+              <div className="wf-card">Bass layer · MS<div className="card-meta">may 20</div></div>
+              <div className="wf-card">Vocal comp · Divine</div>
+              <div className="wf-card">Auto on hi-hats · CB</div>
+              <div className="wf-card has-warn">Mix pass 3 · TT<div className="card-meta">cap</div></div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Release Prep<span className="count">4</span></div>
+              <div className="wf-card has-warn">Pitch DistroKid · CB<div className="card-meta">jun 8 🚨</div></div>
+              <div className="wf-card">Short video v1 · CB<div className="card-meta">jun 10</div></div>
+              <div className="wf-card">Metadata · CB<div className="card-meta">jun 1</div></div>
+              <div className="wf-card">Cover variants · CB</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Content<span className="count">3</span></div>
+              <div className="wf-card">IG caption · CB</div>
+              <div className="wf-card">TikTok teaser · CB</div>
+              <div className="wf-card">Newsletter draft</div>
+            </div>
+          </div>
+
+          <div className="wf-board cols-3" style={{ marginTop: 8 }}>
+            <div className="wf-col">
+              <div className="wf-col-title">Brand / Web<span className="count">2</span></div>
+              <div className="wf-card">Website bio update</div>
+              <div className="wf-card">Press kit refresh</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Admin<span className="count">5</span></div>
+              <div className="wf-card">Check ASCAP statements</div>
+              <div className="wf-card">Renew distributor sub</div>
+            </div>
+            <div className="wf-col">
+              <div className="wf-col-title">Review<span className="count">2</span></div>
+              <div className="wf-card">Stream check · Black Hole Sun</div>
+              <div className="wf-card">90-day review · Soft Engine</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 60, right: 10 }}>
+        one DB, 6 Types · what 4 overlapping task DBs would have been
+      </div>
+    </div>
+  );
+}
+
+function TaskDetail() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Tasks', 'Pitch DistroKid editorial']} />
+      <div className="wf-body">
+        <WFSidebar active="dash" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1>Pitch DistroKid editorial · Cosmic Beam</h1>
+          </div>
+
+          <div className="wf-props">
+            <span>type<b>release prep</b></span>
+            <span>status<b>open</b></span>
+            <span>due<b>jun 8 · 🚨 14d</b></span>
+            <span>priority<b>high</b></span>
+            <span>focus<b>☑</b></span>
+            <span>song<b>Cosmic Beam</b></span>
+            <span>release<b>Cosmic Beam · single</b></span>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">checklist · sub-tasks</div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">verify metadata in DistroKid dashboard</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">copy 200-word pitch — "soulful defiance" frame</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">pick 3 playlists to target</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">submit</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">notes</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-2)', padding: 6, background: 'var(--paper-2)', borderRadius: 3 }}>
+              DistroKid editorial deadline is 7 days before release. Cosmic Beam drops jun 15 → submit by jun 8.
+              Use the "static / signal" angle — pulled from CB concept note.
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">related</div>
+            <div className="wf-list-row"><span className="text">↗ Song · Cosmic Beam</span></div>
+            <div className="wf-list-row"><span className="text">↗ Release · Cosmic Beam · single</span></div>
+            <div className="wf-list-row"><span className="text">↗ Concept Note · "soulful defiance"</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 60, right: 12 }}>
+        Focus ☑ surfaces it on the dashboard · regardless of due date
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SECTION 8 — Launch Hub & Releases
+// ============================================================
+
+function LaunchActive() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Hubs', 'Launch Hub']} />
+      <div className="wf-body">
+        <WFSidebar active="launch" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">🚀</span> Launch Hub</h1>
+            <div className="subtitle">campaign-mode · 1 active release</div>
+          </div>
+
+          <div style={{ background: 'var(--paper-2)', border: '2px dashed var(--accent)', borderRadius: 6, padding: 14, marginBottom: 14 }}>
+            <div className="wf-block-label">active release · countdown</div>
+            <h2 style={{ fontFamily: 'var(--font-hand)', fontSize: 32, color: 'var(--ink)', margin: '0 0 4px', lineHeight: 1 }}>Cosmic Beam</h2>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)' }}>single · jun 15 · D-29</div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <span className="wf-pill warn">🚨 pitch deadline · D-14</span>
+              <span className="wf-pill go">master ✓</span>
+              <span className="wf-pill go">art ✓</span>
+              <span className="wf-pill">metadata · 60%</span>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">release tasks · Type = Release Prep, linked to CB</div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Pitch DistroKid editorial</span><span className="meta">jun 8 🚨</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Metadata final · ISRC</span><span className="meta">jun 1</span></div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">Master ≤ −10 LUFS</span></div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">Artwork v2 final</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">content calendar · Type = Content</div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">IG announce post</span><span className="meta">may 22</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">TikTok teaser #1</span><span className="meta">may 28</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Short video v1</span><span className="meta">jun 10</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Newsletter blast</span><span className="meta">jun 14</span></div>
+          </div>
+
+          <div className="wf-block-label">future · planned</div>
+          <div className="wf-list-row"><span className="text">EP — TBD · q3 · 4 tracks planned</span><span className="meta">aug</span></div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 14, right: 12 }}>
+        active state · countdown · checklist · content calendar
+      </div>
+    </div>
+  );
+}
+
+function LaunchDormant() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Hubs', 'Launch Hub']} />
+      <div className="wf-body">
+        <WFSidebar active="launch" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">🚀</span> Launch Hub</h1>
+            <div className="subtitle">dormant · no active release</div>
+          </div>
+
+          <div style={{ padding: '40px 20px', textAlign: 'center', background: 'var(--paper-2)', border: '1px dashed var(--line)', borderRadius: 6, margin: '20px 0' }}>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 28, color: 'var(--ink-3)', lineHeight: 1 }}>No active release.</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)', marginTop: 10 }}>next planned: <span style={{ color: 'var(--ink)' }}>EP · Q3 2026</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">recent releases</div>
+            <div className="wf-list-row"><span className="text">Black Hole Sun (cover)</span><span className="meta">jan 22 · 8.2k streams</span></div>
+            <div className="wf-list-row"><span className="text">Late Bloomers</span><span className="meta">nov 11 · 14.1k</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">when to re-activate</div>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink-2)', borderLeft: '3px solid var(--accent)', paddingLeft: 10 }}>
+              60 days before release date · build Release record · attach Song
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">tools</div>
+            <div className="wf-list-row"><span className="text">↗ Content Calendar Generator</span></div>
+            <div className="wf-list-row"><span className="text">↗ Release prep template</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note right" style={{ top: 80, right: 12 }}>
+        dormant state is intentional · don't fill it to "justify" the hub
+      </div>
+    </div>
+  );
+}
+
+function ReleaseDetail() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Releases', 'Cosmic Beam · Single']} />
+      <div className="wf-body">
+        <WFSidebar active="launch" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <h1><span className="emoji">⚡</span> Cosmic Beam · Single</h1>
+            <div className="subtitle">jun 15, 2026 · 29 days out</div>
+          </div>
+
+          <div className="wf-props">
+            <span>status<b>prep</b></span>
+            <span>format<b>single</b></span>
+            <span>distributor<b>DistroKid</b></span>
+            <span>upc<b>—</b></span>
+            <span>pitch deadline<b>jun 8</b></span>
+            <span>assets ready<b>☑</b></span>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">songs on this release</div>
+            <div className="wf-list-row"><span className="text">♪ Cosmic Beam</span><span className="meta">3:42 · ISRC pending</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">timeline gates</div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">D-60 · release record created</span><span className="meta">apr 16</span></div>
+            <div className="wf-list-row done"><span className="check"></span><span className="text">D-30 · all promo assets ready</span><span className="meta">may 16</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">D-14 · submit to distributor</span><span className="meta">jun 1</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">D-7 · playlist pitch</span><span className="meta">jun 8 🚨</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">D-0 · LIVE</span><span className="meta">jun 15</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">D+30 · stream snapshot</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">D+90 · final reflection</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">open tasks (4) · linked</div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Pitch DistroKid editorial</span><span className="meta">jun 8</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Metadata final</span><span className="meta">jun 1</span></div>
+            <div className="wf-list-row"><span className="check"></span><span className="text">Short video v1</span><span className="meta">jun 10</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 80, right: 12 }}>
+        7 gates, not 10 stages · D-60 / 30 / 14 / 7 / 0 / +30 / +90
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SECTION 9 — Side surfaces (Brand, Vault, Mobile capture)
+// ============================================================
+
+function BrandRef() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Workspace', 'Brand Reference']} />
+      <div className="wf-body">
+        <WFSidebar active="brand" />
+        <div className="wf-main">
+          <div className="wf-pagehead">
+            <div className="breadcrumb">demoted from hub · pinned reference page</div>
+            <h1><span className="emoji">🏷️</span> Brand Reference</h1>
+            <div className="subtitle">one page · no database · no tasks</div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">about JaZeR · canonical paragraph</div>
+            <div style={{ fontFamily: 'var(--font-hand)', fontSize: 19, color: 'var(--ink)', lineHeight: 1.3, padding: 10, background: 'var(--paper-2)', borderRadius: 3, borderLeft: '3px solid var(--accent)' }}>
+              Producer-songwriter making soul-leaning fusion music from Austin, TX.<br/>
+              Bedroom-built. Honest. Sometimes uncomfortable. Often hopeful.<br/>
+              The thread across every release: signal under static.
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">website</div>
+            <div className="wf-list-row"><span className="text">↗ jazeratx.com</span><span className="meta">primary</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">persona / archetype references · Drive links</div>
+            <div className="wf-list-row"><span className="text">↗ JaZeR persona report (2024)</span></div>
+            <div className="wf-list-row"><span className="text">↗ Brand archetype analysis</span></div>
+            <div className="wf-list-row"><span className="text">↗ Voice guide v2</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">visual identity</div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ width: 26, height: 26, borderRadius: 3, background: '#2a261d', border: '1px solid var(--line)' }} title="primary"></div>
+              <div style={{ width: 26, height: 26, borderRadius: 3, background: '#c96442', border: '1px solid var(--line)' }} title="accent"></div>
+              <div style={{ width: 26, height: 26, borderRadius: 3, background: '#fdfaf3', border: '1px solid var(--line)' }} title="paper"></div>
+              <div style={{ width: 26, height: 26, borderRadius: 3, background: '#4d7a5e', border: '1px solid var(--line)' }} title="sage"></div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginLeft: 8 }}>primary · accent · paper · secondary</span>
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">when to promote this back to a hub</div>
+            <div style={{ fontFamily: 'var(--font-print)', fontSize: 12, color: 'var(--ink-2)' }}>
+              · active website dev project<br/>
+              · content strategy refresh<br/>
+              · brand redesign in progress
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 14, right: 12 }}>
+        a reference card · not a hub. one page. pinned. quiet.
+      </div>
+    </div>
+  );
+}
+
+function VaultPage() {
+  return (
+    <div className="wf">
+      <WFTopBar crumb={['Workspace', 'Vault']} />
+      <div className="wf-body">
+        <WFSidebar active="vault" />
+        <div className="wf-main" style={{ background: 'var(--paper-3)', filter: 'saturate(0.6)' }}>
+          <div className="wf-pagehead">
+            <div className="breadcrumb">read-only · do not modify</div>
+            <h1 style={{ color: 'var(--ink-2)' }}><span className="emoji">📦</span> Vault</h1>
+            <div className="subtitle">archive · phase 3I protocol governs · {' '}<span style={{ color: 'var(--accent)' }}>to restore see phase 3I</span></div>
+          </div>
+
+          <div style={{ background: 'rgba(201,100,66,0.08)', border: '1.5px dashed var(--accent)', padding: 10, borderRadius: 4, fontFamily: 'var(--font-hand)', fontSize: 17, color: 'var(--ink-2)', lineHeight: 1.2, margin: '8px 0 14px' }}>
+            ⚠ this is where dead things rest.<br/>
+            entering should feel slightly unpleasant. that's the point.
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">phase 3I archive protocol</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-2)', padding: 8, background: 'var(--paper-2)', border: '1px solid var(--line)', borderRadius: 3 }}>
+              criteria — moves to Vault if all true:<br/>
+              · no active workflow<br/>
+              · overlaps with a v2 database<br/>
+              · hasn't been opened in 30 days
+            </div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">legacy systems</div>
+            <div className="wf-list-row"><span className="text">Funky Futuristic Music Command Center</span><span className="meta">archived apr 12</span></div>
+            <div className="wf-list-row"><span className="text">Music Hub v1.0</span><span className="meta">archived apr 12</span></div>
+            <div className="wf-list-row"><span className="text">Freestyle Hub V1 Snapshot</span><span className="meta">archived apr 12</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">backups</div>
+            <div className="wf-list-row"><span className="text">JaZeR Musician Page backup</span><span className="meta">may 1</span></div>
+            <div className="wf-list-row"><span className="text">10_Music_Creative_Projects backup</span><span className="meta">may 1</span></div>
+            <div className="wf-list-row"><span className="text">Backup tree · 2024</span><span className="meta">jan 2025</span></div>
+          </div>
+
+          <div className="wf-block">
+            <div className="wf-block-label">shelved songs (8)</div>
+            <div className="wf-list-row"><span className="text">Edge of Static · 2024</span><span className="meta">never released</span></div>
+            <div className="wf-list-row"><span className="text">House of Mirrors · 2024</span><span className="meta">never released</span></div>
+            <div className="wf-list-row"><span className="text">+ 6 more</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note" style={{ top: 70, right: 12, background: '#f5e6d8', transform: 'rotate(2deg)' }}>
+        designed-for-friction surface · muted color · "do not modify" header
+      </div>
+    </div>
+  );
+}
+
+function MobileCapture() {
+  return (
+    <div className="wf" style={{ background: 'var(--paper-3)', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 18 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', letterSpacing: 1, marginBottom: 10 }}>iOS · SHORTCUT FLOW</div>
+      <div style={{
+        width: 240, height: '85%', background: 'var(--paper)',
+        borderRadius: 24, border: '2px solid var(--ink)', boxShadow: '4px 4px 0 rgba(0,0,0,0.08)',
+        padding: '20px 14px 14px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden'
+      }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', display: 'flex', justifyContent: 'space-between' }}>
+          <span>9:41</span><span>● ▮▮ ▰</span>
+        </div>
+
+        <div style={{ fontFamily: 'var(--font-hand)', fontSize: 22, color: 'var(--ink)', marginTop: 10 }}>Quick Idea</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginBottom: 14 }}>iOS Shortcut · "Hey Siri, idea"</div>
+
+        <div style={{ background: 'var(--paper-2)', border: '1.5px dashed var(--accent)', borderRadius: 6, padding: 12, marginBottom: 12 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)' }}>recording…</div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 40 }}>
+            <div style={{ width: 4, height: 6, background: 'var(--accent)', margin: '0 2px' }} />
+            <div style={{ width: 4, height: 18, background: 'var(--accent)', margin: '0 2px' }} />
+            <div style={{ width: 4, height: 28, background: 'var(--accent)', margin: '0 2px' }} />
+            <div style={{ width: 4, height: 14, background: 'var(--accent)', margin: '0 2px' }} />
+            <div style={{ width: 4, height: 22, background: 'var(--accent)', margin: '0 2px' }} />
+            <div style={{ width: 4, height: 10, background: 'var(--accent)', margin: '0 2px' }} />
+            <div style={{ width: 4, height: 24, background: 'var(--accent)', margin: '0 2px' }} />
+          </div>
+          <div style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-2)', marginTop: 2 }}>0:23</div>
+        </div>
+
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginBottom: 4 }}>auto title (editable)</div>
+        <div style={{ background: 'var(--paper-2)', border: '1px solid var(--line)', padding: 6, borderRadius: 3, fontFamily: 'var(--font-hand)', fontSize: 15, color: 'var(--ink)', marginBottom: 10 }}>
+          Voice idea · may 15 · 14:23
+        </div>
+
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginBottom: 4 }}>type · default</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
+          <span className="wf-pill warn">Idea ✓</span>
+          <span className="wf-pill">Hook</span>
+          <span className="wf-pill">Freestyle</span>
+        </div>
+
+        <div style={{ marginTop: 'auto' }}>
+          <div style={{ background: 'var(--accent)', color: 'var(--paper)', textAlign: 'center', padding: '10px 14px', borderRadius: 4, fontFamily: 'var(--font-hand)', fontSize: 18 }}>
+            save to Notion ↩
+          </div>
+          <div style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', marginTop: 6 }}>
+            creates Writing Asset · attaches audio · 3 taps total
+          </div>
+        </div>
+      </div>
+
+      <div className="wf-note flat" style={{ top: 60, right: 14, fontSize: 14 }}>
+        the real capture target. phone → Notion in 8 seconds.
+      </div>
+    </div>
+  );
+}
+
+function NotionPalette() {
+  const ROW = [
+    { name: 'default', t: '--notion-default', b: '--notion-default-bg' },
+    { name: 'gray',    t: '--notion-gray',    b: '--notion-gray-bg' },
+    { name: 'brown',   t: '--notion-brown',   b: '--notion-brown-bg' },
+    { name: 'orange',  t: '--notion-orange',  b: '--notion-orange-bg' },
+    { name: 'yellow',  t: '--notion-yellow',  b: '--notion-yellow-bg' },
+    { name: 'green',   t: '--notion-green',   b: '--notion-green-bg' },
+    { name: 'blue',    t: '--notion-blue',    b: '--notion-blue-bg' },
+    { name: 'purple',  t: '--notion-purple',  b: '--notion-purple-bg' },
+    { name: 'pink',    t: '--notion-pink',    b: '--notion-pink-bg' },
+    { name: 'red',     t: '--notion-red',     b: '--notion-red-bg' },
+  ];
+  return (
+    <div className="wf" style={{ padding: 18, overflow: 'auto' }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--notion-gray)', letterSpacing: 1, textTransform: 'uppercase' }}>Color system · source of truth</div>
+        <div style={{ fontFamily: 'var(--font-hand)', fontSize: 30, color: 'var(--notion-default)', lineHeight: 1 }}>Notion Palette</div>
+        <div style={{ fontFamily: 'var(--font-print)', fontSize: 13, color: 'var(--notion-default)', marginTop: 4 }}>
+          Every pill, tag, status indicator, and document accent in this site draws from these 10 colors.
+          Change a variable here and the whole system shifts.
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+        {ROW.map(c => (
+          <div key={c.name} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 10, alignItems: 'center', padding: 8, background: 'var(--notion-default-bg)', border: '1px solid var(--line)', borderRadius: 4 }}>
+            <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 3, background: `var(${c.t})`, border: '1px solid var(--line)' }} title={`text · ${c.t}`}></div>
+              <div style={{ width: 28, height: 28, borderRadius: 3, background: `var(${c.b})`, border: '1px solid var(--line)' }} title={`bg · ${c.b}`}></div>
+            </div>
+            <div>
+              <div style={{ fontFamily: 'var(--font-hand)', fontSize: 17, color: `var(${c.t})`, lineHeight: 1 }}>{c.name}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--notion-gray)', marginTop: 1 }}>{c.t.replace('--notion-','')}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--notion-gray)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>How they map · roles</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          <span className="wf-pill warn">orange → warn · pre-release</span>
+          <span className="wf-pill go">green → done · approved</span>
+          <span className="wf-pill idea">yellow → creative / floating</span>
+          <span className="wf-pill todo">purple → tasks · todos</span>
+          <span className="wf-pill info">blue → reference · info</span>
+          <span className="wf-pill alert">red → stale · 🚨 risk</span>
+          <span className="wf-pill brown">brown → archived</span>
+          <span className="wf-pill pink">pink → UX surface</span>
+          <span className="wf-pill mute">gray → muted / dormant</span>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 12, padding: 10, background: 'var(--notion-gray-bg)', border: '1px dashed var(--line)', borderRadius: 4, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--notion-default)', lineHeight: 1.55 }}>
+        <b>also in markup:</b> any element can use the raw utility classes —
+        <span style={{ marginLeft: 4 }} className="notion-orange-bg notion-default">.notion-orange-bg</span>{' '}
+        <span className="notion-green-bg notion-default">.notion-green-bg</span>{' '}
+        <span className="notion-blue-bg notion-default">.notion-blue-bg</span>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { NotionPalette });
+
+Object.assign(window, {
+  DashCaptureModal, WeeklyReview, BookOfJaZeR,
+  SongsTimeline, SongsStale, SongPeek,
+  WAUnattached, WAHookBank, WAByType, WAAssetDetail,
+  SessionsCalendar, SessionsRecent, SessionDetail,
+  TasksFocus, TasksBoard, TaskDetail,
+  LaunchActive, LaunchDormant, ReleaseDetail,
+  BrandRef, VaultPage, MobileCapture,
+});
+
+</script>
+
+<script type="text/babel">
+  const Artboard = ({ label, w, h, children }) => (
+    <div className="flat-card">
+      <div className="flat-label">{label}</div>
+      <div className="flat-board" style={{ width: w, height: h }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  function FlatPage() {
+    return (
+      <React.Fragment>
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">00 · Color system</div>
+            <h2>Notion Palette · Source of Truth</h2>
+            <div className="desc">Every pill, tag, and accent in this site draws from these 10 Notion colors. Change a variable, the whole system shifts.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Notion Palette · reference" w={620} h={780}><NotionPalette /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">01 · Master Dashboard</div>
+            <h2>The Daily Driver</h2>
+            <div className="desc">Six approaches — same data, different reading order. Includes the Quick Capture modal flow and the Weekly Review template.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="A · Linear bands" w={620} h={760}><DashLinear /></Artboard>
+            <Artboard label="B · Two-column triage" w={620} h={760}><DashTwoCol /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="C · Command bar first" w={620} h={760}><DashCommand /></Artboard>
+            <Artboard label="D · Mobile-first" w={400} h={760}><DashMobile /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="E · Quick Capture modal" w={620} h={620}><DashCaptureModal /></Artboard>
+            <Artboard label="F · Weekly Review template" w={620} h={780}><WeeklyReview /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">02 · Song Lab</div>
+            <h2>The Creative Hub</h2>
+            <div className="desc">Strongest hub in the system. Three landing layouts + the songbook sub-page.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="A · Boards + Gallery" w={620} h={720}><SongLabBoards /></Artboard>
+            <Artboard label="B · Current Song spotlight" w={620} h={720}><SongLabSpotlight /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="C · Calendar-forward" w={620} h={720}><SongLabTimeline /></Artboard>
+            <Artboard label="D · The Book of JaZeR" w={620} h={680}><BookOfJaZeR /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">03 · Songs Database</div>
+            <h2>Five Notion Views</h2>
+            <div className="desc">One database — board, table, gallery, timeline, stale.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Board · Active by Status" w={680} h={620}><SongsBoard /></Artboard>
+            <Artboard label="Table · All Songs" w={680} h={620}><SongsTable /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Gallery · Catalog" w={620} h={620}><SongsGallery /></Artboard>
+            <Artboard label="Timeline · Release Pipeline" w={680} h={620}><SongsTimeline /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Stale Songs · Triage" w={680} h={620}><SongsStale /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">04 · Song Detail Page</div>
+            <h2>Inside A Song Record</h2>
+            <div className="desc">Four approaches to the page body — where the actual creative work happens.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="A · Locked template" w={620} h={820}><SongPageStrict /></Artboard>
+            <Artboard label="B · Tabbed by concern" w={620} h={680}><SongPageTabbed /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="C · Narrative / journal" w={520} h={760}><SongPageNarrative /></Artboard>
+            <Artboard label="D · Side-panel peek" w={780} h={620}><SongPeek /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">05 · Writing Assets DB</div>
+            <h2>One DB, Eight Types</h2>
+            <div className="desc">What four separate databases would have been. The default view is the experience.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="DEFAULT · Unattached Ideas" w={720} h={720}><WAUnattached /></Artboard>
+            <Artboard label="Hook Bank · gallery" w={680} h={680}><WAHookBank /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="By Type · board" w={760} h={680}><WAByType /></Artboard>
+            <Artboard label='Asset detail · "the exhale"' w={620} h={780}><WAAssetDetail /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">06 · Sessions DB</div>
+            <h2>Time-Stamped Events</h2>
+            <div className="desc">Three required fields. Calendar surfaces the reward loop.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Calendar · output over time" w={680} h={680}><SessionsCalendar /></Artboard>
+            <Artboard label="Recent · table" w={680} h={620}><SessionsRecent /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Session detail · 3-field min" w={620} h={720}><SessionDetail /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">07 · Tasks DB</div>
+            <h2>Six Types, One Focus Property</h2>
+            <div className="desc">Focus checkbox prevents the 40-task wall on the dashboard.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="DEFAULT · Focus Tasks" w={720} h={720}><TasksFocus /></Artboard>
+            <Artboard label="By Type · board" w={760} h={680}><TasksBoard /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Task detail · Pitch DistroKid" w={620} h={700}><TaskDetail /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">08 · Launch Hub & Releases</div>
+            <h2>Campaign Mode</h2>
+            <div className="desc">Active state with countdown. Dormant state. Release detail with 7 timeline gates.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Active · with countdown" w={680} h={720}><LaunchActive /></Artboard>
+            <Artboard label="Dormant · between cycles" w={680} h={700}><LaunchDormant /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Release record · D-29" w={680} h={780}><ReleaseDetail /></Artboard>
+          </div>
+        </div>
+
+        <div className="flat-section">
+          <div className="head">
+            <div className="num">09 · Side Surfaces</div>
+            <h2>Demoted, Dormant, Designed-For-Friction</h2>
+            <div className="desc">Brand Reference (demoted hub) · Vault (Phase 3I protocol) · Mobile voice capture flow.</div>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Brand Reference · pinned page" w={680} h={720}><BrandRef /></Artboard>
+            <Artboard label="Vault · designed for friction" w={680} h={720}><VaultPage /></Artboard>
+          </div>
+          <div className="flat-row">
+            <Artboard label="Mobile · voice capture" w={400} h={760}><MobileCapture /></Artboard>
+          </div>
+        </div>
+
+      </React.Fragment>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('flat-root')).render(<FlatPage />);
+</script>
+
+</body>
+</html>

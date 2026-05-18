@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Creative Workflow Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090d;
+    --s1: #111118;
+    --s2: #191922;
+    --s3: #20202c;
+    --b1: #232334;
+    --b2: #2d2d42;
+    --b3: #3a3a54;
+    --gold: #dfc040;
+    --purple: #9e7cf5;
+    --green: #38c882;
+    --red: #f04870;
+    --orange: #f5904c;
+    --teal: #38c8b8;
+    --muted: #4a4a68;
+    --text: #ccccde;
+    --dim: #7878a0;
+    --white: #f0f0f8;
+    --mono: 'DM Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Lora', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--body); font-size: 15px; line-height: 1.75; max-width: 1040px; margin: 0 auto; padding: 52px 32px 100px; }
+
+  /* HEADER */
+  .doc-header { border-bottom: 1px solid var(--b2); padding-bottom: 36px; margin-bottom: 52px; }
+  .stamp { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal); background: rgba(56,200,184,0.08); border: 1px solid rgba(56,200,184,0.2); display: inline-block; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px; }
+  h1 { font-family: var(--display); font-size: 56px; line-height: 1; letter-spacing: 2px; color: var(--white); margin-bottom: 4px; }
+  h1 span { color: var(--teal); }
+  .header-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 8px; }
+
+  /* TAGS */
+  .s-tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px; }
+  .st-g { color: var(--gold); background: rgba(223,192,64,0.07); border: 1px solid rgba(223,192,64,0.18); }
+  .st-p { color: var(--purple); background: rgba(158,124,245,0.07); border: 1px solid rgba(158,124,245,0.18); }
+  .st-gr { color: var(--green); background: rgba(56,200,130,0.07); border: 1px solid rgba(56,200,130,0.18); }
+  .st-r { color: var(--red); background: rgba(240,72,112,0.07); border: 1px solid rgba(240,72,112,0.18); }
+  .st-o { color: var(--orange); background: rgba(245,144,76,0.07); border: 1px solid rgba(245,144,76,0.18); }
+  .st-t { color: var(--teal); background: rgba(56,200,184,0.07); border: 1px solid rgba(56,200,184,0.18); }
+
+  h2 { font-family: var(--display); font-size: 40px; letter-spacing: 1.5px; color: var(--white); margin-bottom: 18px; line-height: 1; }
+  h3 { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--b1); padding-bottom: 7px; margin: 28px 0 12px; }
+  p { margin-bottom: 12px; color: var(--text); font-size: 15px; }
+  p.dim { color: var(--dim); font-size: 13.5px; }
+  strong { color: var(--white); }
+  em { color: var(--gold); font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--b1); margin: 52px 0; }
+  .section { margin-bottom: 68px; }
+
+  /* VERDICT */
+  .verdict-block { display: grid; grid-template-columns: 150px 1fr; background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; margin-bottom: 48px; }
+  .vs { background: var(--s2); border-right: 1px solid var(--b2); padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .vs-l { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .vs-score { font-family: var(--display); font-size: 76px; color: var(--teal); line-height: 1; }
+  .vs-d { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .vs-r { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-top: 8px; text-align: center; }
+  .vt { padding: 26px 28px; }
+  .vt-l { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .vt p { font-size: 14px; color: var(--dim); margin-bottom: 10px; }
+  .vt p:last-child { margin-bottom: 0; }
+
+  /* THREE MODES */
+  .modes-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 20px 0; }
+  @media(max-width:680px) { .modes-grid { grid-template-columns: 1fr; } }
+  .mode-card { background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; }
+  .mode-head { padding: 16px 20px; border-bottom: 1px solid var(--b1); }
+  .mode-num { font-family: var(--mono); font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .mode-name { font-family: var(--display); font-size: 28px; letter-spacing: 1.5px; color: var(--white); line-height: 1; }
+  .mode-body { padding: 16px 20px; }
+  .mode-stages { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .mode-stage { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; }
+  .ms-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .ms-text { color: var(--dim); }
+  .mode-body p { font-size: 13px; color: var(--dim); margin-bottom: 6px; }
+  .mode-body p:last-child { margin-bottom: 0; }
+  .mode-rule { font-family: var(--mono); font-size: 10px; color: var(--muted); border-top: 1px solid var(--b1); padding-top: 10px; margin-top: 10px; }
+  .mode-card.create .mode-num { color: var(--green); }
+  .mode-card.finish .mode-num { color: var(--gold); }
+  .mode-card.release .mode-num { color: var(--purple); }
+  .mode-card.create .ms-dot { background: var(--green); }
+  .mode-card.finish .ms-dot { background: var(--gold); }
+  .mode-card.release .ms-dot { background: var(--purple); }
+
+  /* STAGE CARDS */
+  .stage-list { display: flex; flex-direction: column; gap: 18px; margin: 20px 0; }
+  .stage-card { background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; }
+  .stage-head { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--b1); gap: 14px; }
+  .stage-num { font-family: var(--display); font-size: 36px; color: var(--b3); letter-spacing: 1px; line-height: 1; }
+  .stage-name { font-family: var(--display); font-size: 22px; letter-spacing: 1px; color: var(--white); line-height: 1; }
+  .stage-verdict { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 9px; border-radius: 3px; white-space: nowrap; }
+  .sv-solid { background: rgba(56,200,130,0.1); color: var(--green); border: 1px solid rgba(56,200,130,0.2); }
+  .sv-friction { background: rgba(240,72,112,0.1); color: var(--red); border: 1px solid rgba(240,72,112,0.2); }
+  .sv-fix { background: rgba(223,192,64,0.09); color: var(--gold); border: 1px solid rgba(223,192,64,0.2); }
+  .sv-warn { background: rgba(245,144,76,0.09); color: var(--orange); border: 1px solid rgba(245,144,76,0.2); }
+  .sv-cut { background: rgba(56,200,184,0.09); color: var(--teal); border: 1px solid rgba(56,200,184,0.2); }
+  .stage-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  @media(max-width:640px) { .stage-body { grid-template-columns: 1fr; } .stage-head { grid-template-columns: 1fr auto; } .stage-num { display: none; } }
+  .sb-col { padding: 16px 20px; border-right: 1px solid var(--b1); }
+  .sb-col:last-child { border-right: none; }
+  .sb-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; margin-top: 14px; }
+  .sb-label:first-child { margin-top: 0; }
+  .sb-col p { font-size: 13.5px; color: var(--dim); margin-bottom: 7px; line-height: 1.6; }
+  .sb-col p:last-child { margin-bottom: 0; }
+  .sb-col strong { color: var(--white); }
+  .track-pill { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 2px; margin: 2px; }
+  .tp-yes { background: rgba(56,200,130,0.09); color: var(--green); border: 1px solid rgba(56,200,130,0.18); }
+  .tp-no { background: rgba(240,72,112,0.08); color: var(--red); border: 1px solid rgba(240,72,112,0.16); }
+  .tp-tpl { background: rgba(158,124,245,0.08); color: var(--purple); border: 1px solid rgba(158,124,245,0.16); }
+
+  /* WORKFLOW FLOWS */
+  .flow-line { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 12px 0; }
+  .fl-step { font-family: var(--mono); font-size: 11px; padding: 6px 12px; background: var(--s2); border: 1px solid var(--b2); color: var(--dim); }
+  .fl-step:first-child { border-radius: 4px 0 0 4px; }
+  .fl-step:last-child { border-radius: 0 4px 4px 0; }
+  .fl-step.active { color: var(--gold); border-color: rgba(223,192,64,0.3); background: rgba(223,192,64,0.06); }
+  .fl-step.create { color: var(--green); border-color: rgba(56,200,130,0.3); background: rgba(56,200,130,0.06); }
+  .fl-step.finish { color: var(--teal); border-color: rgba(56,200,184,0.3); background: rgba(56,200,184,0.06); }
+  .fl-step.release-s { color: var(--purple); border-color: rgba(158,124,245,0.3); background: rgba(158,124,245,0.06); }
+  .fl-step.end { color: var(--green); border-color: rgba(56,200,130,0.4); background: rgba(56,200,130,0.1); }
+  .fl-arr { font-family: var(--mono); font-size: 13px; color: var(--muted); padding: 0 2px; }
+  .fl-loop { font-family: var(--mono); font-size: 10px; color: var(--red); padding: 0 8px; }
+
+  /* CAPTURE FLOW */
+  .capture-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  @media(max-width:600px) { .capture-paths { grid-template-columns: 1fr; } }
+  .cap-path { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; }
+  .cap-head { padding: 12px 16px; border-bottom: 1px solid var(--b1); }
+  .cap-type { font-family: var(--display); font-size: 20px; letter-spacing: 1px; color: var(--white); }
+  .cap-time { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .cap-body { padding: 14px 16px; }
+  .cap-step { display: flex; align-items: start; gap: 10px; margin-bottom: 8px; }
+  .cap-step:last-child { margin-bottom: 0; }
+  .cap-n { font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; width: 18px; margin-top: 1px; }
+  .cap-text { font-size: 13px; color: var(--dim); line-height: 1.5; }
+  .cap-text strong { color: var(--white); }
+
+  /* PRODUCTION CHECKLIST */
+  .prod-checklist { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; padding: 20px 22px; margin: 16px 0; font-family: var(--mono); font-size: 12px; }
+  .pc-title { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .pc-item { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 1px solid rgba(35,35,52,0.5); color: var(--dim); }
+  .pc-item:last-child { border-bottom: none; }
+  .pc-check { width: 14px; height: 14px; border: 1px solid var(--b3); border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+  .pc-check.done { background: rgba(56,200,130,0.15); border-color: rgba(56,200,130,0.3); color: var(--green); }
+  .pc-label { flex: 1; }
+  .pc-note { font-size: 10px; color: var(--muted); }
+
+  /* RELEASE TIMELINE */
+  .release-tl { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; margin: 16px 0; }
+  .rt-row { display: grid; grid-template-columns: 100px 1fr; border-bottom: 1px solid rgba(35,35,52,0.5); }
+  .rt-row:last-child { border-bottom: none; }
+  .rt-time { padding: 12px 16px; background: var(--s2); border-right: 1px solid var(--b1); font-family: var(--mono); font-size: 11px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .rt-content { padding: 12px 18px; }
+  .rt-action { font-family: var(--mono); font-size: 12px; color: var(--white); margin-bottom: 3px; }
+  .rt-detail { font-size: 12.5px; color: var(--dim); }
+  .rt-time.urgent { color: var(--red); background: rgba(240,72,112,0.07); }
+  .rt-time.active { color: var(--gold); }
+  .rt-time.plan { color: var(--dim); }
+  .rt-time.post { color: var(--green); }
+  @media(max-width:600px) { .rt-row { grid-template-columns: 1fr; } .rt-time { border-right: none; border-bottom: 1px solid var(--b1); justify-content: flex-start; } }
+
+  /* REVIEW RHYTHMS */
+  .review-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 16px 0; }
+  @media(max-width:640px) { .review-grid { grid-template-columns: 1fr; } }
+  .rev-card { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; }
+  .rev-head { padding: 12px 16px; border-bottom: 1px solid var(--b1); }
+  .rev-freq { font-family: var(--display); font-size: 24px; letter-spacing: 1px; color: var(--white); line-height: 1; }
+  .rev-time { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .rev-body { padding: 14px 16px; }
+  .rev-item { font-size: 13px; color: var(--dim); padding: 5px 0; border-bottom: 1px solid rgba(35,35,52,0.4); padding-left: 12px; position: relative; }
+  .rev-item::before { content: '·'; position: absolute; left: 0; color: var(--muted); }
+  .rev-item:last-child { border-bottom: none; }
+  .rev-item strong { color: var(--white); }
+
+  /* FINAL FLOW */
+  .final-flow { background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; margin: 20px 0; }
+  .ff-head { background: var(--s2); border-bottom: 1px solid var(--b2); padding: 18px 24px; }
+  .ff-title { font-family: var(--display); font-size: 24px; letter-spacing: 2px; color: var(--white); }
+  .ff-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1.5px; margin-top: 2px; }
+  .ff-modes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+  @media(max-width:640px) { .ff-modes { grid-template-columns: 1fr; } }
+  .ff-mode { border-right: 1px solid var(--b1); padding: 20px 22px; }
+  .ff-mode:last-child { border-right: none; }
+  .ff-mode-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .ff-mode-label.create { color: var(--green); }
+  .ff-mode-label.finish { color: var(--teal); }
+  .ff-mode-label.release { color: var(--purple); }
+  .ff-stage { display: flex; gap: 10px; align-items: start; margin-bottom: 10px; }
+  .ff-stage:last-child { margin-bottom: 0; }
+  .ff-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .ff-dot.create { background: var(--green); }
+  .ff-dot.finish { background: var(--teal); }
+  .ff-dot.release { background: var(--purple); }
+  .ff-stage-content {}
+  .ff-stage-name { font-family: var(--mono); font-size: 11.5px; color: var(--white); margin-bottom: 2px; }
+  .ff-stage-desc { font-size: 12.5px; color: var(--dim); line-height: 1.5; }
+  .ff-stage-track { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .ff-footer { border-top: 1px solid var(--b1); padding: 16px 22px; background: var(--bg); }
+  .ff-truth { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+  .ff-truth span { color: var(--teal); }
+
+  /* CALLOUT */
+  .callout { display: flex; gap: 14px; background: var(--s2); border: 1px solid var(--b2); border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; padding: 14px 18px; margin: 14px 0; }
+  .callout.red { border-left-color: var(--red); }
+  .callout.green { border-left-color: var(--green); }
+  .callout.teal { border-left-color: var(--teal); }
+  .callout.purple { border-left-color: var(--purple); }
+  .callout .icon { font-size: 17px; flex-shrink: 0; }
+  .callout p { margin: 0; font-size: 13.5px; color: var(--dim); }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+  th { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--b2); background: var(--s2); }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(35,35,52,0.5); color: var(--dim); vertical-align: top; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--white); font-family: var(--mono); font-size: 12px; }
+
+  .doc-footer { text-align: center; padding-top: 36px; border-top: 1px solid var(--b1); font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="stamp">Creative Workflow Audit — How Music Actually Gets Made</div>
+  <h1>JaZeR Music OS <span>v2</span></h1>
+  <div style="font-family:var(--display);font-size:24px;color:var(--dim);letter-spacing:1.5px;margin-top:2px;">Workflow Audit · Capture · Production · Release · Review Rhythms</div>
+  <div class="header-sub">10-Stage Lifecycle Evaluation · Creative Realism Check · May 2026</div>
+</div>
+
+
+<!-- ════════════════════════════════════ -->
+<!-- 01 — VERDICT -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-t">01 — Workflow Verdict</div>
+  <h2>Does This System Help You Make Music?</h2>
+
+  <div class="verdict-block">
+    <div class="vs">
+      <div class="vs-l">Workflow Score</div>
+      <div class="vs-score">6.5</div>
+      <div class="vs-d">out of 10</div>
+      <div class="vs-r">Too Linear</div>
+    </div>
+    <div class="vt">
+      <div class="vt-l">The Core Problem</div>
+      <p>The 10-stage lifecycle is correctly named but <strong>incorrectly sequenced</strong>. It presents creative work as a pipeline when creative work is actually a loop. For a producer-songwriter — someone who writes music and builds beats simultaneously — the sequence Capture → Develop → Write → Record → Produce assumes that lyrics come before production. They often don't. A beat sketch triggers a freestyle that becomes a concept that shapes a lyric. Production and writing happen in parallel, not series.</p>
+      <p>The system as designed will <strong>create compliance pressure</strong> — a feeling that you're supposed to be in one stage and shouldn't be doing things that belong to another stage. That pressure quietly kills creative momentum, which is the opposite of what a music OS should do.</p>
+      <p><strong>The fix is a mode restructure, not a rebuild.</strong> Collapse 10 sequential stages into three creative modes: <em>Create</em> (messy, parallel, low-friction), <em>Finish</em> (focused, iterative, quality-driven), and <em>Release</em> (administrative, deadline-driven, externally accountable). Within Create mode, you can move between writing and production freely. Within Finish mode, you're cycling through mix passes until you call it done. Release mode is structured because it has to be — distributors and playlists have hard deadlines.</p>
+      <p>After this restructure the system earns <strong>8.5/10</strong> — capable of genuinely increasing creative output by reducing documentation overhead during creative sessions and catching everything during the structured stages where documentation actually matters.</p>
+    </div>
+  </div>
+
+  <h3>The Three-Mode Model — Replace the Linear Pipeline</h3>
+  <div class="modes-grid">
+    <div class="mode-card create">
+      <div class="mode-head">
+        <div class="mode-num">Mode 01 — Create</div>
+        <div class="mode-name">CREATE</div>
+      </div>
+      <div class="mode-body">
+        <div class="mode-stages">
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Capture</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Develop</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Write ↔ Produce (parallel)</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Record</span></div>
+        </div>
+        <p>Messy, non-linear, low-documentation. Production and writing happen in whichever order fits the song. Freestyles become hooks. Beat sketches trigger lyrics. This mode has maximum creative freedom and minimum system overhead.</p>
+        <div class="mode-rule">Documentation: minimal. Status: Concept → Writing → Recording → Producing (any order).</div>
+      </div>
+    </div>
+    <div class="mode-card finish">
+      <div class="mode-head">
+        <div class="mode-num">Mode 02 — Finish</div>
+        <div class="mode-name">FINISH</div>
+      </div>
+      <div class="mode-body">
+        <div class="mode-stages">
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Mix</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Review (may loop back to Write)</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Polish</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Master</span></div>
+        </div>
+        <p>Focused, intentional, time-boxed. The goal is completion, not exploration. Every mix review session has a specific list of fixes. Set a "done enough" decision threshold at the start. This mode cycles but doesn't spiral — maximum 3 full mix passes before deciding the song is finished.</p>
+        <div class="mode-rule">Documentation: moderate. Status: Mixing → Review → Release Prep.</div>
+      </div>
+    </div>
+    <div class="mode-card release">
+      <div class="mode-head">
+        <div class="mode-num">Mode 03 — Release</div>
+        <div class="mode-name">RELEASE</div>
+      </div>
+      <div class="mode-body">
+        <div class="mode-stages">
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Release Prep</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Publish</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Promote</span></div>
+          <div class="mode-stage"><div class="ms-dot"></div><span class="ms-text">Note (not "Analyze")</span></div>
+        </div>
+        <p>Administrative, deadline-driven, externally accountable. This is the one mode where structure is non-negotiable because external systems (distributors, playlists, social platforms) have hard deadlines. The Release Prep Task Bundle handles all of it. "Analyze" is renamed "Note" — you're writing a few observations, not building an analytics dashboard.</p>
+        <div class="mode-rule">Documentation: full. Status: Release Prep → Released → Archived.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 02 — STAGE AUDIT -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-g">02 — Stage-by-Stage Audit</div>
+  <h2>Every Step Stress-Tested</h2>
+
+  <div class="stage-list">
+
+    <!-- CAPTURE -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">01</div>
+        <div class="stage-name">Capture</div>
+        <div class="stage-verdict sv-friction">Highest Risk Stage</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">What Works</div>
+          <p>Writing Assets DB with a template button on the dashboard is the right mechanism. The Asset Type property correctly categorizes creative fragments without requiring premature structure. The Floating formula (Song = empty) as the default view correctly treats unattached ideas as a creative inbox.</p>
+
+          <div class="sb-label">The Voice Memo Problem — The System Can't Solve This</div>
+          <p><strong>Most real captures don't happen in Notion.</strong> They happen in iPhone Voice Memos at 2am, in Google Recorder while driving, in Notes after a conversation. The system must accept that voice memos and raw audio captures live outside Notion and will be transcribed later. Fighting this reality creates friction at the most important moment.</p>
+          <p>The practical solution: phone home screen has Voice Memos pinned next to Notion. After a session, transcribe the best fragments into Writing Assets. Don't try to capture to Notion in the moment if a voice memo is faster.</p>
+
+          <div class="sb-label">Critical Rule — Only 1 Required Field at Capture</div>
+          <p>When the Quick Capture template button fires, the only mandatory field is the <strong>title</strong>. Not Asset Type. Not Status (auto = Raw). Not Song (auto = empty). Not Energy. One field. If the capture flow prompts for more than one field before letting you type the idea, the idea gets lost. Configure the template to open immediately on the body text with just the title field filled.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">Title (required — the fragment itself)</span><span class="track-pill tp-yes">Asset Type (fill after capture, not during)</span><span class="track-pill tp-yes">Date Created (auto)</span><span class="track-pill tp-yes">Status = Raw (auto)</span></div>
+
+          <div class="sb-label">Do Not Track at Capture</div>
+          <div><span class="track-pill tp-no">Energy</span><span class="track-pill tp-no">Genre Fit</span><span class="track-pill tp-no">Song relation</span><span class="track-pill tp-no">Recorded checkbox</span><span class="track-pill tp-no">Any classification that requires thought</span></div>
+
+          <div class="sb-label">The Separation Rule</div>
+          <p><strong>Capture and classify are two different actions that should not happen simultaneously.</strong> Capture is impulsive. Classification is deliberate. The Unattached Ideas view handles the backlog — you sort, type, and attach during Development sessions, not at the moment of capture. Mixing them creates the cognitive pressure that kills capture habits.</p>
+
+          <div class="sb-label">Recommended Template</div>
+          <div><span class="track-pill tp-tpl">Quick Idea Button → opens body text immediately, no prompts</span></div>
+          <p>Asset Type = Idea, Status = Raw, Date = auto. Everything else blank. The page body is the capture surface.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVELOP -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">02</div>
+        <div class="stage-name">Develop</div>
+        <div class="stage-verdict sv-fix">Needs Clarity</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">What "Develop" Actually Means</div>
+          <p>Development is not a single stage — it's two distinct activities that often get confused: <strong>sorting raw captures</strong> (classifying, typing, attaching) and <strong>developing creative content</strong> (fleshing out a hook, extending a freestyle into verses, building a concept note from a title idea).</p>
+          <p>The Unattached Ideas view is the sorting surface. The actual creative development happens inside Writing Asset page bodies. These are different sessions with different energies — sorting is administrative, developing is creative.</p>
+
+          <div class="sb-label">The "Parking Lot → Song" Trigger</div>
+          <p>The moment a floating idea crosses from "loose fragment" to "this has a name, a direction, and at least one developed piece" is when a Song record should be created. There's no formula for this — it's a creative judgment. <strong>The trigger is intentionality, not completion.</strong> A song doesn't need a verse and chorus to deserve a Song record — it needs a name and a clear direction.</p>
+          <p>When you create the Song record, immediately attach the Writing Asset(s) that sparked it. The song now has creative history from day one.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">What Creates Friction Here</div>
+          <p>The friction point is the "Developing" status on Writing Assets. This status encourages you to update assets through stages when the reality is that an idea either gets used or it doesn't. <strong>You don't need to track the development progress of individual writing assets</strong> — you need to know if they're floating (not attached) or attached (part of a song).</p>
+          <p>Simplification: Writing Asset Status = Raw or Attached or Archived. Cut "Developing" and "Used" — they create ambiguity without adding decision value. "Attached" means it's linked to a Song. When the song releases, the asset is effectively "Used." Archived = deliberately dead-ended.</p>
+
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">Song relation (when promoted)</span><span class="track-pill tp-yes">Asset Type (now that there's time to classify)</span><span class="track-pill tp-yes">Status update: Raw → Attached</span></div>
+
+          <div class="sb-label">Do Not Track</div>
+          <div><span class="track-pill tp-no">Intermediate development stages</span><span class="track-pill tp-no">Version history (page editing is sufficient)</span><span class="track-pill tp-no">Development session logs per asset</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WRITE + PRODUCE (combined) -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">03</div>
+        <div class="stage-name">Write + Produce</div>
+        <div class="stage-verdict sv-friction">Wrong Sequence — These Are Parallel</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">The Core Architectural Error</div>
+          <p>The current lifecycle places <em>Write</em> at stage 3 and <em>Produce</em> at stage 5, with <em>Record</em> at stage 4 between them. This implies: you finish writing before you produce, and you record before the production is done. For many genres and workflows this is backwards.</p>
+          <p>For JaZeR — a producer-songwriter working in FL Studio across soul, hip-hop, and neo-soul — a more realistic sequence is: <em>beat sketch → freestyle over the beat → extract the hook → write around it → build production around the recorded vocal</em>. Production informs writing. Writing informs production. They're iterative partners, not consecutive stages.</p>
+          <p><strong>The system must support beat-first AND lyrics-first workflows without forcing the other one into a wrong stage order.</strong></p>
+
+          <div class="sb-label">How to Handle This in Notion</div>
+          <p>Song Status = "Writing" and Status = "Producing" are not mutually exclusive in reality — but Notion's Select property forces one status at a time. The solution: <strong>treat the status as "primary mode" not "exclusive mode."</strong> A song in Writing status can have FL Studio open. A song in Producing status can have lyric drafts in progress. The status reflects where the most active work is happening, not what you're forbidden to do.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">Production Tracking Rule</div>
+          <p><strong>Production progress lives in the Song page body as a checklist — not in Tasks DB.</strong> This is the most important production workflow decision. A checkbox list inside the Song page is: always visible, zero-friction to update, and perfectly sufficient for solo production tracking.</p>
+
+          <div class="prod-checklist">
+            <div class="pc-title">Song Page Body — Production Checklist</div>
+            <div class="pc-item"><div class="pc-check done">✓</div><div class="pc-label">Beat foundation (BPM · Key · basic structure)</div></div>
+            <div class="pc-item"><div class="pc-check done">✓</div><div class="pc-label">Reference track locked</div></div>
+            <div class="pc-item"><div class="pc-check done">✓</div><div class="pc-label">Lyrics / writing complete</div></div>
+            <div class="pc-item"><div class="pc-check"></div><div class="pc-label">Vocal recording done (best take selected)</div></div>
+            <div class="pc-item"><div class="pc-check"></div><div class="pc-label">Production around vocal complete</div></div>
+            <div class="pc-item"><div class="pc-check"></div><div class="pc-label">Mix pass 1 done</div></div>
+            <div class="pc-item"><div class="pc-check"></div><div class="pc-label">Mix review session logged</div></div>
+            <div class="pc-item"><div class="pc-check"></div><div class="pc-label">Final master bounce</div></div>
+          </div>
+
+          <div class="sb-label">Do Not Use Tasks DB for This</div>
+          <div><span class="track-pill tp-no">Individual production Tasks for drum programming</span><span class="track-pill tp-no">Tasks for each mix element</span><span class="track-pill tp-no">Production task tracking with due dates</span></div>
+          <p>Tasks DB is for things with external accountability or release deadlines. "Program the bassline" is a creative action, not a task. Use the page body checklist.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECORD -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">04</div>
+        <div class="stage-name">Record</div>
+        <div class="stage-verdict sv-solid">Correctly Positioned</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">What Works</div>
+          <p>Recording as a Song status is correct — it marks a significant shift from purely creative work (writing/producing) to performance-capture work. Song Status = Recording communicates "we're past the conceptual stage; there's audio that needs to exist."</p>
+          <p>Recording sessions are among the most valuable to log in Sessions DB — they mark when real audio was captured and are useful for reconstructing take history. "Recorded the chorus four times on May 16, took best of takes 2 and 4" is genuinely useful context three months later.</p>
+
+          <div class="sb-label">What Creates Friction</div>
+          <p>Recording sessions are also when you're most likely to skip the log. You're in performance mode — tracking details during a vocal session breaks the mental state. The solution: log the session <em>after</em> the session, not during. The Session template should be designed for <em>post-session reflection</em>, not real-time entry.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">Session Type = Recording</span><span class="track-pill tp-yes">Date</span><span class="track-pill tp-yes">Song relation</span><span class="track-pill tp-yes">Key Win (one sentence — "locked the hook vocal")</span><span class="track-pill tp-yes">Next Step (one sentence — "produce around it next")</span></div>
+
+          <div class="sb-label">Do Not Track</div>
+          <div><span class="track-pill tp-no">Take numbers in Notion (this belongs in FL Studio or a recording app)</span><span class="track-pill tp-no">Equipment chain (put this in the Session page body if needed)</span><span class="track-pill tp-no">Real-time notes during recording</span></div>
+
+          <div class="sb-label">Recording → Rewrite Loop</div>
+          <p>Recording often reveals that what sounded good written doesn't sound good sung. The system must explicitly permit returning to Writing status after Recording. This is not a failure — it's the most common quality-control mechanism in songwriting. Song Status = Writing ← Recording is a valid flow.</p>
+          <div><span class="track-pill tp-yes">Loop-back permitted: Recording → Writing → Recording</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW / MIX -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">05</div>
+        <div class="stage-name">Mix + Review</div>
+        <div class="stage-verdict sv-fix">Consolidate These Two Stages</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">The Mixing/Review Overlap Problem</div>
+          <p>The current workflow separates Produce (stage 5), Review (stage 6), and then reaches Release Prep (stage 7). In practice, Mixing and Review are the same iterative process: you mix → listen critically → fix → mix again → listen critically → decide it's done. They're not separate pipeline stages — they're cycles within the "Finish" mode.</p>
+          <p><strong>Consolidate into: Mixing status on the Song, with a cap of 3 review cycles.</strong> After the third pass, the song is either done or shelved. This is not a quality decision — it's a momentum decision. The endless-mixing trap kills more independent releases than bad production does.</p>
+
+          <div class="sb-label">The Critical Coaches Framework</div>
+          <p>The existing Critical Coaches (Music) v1 Architecture is the right tool for the Review cycle — a structured listening framework. Use it during Mix Review sessions, not as a general "review" phase. It surfaces problems worth fixing, not just problems.</p>
+          <p>Link this framework inside the Mix Review Session template so it appears automatically when you log a mix review session.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">The "Done Enough" Decision</div>
+          <p>The Review stage needs a clear exit condition, not an open-ended quality target. <strong>The exit condition: "Would I be proud to put this out knowing that improvements are still possible?" If yes, the song is done.</strong> If you're still asking "is it good enough?" after three mix passes, you've crossed from quality control into anxiety — and anxiety doesn't produce better mixes.</p>
+          <p>Add one property to Songs DB: <strong>Mix Pass Count</strong> (Number). Increment it each time you do a full mix pass. When it hits 3, force the decision: Release Prep or Shelve.</p>
+
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">Session Type = Mix Review</span><span class="track-pill tp-yes">LUFS Actual (after each pass)</span><span class="track-pill tp-yes">Mix Pass Count (increment each full pass)</span><span class="track-pill tp-yes">Fix list in session page body</span></div>
+
+          <div class="sb-label">Do Not Track</div>
+          <div><span class="track-pill tp-no">Subjective quality scores</span><span class="track-pill tp-no">Comparison notes across multiple songs</span><span class="track-pill tp-no">Mix settings documentation (FL Studio has this)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELEASE PREP / PUBLISH -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">06</div>
+        <div class="stage-name">Release Prep + Publish</div>
+        <div class="stage-verdict sv-solid">Most Structured Stage — Correctly So</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">Why This Stage Gets Full Structure</div>
+          <p>Release Prep is the only stage in the entire workflow where external deadlines are hard and missing them has real consequences. The playlist pitch window (7 days before release) doesn't negotiate. Distribution submission timelines are fixed. Content scheduling for release week has a calendar. This is the one place where the system should be prescriptive, not permissive.</p>
+          <p>The Release Prep Bundle template (8 tasks, pre-linked to the Release record) is the right tool. Create it, run through it, don't improvise release prep.</p>
+
+          <div class="sb-label">Timing Rule — Start Earlier Than You Think</div>
+          <p><strong>Create the Release record and generate the task bundle when the song enters Mixing status</strong> — not when it reaches Release Prep. This gives you the release planning timeline visible during the finish phase, so you know whether you have 6 weeks or 6 days to mix and master. The release date should inform the mix deadline, not the other way around.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">The Publish Step</div>
+          <p>Publishing is an action, not a status phase — it takes minutes once submission is done. Song Status moves from Release Prep to Released when the distribution link is confirmed. This doesn't need its own stage.</p>
+          <p>What matters: confirming the ISRC is correct, the UPC is logged, and the distribution link is stored on the Release record. That's the entire "Publish" administrative action.</p>
+
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">Release record (created at Mixing stage)</span><span class="track-pill tp-yes">8 Release Prep tasks (from bundle template)</span><span class="track-pill tp-yes">Playlist Pitch Deadline (day one of Release Prep)</span><span class="track-pill tp-yes">Artwork Done checkbox</span><span class="track-pill tp-yes">Metadata Verified checkbox</span><span class="track-pill tp-yes">ISRC on Song record</span><span class="track-pill tp-yes">Distribution Link on Release record</span></div>
+
+          <div class="sb-label">Do Not Track</div>
+          <div><span class="track-pill tp-no">Detailed marketing plans in Notion (use the Drive Waterfall doc)</span><span class="track-pill tp-no">Social media scheduling inside Notion databases</span><span class="track-pill tp-no">Press contacts in Notion (no volume to justify a DB)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMOTE -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">07</div>
+        <div class="stage-name">Promote</div>
+        <div class="stage-verdict sv-warn">Underspecified — Simplify</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">The Reality of Independent Artist Promotion</div>
+          <p>For an independent artist at this stage, promotion is primarily: social media content (IG posts, stories, short-form video), playlist pitch follow-up, and direct outreach to curators or blogs. None of this requires a complex Notion database. Most of it requires showing up consistently for 2–4 weeks post-release.</p>
+          <p>The risk: building an elaborate content calendar and promo task system for releases creates overhead that's disproportionate to the scale of the operation. At this stage, <strong>a simple weekly content checklist is sufficient</strong>. The 4-Week Rollout Content Calendar Generator already exists — use it, don't rebuild it.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">What Actually Needs Tracking</div>
+          <p>Three content tasks per week for 4 weeks post-release. That's 12 tasks. Create them in Tasks DB (Type = Content, linked to the Release). Check them off as you post. That's the entire promo tracking system.</p>
+
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">12 content tasks (3/week × 4 weeks)</span><span class="track-pill tp-yes">Playlist pitch confirmation (was it submitted? yes/no)</span><span class="track-pill tp-yes">Any notable placement (note in Release record body)</span></div>
+
+          <div class="sb-label">Do Not Track</div>
+          <div><span class="track-pill tp-no">Individual post analytics in Notion</span><span class="track-pill tp-no">A/B content testing database</span><span class="track-pill tp-no">Influencer outreach CRM (no volume to justify)</span><span class="track-pill tp-no">Streaming numbers inside Notion (use Spotify for Artists directly)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYZE → NOTE -->
+    <div class="stage-card">
+      <div class="stage-head">
+        <div class="stage-num">08</div>
+        <div class="stage-name">Analyze → Note</div>
+        <div class="stage-verdict sv-cut">Rename + Radically Simplify</div>
+      </div>
+      <div class="stage-body">
+        <div class="sb-col">
+          <div class="sb-label">Why "Analyze" Is the Wrong Word</div>
+          <p>"Analyze" implies a data-driven process with metrics, charts, and structured reporting. For an independent artist releasing singles without a full analytics stack, this creates aspirational overhead — you feel like you should be doing something more sophisticated than you are. The result is that nothing gets written because it feels insufficient.</p>
+          <p><strong>Rename to "Note."</strong> A note is three sentences written 30 days after release. It captures what worked, what didn't, and what you'd do differently. It takes 5 minutes. It's 100× more likely to be completed than a structured analytics review, and it produces nearly the same decision-relevant insight.</p>
+        </div>
+        <div class="sb-col">
+          <div class="sb-label">The Three-Question Post-Release Note</div>
+          <p>Written inside the Release record page body. Three questions, three sentences. Done.</p>
+
+          <div style="background:var(--s2);border:1px solid var(--b2);border-radius:4px;padding:14px 18px;margin:10px 0;font-family:var(--mono);font-size:12px;line-height:2;">
+            <div style="color:var(--muted);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">30-Day Note Template</div>
+            <div style="color:var(--dim);">📊 Streams: <span style="color:var(--white);">[number]</span></div>
+            <div style="color:var(--dim);">✅ What worked: <span style="color:var(--white);">[one sentence]</span></div>
+            <div style="color:var(--dim);">❌ What didn't: <span style="color:var(--white);">[one sentence]</span></div>
+            <div style="color:var(--dim);">🔄 Next time: <span style="color:var(--white);">[one sentence]</span></div>
+          </div>
+
+          <div class="sb-label">Track</div>
+          <div><span class="track-pill tp-yes">30-day note (4 lines inside Release page body)</span><span class="track-pill tp-yes">Playlist placements (yes/no/which ones)</span><span class="track-pill tp-yes">Top-performing content piece (one line)</span></div>
+
+          <div class="sb-label">Do Not Build</div>
+          <div><span class="track-pill tp-no">A streaming analytics database in Notion</span><span class="track-pill tp-no">Content performance tracking across platforms</span><span class="track-pill tp-no">Revenue tracking in Notion (use a spreadsheet)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 03 — CAPTURE FLOW -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-gr">03 — Creative Capture Recommendations</div>
+  <h2>The Fastest Possible Capture</h2>
+
+  <div class="callout teal">
+    <span class="icon">⚡</span>
+    <p><strong>The goal:</strong> a creative fragment captured in Notion in under 8 seconds, or in a voice memo in under 3 seconds. The system must support both. The worst outcome is a creative moment where you're deciding between your capture options and the idea dissolves during the decision.</p>
+  </div>
+
+  <div class="capture-paths">
+
+    <div class="cap-path">
+      <div class="cap-head">
+        <div class="cap-type">Text Idea</div>
+        <div class="cap-time">Target: under 8 seconds · Notion template button</div>
+      </div>
+      <div class="cap-body">
+        <div class="cap-step"><div class="cap-n">1</div><div class="cap-text"><strong>Tap Quick Capture button</strong> on dashboard or Song Lab. No navigation. Single tap.</div></div>
+        <div class="cap-step"><div class="cap-n">2</div><div class="cap-text"><strong>Type the fragment</strong> in the page body. Not the title first — body first, because the idea is the content. The title is for finding it later.</div></div>
+        <div class="cap-step"><div class="cap-n">3</div><div class="cap-text"><strong>Close the page.</strong> Asset Type = Idea auto-filled. Status = Raw auto-filled. Date = auto. Done. Do not type a title, do not select Asset Type, do not add a Song relation. All of that happens in Development.</div></div>
+        <div class="cap-step"><div class="cap-n">4</div><div class="cap-text">During next Development session: <strong>give it a title, pick the Asset Type, optionally attach to a Song.</strong> Classification deferred, not skipped.</div></div>
+      </div>
+    </div>
+
+    <div class="cap-path">
+      <div class="cap-head">
+        <div class="cap-type">Voice Memo</div>
+        <div class="cap-time">Target: under 3 seconds · Outside Notion</div>
+      </div>
+      <div class="cap-body">
+        <div class="cap-step"><div class="cap-n">1</div><div class="cap-text"><strong>Record in Voice Memos</strong> (iPhone) or Google Recorder. Name it with a one-word label while recording — say "hook for that soul thing" or "verse idea exhale song."</div></div>
+        <div class="cap-step"><div class="cap-n">2</div><div class="cap-text"><strong>During the next session:</strong> listen back, transcribe the best fragments into Writing Assets. One voice memo may yield 3 Writing Asset records — that's correct.</div></div>
+        <div class="cap-step"><div class="cap-n">3</div><div class="cap-text"><strong>Do not try to integrate voice memos into Notion in real time.</strong> Notion can't record audio. Forcing a voice-memo workflow into Notion creates more friction than it solves. The memo is your external capture. Notion is your structured home.</div></div>
+        <div class="cap-step"><div class="cap-n">4</div><div class="cap-text"><strong>Optionally:</strong> add a text field inside a Writing Asset body with "Source: Voice Memo — [date]" to track that a recording exists and should be checked before the page is archived.</div></div>
+      </div>
+    </div>
+
+    <div class="cap-path">
+      <div class="cap-head">
+        <div class="cap-type">Freestyle Session</div>
+        <div class="cap-time">Target: 30 seconds after session · Notion template</div>
+      </div>
+      <div class="cap-body">
+        <div class="cap-step"><div class="cap-n">1</div><div class="cap-text"><strong>After the freestyle:</strong> create a Writing Asset via template button — Asset Type = Freestyle pre-filled.</div></div>
+        <div class="cap-step"><div class="cap-n">2</div><div class="cap-text"><strong>Title it with date + vibe:</strong> "Freestyle — May 16 · defiance energy" — enough to find it and remember the feel.</div></div>
+        <div class="cap-step"><div class="cap-n">3</div><div class="cap-text"><strong>Paste or type the best lines</strong> into the body. You don't need the whole freestyle — just the lines that surprised you. If there's a voice recording, note it as "Source: Voice Memo [date]."</div></div>
+        <div class="cap-step"><div class="cap-n">4</div><div class="cap-text"><strong>Optionally log a session</strong> (Type = Freestyle, Song = if applicable). The freestyle page is the primary record; the session log is the secondary metadata. One doesn't require the other.</div></div>
+      </div>
+    </div>
+
+    <div class="cap-path">
+      <div class="cap-head">
+        <div class="cap-type">Beat Sketch</div>
+        <div class="cap-time">Target: stays in FL Studio · Notion is secondary</div>
+      </div>
+      <div class="cap-body">
+        <div class="cap-step"><div class="cap-n">1</div><div class="cap-text"><strong>Beat sketches live in FL Studio first.</strong> Name the file with a one-word working title: "exhale_v1.flp" or "defiance_beat_sketch.flp." The naming is the capture.</div></div>
+        <div class="cap-step"><div class="cap-n">2</div><div class="cap-text"><strong>If the sketch has strong potential:</strong> create a Song record in Notion (Status = Concept) with the FL Studio file name as a note in the body or DAW Project Link property.</div></div>
+        <div class="cap-step"><div class="cap-n">3</div><div class="cap-text"><strong>Do not create a Writing Asset for a beat sketch.</strong> Writing Assets are textual/lyrical objects. A beat sketch is an audio/project file — it belongs in FL Studio, referenced from a Song record, not documented as a Writing Asset.</div></div>
+        <div class="cap-step"><div class="cap-n">4</div><div class="cap-text"><strong>Create the Song record when the sketch has a direction</strong> — when you know what the song is trying to be, even loosely. Before that, it's just a beat. Beats become songs. Don't pre-populate Songs DB with untitled sketches that never resolve.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 04 — SONG DEVELOPMENT -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-p">04 — Song Development — Idea to Song Without Duplicate Data</div>
+  <h2>From Fragment to Song Project</h2>
+
+  <p>The most common data-duplication failure in music OS systems: the same lyric appears in a Writing Asset, in the Song page body, and in a lyrics document stored somewhere else. Three copies, no single truth. The rule for this system is simple: <strong>lyrics live in Writing Assets only.</strong> The Song page body contains structure, notes, and references — not the lyrics themselves.</p>
+
+  <div class="flow-line">
+    <div class="fl-step create">Voice memo / Writing Asset</div><div class="fl-arr">→</div>
+    <div class="fl-step create">Unattached Ideas view</div><div class="fl-arr">→</div>
+    <div class="fl-step create">Development session (classify + develop)</div><div class="fl-arr">→</div>
+    <div class="fl-step active">Song record created (Concept status)</div><div class="fl-arr">→</div>
+    <div class="fl-step active">Writing Assets attached to Song</div><div class="fl-arr">→</div>
+    <div class="fl-step finish">Song status → Writing</div><div class="fl-arr">→</div>
+    <div class="fl-step finish">Full Lyric Sheet Writing Asset created</div>
+  </div>
+
+  <h3>The Single Source of Truth Rule</h3>
+  <table>
+    <thead><tr><th>Content Type</th><th>Lives In</th><th>Never In</th></tr></thead>
+    <tbody>
+      <tr><td>Raw lyric fragments</td><td>Writing Asset page body (Type = Idea/Hook/Verse/etc.)</td><td>Song page body — never</td></tr>
+      <tr><td>Full assembled lyrics</td><td>Writing Asset page body (Type = Lyric Sheet), attached to Song</td><td>Song page body, Google Docs, Notes — never both</td></tr>
+      <tr><td>Production notes</td><td>Song page body (dedicated section)</td><td>Writing Assets, FL Studio external to the body note</td></tr>
+      <tr><td>BPM, Key, LUFS</td><td>Song DB properties (not body)</td><td>Writing assets, production notes — the DB property is the source</td></tr>
+      <tr><td>Plugin chain notes</td><td>Song page body ("Key Plugins used" text section)</td><td>FL Studio Plugin CC (that system is reference, not song-specific)</td></tr>
+      <tr><td>Reference track</td><td>Song DB property (Reference Track URL)</td><td>Multiple places — one URL property, that's it</td></tr>
+      <tr><td>Release metadata</td><td>Releases DB (ISRC, UPC, Distribution Link)</td><td>Song page body — the relation to the Release record is sufficient</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Song Page Body — What Actually Goes There</h3>
+  <p>The Song record page body is <strong>a project workspace, not a content store.</strong> It holds the framework, the checklist, the session log view, and notes — but the actual creative content (lyrics, hooks) lives in Writing Assets that are linked to this song. Opening a Song page should orient you instantly without duplicating anything.</p>
+
+  <div style="background:var(--s1);border:1px solid var(--b2);border-radius:8px;padding:22px 26px;margin:16px 0;font-family:var(--mono);font-size:12px;line-height:2;">
+    <div style="color:var(--muted);font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;">Song Page Body Template — Canonical Structure</div>
+    <div style="color:var(--dim);">📎 <strong style="color:var(--white);">Writing Assets</strong> [linked view — filtered to this Song]</div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">Unattached assets show in Unattached Ideas — once linked here, they appear in this view. Lyrics live here, not below.</div>
+    <br>
+    <div style="color:var(--dim);">🎯 <strong style="color:var(--white);">Reference</strong></div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">Reference Track: [URL or embedded]</div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">Vision note: [one paragraph — what is this song?]</div>
+    <br>
+    <div style="color:var(--dim);">☑ <strong style="color:var(--white);">Production Checklist</strong></div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">[8-item checkbox list — see production section]</div>
+    <br>
+    <div style="color:var(--dim);">🎛️ <strong style="color:var(--white);">Production Notes</strong></div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">FL Project: [file name/path]</div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">Key Plugins: [2–3 notable sounds, text only]</div>
+    <div style="color:var(--dim);padding-left:20px;font-size:11px;">Mix notes: [brief, accumulated across sessions]</div>
+    <br>
+    <div style="color:var(--dim);">⏱ <strong style="color:var(--white);">Sessions</strong> [linked view — Sessions DB filtered to this Song]</div>
+    <br>
+    <div style="color:var(--dim);">✅ <strong style="color:var(--white);">Tasks</strong> [linked view — Tasks DB filtered to this Song, Status ≠ Done]</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 05 — PRODUCTION WORKFLOW -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-o">05 — Production Workflow</div>
+  <h2>Track Progress Without Building a Plugin Archive</h2>
+
+  <div class="callout red">
+    <span class="icon">🎛️</span>
+    <p><strong>The production system boundary:</strong> FL Studio Plugin Command Center is a <em>reference system</em> — it answers "which plugin should I use for this?" Notion is a <em>progress system</em> — it answers "where is this song in the process?" These two systems have different jobs and must not merge. When production reference material starts appearing inside song pages or the Music OS, the boundary has been crossed and the workspace starts feeling like a production archive.</p>
+  </div>
+
+  <h3>What Lives Where</h3>
+  <table>
+    <thead><tr><th>Production Context</th><th>Correct Home</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Plugin selection for a sound</td><td>FL Studio Plugin Command Center</td><td>141 plugins with scorecards — this is purpose-built reference. Don't duplicate it.</td></tr>
+      <tr><td>Vocal chain reference</td><td>FL Studio Vocal Plugin Grid (Drive) — linked from Song page</td><td>Per-song chain varies but references the same plugin set. One Drive link, not a DB property.</td></tr>
+      <tr><td>Specific chain used on THIS song</td><td>Song page body — "Key Plugins" text note (2–3 lines)</td><td>Song-specific context belongs on the song. Not in FL Studio CC, not in a DB property.</td></tr>
+      <tr><td>Production progress (what's done)</td><td>Song page body — 8-item production checklist</td><td>Checkbox list is zero-friction and always visible when you open the song.</td></tr>
+      <tr><td>BPM, Key, LUFS targets</td><td>Songs DB properties</td><td>These are structured metadata, not notes. DB properties are sortable and visible on cards.</td></tr>
+      <tr><td>Mix session notes</td><td>Session page body (Type = Mix Review)</td><td>Detailed per-session notes belong in the session record, not accumulated in the song body.</td></tr>
+      <tr><td>Sample license information</td><td>FL Studio Plugin Command Center or Vault reference</td><td>This is a legal/reference document, not creative workflow. Don't clutter song pages with it.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Mix Pass Cap — 3 Passes Maximum</h3>
+  <p>Add a <strong>Mix Pass Count</strong> property (Number) to Songs DB. Increment it after each full mix session. At 3: make a decision. Released or Shelved. No exceptions without a specific reason documented in the Song body. This rule exists because perfectionism in mixing is one of the top three reasons independent artists stop releasing music. The cap creates a forcing function that protects momentum.</p>
+
+  <div class="callout">
+    <span class="icon">🎚️</span>
+    <p><strong>The production reality check:</strong> The FL Studio Plugin Command Center is one of the strongest systems in this workspace. Its 7 databases, 141 plugin profiles, and scorecard system are genuinely useful for a serious producer. The risk is treating it as an active production workspace instead of a reference library. The reference library should inform production decisions; it should not require updates during song production. If you're updating plugin scorecards while trying to finish Transformative Trance, the boundary has broken.</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 06 — RELEASE WORKFLOW -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-p">06 — Release Workflow</div>
+  <h2>What Happens Once a Song Enters Release Prep</h2>
+
+  <div class="release-tl">
+    <div class="rt-row">
+      <div class="rt-time plan">Song enters Mixing</div>
+      <div class="rt-content">
+        <div class="rt-action">Create the Release record now — not at Release Prep</div>
+        <div class="rt-detail">Set a target release date. Generate the Release Prep Task Bundle (8 tasks pre-linked). The release timeline is now visible even while you're still mixing. This prevents the "song is done but now I have to figure out release" scramble.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time plan">D - 60 days</div>
+      <div class="rt-content">
+        <div class="rt-action">Commission or create release artwork</div>
+        <div class="rt-detail">Artwork takes time. If you're making it yourself, start 60 days out. If you're commissioning, start earlier. The release date doesn't move to accommodate artwork delays — artwork accommodates the release date.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time active">D - 30 days</div>
+      <div class="rt-content">
+        <div class="rt-action">Master complete · Metadata verified · ISRC registered</div>
+        <div class="rt-detail">ISRC: register through your distributor's portal or ISRC Agency. Enter it on the Song record. Verify: title spelling (exactly as you want it to appear), artist name, genre, and featured artist credits. These cannot be corrected after submission to most distributors without a delay fee.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time urgent">D - 21 days</div>
+      <div class="rt-content">
+        <div class="rt-action">Submit to distribution</div>
+        <div class="rt-detail">DistroKid/Amuse/TuneCore need 5–7 business days minimum, but 3 weeks gives you buffer for rejections (artwork size issues, metadata errors). Submit early — you can always update the release date forward, not backward.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time urgent">D - 7 days · HARD DEADLINE</div>
+      <div class="rt-content">
+        <div class="rt-action">Playlist pitch submitted</div>
+        <div class="rt-detail">Editorial playlist pitching (Spotify, Apple Music editorial) closes approximately 7 days before release. This is not negotiable. The Playlist Pitch Deadline property on both the Song and Release records exists specifically for this. If you miss this window, you miss editorial consideration for this release cycle entirely.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time active">D - 3 days</div>
+      <div class="rt-content">
+        <div class="rt-action">Content ready · Promo Assets Ready checkbox</div>
+        <div class="rt-detail">IG post drafted and scheduled. Story assets ready. Short-form video script or recording done. Caption approved. Everything should be in the scheduling tool (Later, Buffer, native schedulers) — not still being written.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time end">Release Day</div>
+      <div class="rt-content">
+        <div class="rt-action">Publish · Update Song Status → Released · Log distribution link</div>
+        <div class="rt-detail">Confirm the release is live. Copy the Spotify/Apple link into the Release record. Post the scheduled content. Mark all release prep tasks as Done. Song status → Released. This should take 15 minutes, not a day — everything was prepared.</div>
+      </div>
+    </div>
+    <div class="rt-row">
+      <div class="rt-time post">D + 30</div>
+      <div class="rt-content">
+        <div class="rt-action">Write the 30-Day Note · Archive the Release</div>
+        <div class="rt-detail">4 lines in the Release record body. Stream count, what worked, what didn't, what to do differently. Then mark Release status → Complete. It moves off the active pipeline. The song stays in Released Catalog forever.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 07 — REVIEW RHYTHMS -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-gr">07 — Review Rhythm</div>
+  <h2>Daily, Weekly, and Release-Cycle Habits</h2>
+
+  <div class="callout teal">
+    <span class="icon">🕐</span>
+    <p><strong>The principle:</strong> Review rhythms exist to manage the space <em>between</em> sessions, not to add sessions. Daily review is 5 minutes — it's a decision about what to do, not a documentation session. Weekly review is 15 minutes — it's a clearing house, not a retrospective. Release-cycle review happens once and informs the next release. None of these should feel like work; they should feel like orientating.</p>
+  </div>
+
+  <div class="review-grid">
+    <div class="rev-card">
+      <div class="rev-head">
+        <div class="rev-freq">Daily</div>
+        <div class="rev-time">5 minutes maximum · at session start</div>
+      </div>
+      <div class="rev-body">
+        <div class="rev-item"><strong>Open dashboard</strong> — look at Today's Focus. Which task am I doing? Open the Song.</div>
+        <div class="rev-item"><strong>If no Focus tasks are set</strong> — open Active Songs gallery. Pick one song. Open it. Mark one task as Focus. Close the dashboard. Start working.</div>
+        <div class="rev-item"><strong>Log the session</strong> at end — 30 seconds, Type + Song + Key Win. Tap the session button on the dashboard or Song page. Not in the middle of working.</div>
+        <div class="rev-item"><strong>Do not check</strong> Unattached Ideas, Release Pipeline, or any hub during daily review unless they're directly relevant to today's session.</div>
+      </div>
+    </div>
+
+    <div class="rev-card">
+      <div class="rev-head">
+        <div class="rev-freq">Weekly</div>
+        <div class="rev-time">15 minutes · Sunday or Monday</div>
+      </div>
+      <div class="rev-body">
+        <div class="rev-item"><strong>Scan Unattached Ideas</strong> — for each: attach to a song, advance to Hook/Verse/etc. type, or archive. Target: zero floating ideas older than 7 days.</div>
+        <div class="rev-item"><strong>Check Stale Warning songs</strong> — any song with the ⚠️ Stale flag. Either schedule a session or move to Shelved. No song stays stale for more than two weekly reviews.</div>
+        <div class="rev-item"><strong>Set Focus for next week</strong> — pick 3–5 specific tasks across active songs. Check Focus = true. This populates next week's Today's Focus view before the week starts.</div>
+        <div class="rev-item"><strong>Purge ghost tasks</strong> — any task that's been Open with no progress for 30 days gets deleted. Not archived. Deleted. Stale tasks are noise.</div>
+        <div class="rev-item"><strong>Check Release Pipeline</strong> — any upcoming deadlines in the next 14 days? If yes, mark those tasks as Focus immediately.</div>
+      </div>
+    </div>
+
+    <div class="rev-card">
+      <div class="rev-head">
+        <div class="rev-freq">Release Cycle</div>
+        <div class="rev-time">Once per release · D+30</div>
+      </div>
+      <div class="rev-body">
+        <div class="rev-item"><strong>Write the 30-Day Note</strong> — 4 lines. Streams, what worked, what didn't, next time. In the Release record body.</div>
+        <div class="rev-item"><strong>Archive the Release</strong> — mark Status = Complete. It disappears from the active pipeline. The song stays in Released Catalog.</div>
+        <div class="rev-item"><strong>Inventory Unattached Ideas</strong> — post-release often generates new ideas from the promo energy. Clear the backlog immediately after the cycle ends.</div>
+        <div class="rev-item"><strong>Set next release target</strong> — which song is next? Which one is closest to Mixing status? Create the Release record now. The release pipeline starts fresh.</div>
+        <div class="rev-item"><strong>Time taken</strong> — 20 minutes total. Not a full retrospective. A clean handoff from one release cycle to the next.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════════════════ -->
+<!-- 08 — FINAL WORKFLOW DESIGN -->
+<!-- ════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-t">08 — Final Workflow Design</div>
+  <h2>The Simplest Powerful Version</h2>
+
+  <div class="final-flow">
+    <div class="ff-head">
+      <div class="ff-title">Idea → Released · Three Modes</div>
+      <div class="ff-sub">The complete JaZeR workflow — restructured for creative realism</div>
+    </div>
+    <div class="ff-modes">
+
+      <div class="ff-mode">
+        <div class="ff-mode-label create">Mode 01 — Create</div>
+
+        <div class="ff-stage">
+          <div class="ff-dot create"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Capture</div>
+            <div class="ff-stage-desc">Voice memo, template button, or freestyle. One required field only. No classification during capture.</div>
+            <div class="ff-stage-track">Logs to: Writing Assets DB (Type = Idea, Status = Raw)</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot create"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Develop</div>
+            <div class="ff-stage-desc">Sort unattached ideas. Classify types. Promote the best ones to song projects. Attach Writing Assets. Create Song record when direction is clear.</div>
+            <div class="ff-stage-track">Logs to: Songs DB (Status = Concept) · Writing Assets attached</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot create"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Write ↔ Produce (parallel)</div>
+            <div class="ff-stage-desc">Lyrics and production develop simultaneously or in either order. Beat-first and lyrics-first are both valid. Log sessions. Check off production checklist items in Song body.</div>
+            <div class="ff-stage-track">Logs to: Songs DB (Status = Writing or Producing) · Sessions DB · Song body checklist</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot create"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Record</div>
+            <div class="ff-stage-desc">Performance capture. Log after the session. May loop back to Write. That's fine — the loop is the process, not a failure.</div>
+            <div class="ff-stage-track">Logs to: Songs DB (Status = Recording) · Sessions DB (Type = Recording)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ff-mode">
+        <div class="ff-mode-label finish">Mode 02 — Finish</div>
+
+        <div class="ff-stage">
+          <div class="ff-dot finish"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Mix (max 3 passes)</div>
+            <div class="ff-stage-desc">Each mix pass logged as a Mix Review session. Fix list in session body. LUFS Actual updated on Song record. Mix Pass Count incremented.</div>
+            <div class="ff-stage-track">Logs to: Songs DB (Status = Mixing, Mix Pass Count +1) · Sessions DB (Type = Mix Review)</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot finish"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Done Enough Decision</div>
+            <div class="ff-stage-desc">At 3 mix passes: Release Prep or Shelve. No third option without documented reason. This decision protects momentum.</div>
+            <div class="ff-stage-track">Songs DB: Status → Release Prep OR Status → Shelved</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot finish"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Master</div>
+            <div class="ff-stage-desc">Final bounce. LUFS Actual confirmed. File named correctly. This is a 30-minute task, not a phase — it happens inside Release Prep.</div>
+            <div class="ff-stage-track">Songs DB: LUFS Actual updated · Production checklist: Master checked</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ff-mode">
+        <div class="ff-mode-label release">Mode 03 — Release</div>
+
+        <div class="ff-stage">
+          <div class="ff-dot release"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Release Prep</div>
+            <div class="ff-stage-desc">Release record created (at Mixing stage, not here). Task bundle generated. 8 tasks completed in the correct order. Playlist Pitch submitted 7 days before release date. Promo assets ready 3 days before.</div>
+            <div class="ff-stage-track">Logs to: Releases DB · Tasks DB (8 release prep tasks) · Songs DB: ISRC property</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot release"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Publish</div>
+            <div class="ff-stage-desc">Release confirmed live. Distribution link stored. Song status → Released. 15 minutes of confirmation, not a phase.</div>
+            <div class="ff-stage-track">Songs DB: Status → Released · Releases DB: Distribution Link added</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot release"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Promote</div>
+            <div class="ff-stage-desc">12 content tasks (3/week × 4 weeks). Created from Content Calendar Generator. Checked off as posted. No analytics tracking in Notion.</div>
+            <div class="ff-stage-track">Tasks DB: 12 Content tasks · Releases DB: Status = Promoting</div>
+          </div>
+        </div>
+
+        <div class="ff-stage">
+          <div class="ff-dot release"></div>
+          <div class="ff-stage-content">
+            <div class="ff-stage-name">Note (not Analyze)</div>
+            <div class="ff-stage-desc">4 lines at Day 30. Streams, what worked, what didn't, next time. Release archived. Cycle complete.</div>
+            <div class="ff-stage-track">Releases DB page body: 30-Day Note · Status → Complete</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="ff-footer">
+      <div class="ff-truth">The system's job: <span>manage the space between sessions, not the sessions themselves.</span> When you're creating, Notion is invisible. When you land, Notion catches you and tells you exactly where you left off and what comes next. That's it.</div>
+    </div>
+  </div>
+
+  <h3>The Most Important Workflow Rules — Non-Negotiable</h3>
+  <table>
+    <thead><tr><th>Rule</th><th>Why It Protects Creative Output</th></tr></thead>
+    <tbody>
+      <tr><td>One required field at capture</td><td>Every additional field at capture is an idea that doesn't get captured. The backlog clears itself during Development sessions — not at the moment of inspiration.</td></tr>
+      <tr><td>Lyrics live in Writing Assets only</td><td>One source of truth prevents the "which version is current?" problem that wastes 15 minutes before every writing session.</td></tr>
+      <tr><td>Production checklist in Song body, not Tasks DB</td><td>Tasks DB is for external accountability. Production steps are internal creative actions. The page body checklist is faster, more visible, and requires zero maintenance.</td></tr>
+      <tr><td>Write ↔ Produce can happen in any order</td><td>Forcing lyrics before production or production before lyrics creates a false constraint that blocks creative flow. The system must reflect how the music actually forms, not how a sequential model thinks it should.</td></tr>
+      <tr><td>Maximum 3 mix passes</td><td>The mixing trap is real. A hard cap forces the "done enough" decision and protects momentum. Released imperfect music > unreleased perfect music.</td></tr>
+      <tr><td>Create Release record at Mixing stage, not Release Prep</td><td>Release planning without a visible deadline is free-form. A deadline at Mixing stage creates urgency that accelerates the finish process and prevents the "I'll release it someday" drift.</td></tr>
+      <tr><td>Playlist pitch at D-7 — no exceptions</td><td>This is the highest-leverage single action in the entire release workflow. Missing it costs editorial playlist consideration for the entire release cycle. It must be the first task marked as Focus when a release enters prep.</td></tr>
+      <tr><td>30-Day Note in 4 lines</td><td>Analysis that requires effort doesn't happen. Four lines happen. The insight from four honest lines is worth more than an empty analytics dashboard.</td></tr>
+      <tr><td>Session log at end, not during</td><td>Logging during a creative or recording session breaks the mental state that produces the best work. Log after. The 30-second habit at session end is sustainable; mid-session logging is not.</td></tr>
+      <tr><td>Weekly ghost task purge</td><td>Stale open tasks make the system feel overwhelming and cause avoidance. Deleting tasks that aren't moving is maintenance, not failure. The system should feel clean every Monday.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green" style="margin-top:24px;">
+    <span class="icon">🎵</span>
+    <p><strong>The test for whether this workflow is working:</strong> You open a Song page after a week away and know exactly where you left off and what the next action is within 10 seconds. The session log shows the last thing you did. The production checklist shows what's done. The Tasks view shows what's open. The Writing Assets view shows what's attached. No hunting, no reconstructing context, no "what was I doing with this?" — just clarity and the next step. That's the workflow working.</p>
+  </div>
+</div>
+
+<div class="doc-footer">
+  JaZeR Music OS v2 — Creative Workflow Audit · May 2026<br>
+  <span style="color:var(--b2);">10-Stage Lifecycle · Three-Mode Restructure · Capture · Production · Release · Review Rhythms</span>
+</div>
+
+</body>
+</html>

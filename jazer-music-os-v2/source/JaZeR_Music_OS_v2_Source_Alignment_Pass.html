@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Source Alignment Pass</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --bg:         #09090b;
+    --bg2:        #111115;
+    --bg3:        #17171d;
+    --bg4:        #1e1e26;
+    --border:     #272733;
+    --border2:    #36364a;
+    --text:       #e6e4f0;
+    --text2:      #9490b0;
+    --text3:      #5a5672;
+    --gold:       #c8a645;
+    --gold2:      #edd878;
+    --gold-dim:   #6a561e;
+    --green:      #4caf82;
+    --green-dim:  #1c3d2c;
+    --red:        #e05050;
+    --red-dim:    #3d1a1a;
+    --blue:       #5b8ef0;
+    --blue-dim:   #182848;
+    --orange:     #e07830;
+    --orange-dim: #3d2208;
+    --purple:     #9b6fe8;
+    --purple-dim: #281c44;
+    --teal:       #30b8c8;
+    --teal-dim:   #0e2e35;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 13.5px;
+  }
+
+  .page { max-width: 1000px; margin: 0 auto; padding: 0 32px 120px; }
+
+  /* ── HEADER ── */
+  .doc-header {
+    padding: 60px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 52px;
+  }
+  .eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before { content: ''; width: 22px; height: 1px; background: var(--gold); display: inline-block; }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(30px, 4.5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+  h1 span { color: var(--gold); }
+  .doc-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--text2);
+    margin-bottom: 22px;
+  }
+  .doc-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pill {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 11px;
+    border-radius: 3px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .pill.gold { color: var(--gold); border-color: var(--gold-dim); background: rgba(200,166,69,0.06); }
+  .pill.red  { color: var(--red);  border-color: var(--red-dim);  background: rgba(224,80,80,0.06); }
+
+  /* ── SECTION HEADER ── */
+  .section { margin-bottom: 72px; }
+  .s-head { margin-bottom: 20px; }
+  .s-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .s-label .badge {
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+  .badge.green  { background: rgba(76,175,130,0.12); color: var(--green);  border: 1px solid var(--green-dim);  }
+  .badge.red    { background: rgba(224,80,80,0.1);   color: var(--red);    border: 1px solid var(--red-dim);    }
+  .badge.orange { background: rgba(224,120,48,0.1);  color: var(--orange); border: 1px solid var(--orange-dim); }
+  .badge.blue   { background: rgba(91,142,240,0.1);  color: var(--blue);   border: 1px solid var(--blue-dim);   }
+  .badge.teal   { background: rgba(48,184,200,0.1);  color: var(--teal);   border: 1px solid var(--teal-dim);   }
+  .badge.gold   { background: rgba(200,166,69,0.12); color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .badge.purple { background: rgba(155,111,232,0.1); color: var(--purple); border: 1px solid var(--purple-dim); }
+  .s-num { color: var(--text3); }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .s-intro {
+    font-size: 13px;
+    color: var(--text2);
+    max-width: 680px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 64px 0; }
+
+  /* ── CONFIRMED ITEMS ── */
+  .confirmed-list { display: flex; flex-direction: column; gap: 8px; }
+  .c-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 4px;
+    padding: 12px 16px;
+  }
+  .c-check {
+    font-size: 12px;
+    color: var(--green);
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .c-body { flex: 1; }
+  .c-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .c-sources {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 3px;
+  }
+  .c-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+  /* ── CONFLICT CARDS ── */
+  .conflicts { display: flex; flex-direction: column; gap: 16px; }
+  .conflict-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .cc-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .cc-severity {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .cc-severity.block  { background: rgba(224,80,80,0.15);   color: var(--red);    border: 1px solid var(--red-dim);    }
+  .cc-severity.fix    { background: rgba(224,120,48,0.12);  color: var(--orange); border: 1px solid var(--orange-dim); }
+  .cc-severity.clarify{ background: rgba(200,166,69,0.12);  color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .cc-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .cc-body { padding: 16px 20px; }
+  .cc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .cc-side {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+  .cc-side-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .cc-side.a .cc-side-label { color: var(--orange); }
+  .cc-side.b .cc-side-label { color: var(--blue); }
+  .cc-side.a { border-color: rgba(224,120,48,0.25); }
+  .cc-side.b { border-color: rgba(91,142,240,0.2); }
+  .cc-side p { color: var(--text2); line-height: 1.55; }
+  .cc-resolution {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--teal);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .cc-resolution-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  strong { color: var(--text); font-weight: 500; }
+
+  /* ── TERMINOLOGY TABLE ── */
+  .term-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .term-table thead tr {
+    background: var(--bg3);
+    border-bottom: 2px solid var(--border2);
+  }
+  .term-table thead th {
+    padding: 11px 14px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .term-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .term-table tbody tr:hover { background: var(--bg2); }
+  .term-table tbody td {
+    padding: 12px 14px;
+    color: var(--text2);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .term-table tbody td:first-child {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .term-table tbody td.old { color: var(--red); text-decoration: line-through; }
+  .term-table tbody td.new { color: var(--green); font-weight: 500; }
+  .term-table tbody td.def { font-size: 12px; }
+
+  /* ── PHASE CORRECTIONS ── */
+  .phase-corrections { display: flex; flex-direction: column; gap: 12px; }
+  .pc-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+  }
+  .pc-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 3px;
+    white-space: nowrap;
+    height: fit-content;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .pc-tag.fix  { background: rgba(224,120,48,0.12);  color: var(--orange); border: 1px solid var(--orange-dim); }
+  .pc-tag.cut  { background: rgba(224,80,80,0.1);   color: var(--red);    border: 1px solid var(--red-dim);    }
+  .pc-tag.add  { background: rgba(76,175,130,0.1);  color: var(--green);  border: 1px solid var(--green-dim);  }
+  .pc-tag.reframe { background: rgba(91,142,240,0.1); color: var(--blue); border: 1px solid var(--blue-dim); }
+  .pc-body { flex: 1; }
+  .pc-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+  .pc-detail { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .pc-loc {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* ── EXECUTION CONTRACT ── */
+  .contract-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .cb-head {
+    padding: 14px 20px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cb-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text3);
+    min-width: 22px;
+  }
+  .cb-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+  .cb-type {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .cb-type.confirm { background: rgba(76,175,130,0.12); color: var(--green); border: 1px solid var(--green-dim); }
+  .cb-type.resolve { background: rgba(200,166,69,0.12); color: var(--gold);  border: 1px solid var(--gold-dim); }
+  .cb-type.define  { background: rgba(91,142,240,0.1);  color: var(--blue);  border: 1px solid var(--blue-dim); }
+  .cb-body { padding: 14px 20px; font-size: 12.5px; color: var(--text2); line-height: 1.65; }
+  .cb-body ul { padding-left: 18px; display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+  .cb-body li { color: var(--text2); }
+
+  /* ── PROMPT BLOCK ── */
+  .prompt-wrap {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-top: 28px;
+  }
+  .pw-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pw-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .prompt-wrap pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.75;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    display: flex;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 5px;
+    margin-top: 16px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .callout.warn { background: rgba(200,166,69,0.07); border: 1px solid var(--gold-dim); color: var(--text2); }
+  .callout .ci { color: var(--gold); flex-shrink: 0; }
+  .callout.danger { background: rgba(224,80,80,0.07); border: 1px solid var(--red-dim); color: var(--text2); }
+  .callout.danger .ci { color: var(--red); }
+
+  /* ── OPEN QUESTIONS ── */
+  .oq-list { display: flex; flex-direction: column; gap: 10px; }
+  .oq-item {
+    background: rgba(200,166,69,0.05);
+    border: 1px solid var(--gold-dim);
+    border-radius: 5px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 12px;
+  }
+  .oq-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    flex-shrink: 0;
+    min-width: 22px;
+  }
+  .oq-q {
+    font-family: 'Syne', sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .oq-why { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    font-size: 10.5px;
+    color: var(--text3);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.07em;
+  }
+
+  @media(max-width:680px){
+    .page { padding: 0 16px 80px; }
+    .cc-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="eyebrow">Pre-Phase 1 · Source Alignment Pass</div>
+    <h1>JaZeR Music OS <span>v2</span></h1>
+    <div class="doc-sub">Cross-Document Conflict Analysis & Phase Plan Corrections</div>
+    <div class="doc-pills">
+      <span class="pill gold">5 Source Documents Compared</span>
+      <span class="pill red">8 Conflicts Identified</span>
+      <span class="pill">7 Phase Plan Corrections</span>
+      <span class="pill">4 Open Questions for Your Decision</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 — CONFIRMED DECISIONS -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s1">
+    <div class="s-head">
+      <div class="s-label">
+        <span class="badge green">01</span>
+        <span class="s-num">Confirmed Decisions</span>
+      </div>
+      <h2>Consistent Across All Documents</h2>
+      <p class="s-intro">These decisions appear identically in every source layer. They are locked. Phase 1 confirms them — it does not re-argue them.</p>
+    </div>
+
+    <div class="confirmed-list">
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Five databases — exactly 5, no exceptions</div>
+          <div class="c-sources">Architecture Spec · Architecture Review · DB Schema Audit · Workflow Audit · Implementation Plan</div>
+          <div class="c-desc">Songs DB, Writing Assets DB, Sessions DB, Releases DB, Tasks DB. All five documents agree. The Architecture Review explicitly names this the single best decision in the system. No additional databases without a written workflow justification and explicit approval.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Writing Assets DB is unified — never split</div>
+          <div class="c-sources">Architecture Spec · Architecture Review · DB Schema Audit · Workflow Audit · Implementation Plan</div>
+          <div class="c-desc">One DB with a Type property replaces four separate databases. An idea that evolves into a hook that becomes a verse is one record that changes Type — not three records in three databases. Unanimously confirmed across all five sources.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">FL Studio Plugin Command Center is a linked sibling — never merged</div>
+          <div class="c-sources">Architecture Spec · Architecture Review · DB Schema Audit · Discovery Inventory · Implementation Plan</div>
+          <div class="c-desc">7 databases, 141 plugins. Referenced from Music OS v2 via links, not absorbed into it. This boundary is one of the few structural decisions from the existing workspace worth preserving intact.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Master Dashboard = filtered views only — zero content lives there</div>
+          <div class="c-sources">Architecture Spec · Architecture Review · Workflow Audit · Implementation Plan</div>
+          <div class="c-desc">The dashboard is a live operating surface, not a home for documents, notes, or records. Every section on the dashboard is a filtered view of one of the five databases. Content on the dashboard = dashboard becoming an archive. This principle holds across all sources.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Song Status first option renamed "Idea" → "Concept"</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">A Song at first Status = "Idea" is a named project placeholder. A Writing Asset of Type "Idea" is an unnamed fragment. Same name, different objects = mental model confusion. All three review documents agree: rename Song Status to "Concept." Note: the Implementation Plan prompt chain has NOT incorporated this rename — it is a Phase Plan correction item.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Sessions DB: 3 required fields only (Date auto, Type select, Song relation)</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">The 7-property Sessions spec will cause logging abandonment within two weeks. Three consistent sources agree on the fix: Date (auto-filled), Type (Select), Song (Relation). All other properties — Duration, Mood, Rating, Key Outputs — are optional and go below the fold or inside the page body. The Implementation Plan Working Rules say "cap at 5" — see Conflict #3 for resolution.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Tasks DB: add a "Focus" checkbox property before build</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Implementation Plan</div>
+          <div class="c-desc">Due Date filtering alone cannot drive daily execution. Focus = true is the primary filter for the dashboard task view. Due Date is for planning. Focus is for "what I'm doing in this session." Three sources agree this property must exist at launch — not added after.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Production Hub demoted — not a standalone page</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">As defined, Production Hub contains two filtered database views and a link. That is a dashboard section configuration, not a hub. All three review documents give the same verdict: absorb its views into the Master Dashboard as named sections. No Production Hub sidebar entry.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Brand Hub demoted — not a standalone page</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">Brand Hub contains only reference documents, Drive file links, and a website URL. No active workflow, no database, no daily use pattern. All three review documents agree: demote to a single reference page pinned in sidebar. Promote back to hub status if and when active brand workflow volume develops.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Vault governed by Phase 3I Archive Protocol Plan</div>
+          <div class="c-sources">Architecture Review · Discovery Inventory · Workflow Audit</div>
+          <div class="c-desc">The Vault is a hard archive boundary. The Phase 3I Archive Protocol Plan already exists in the workspace and is the governing document. It must be linked at the top of the Vault page. Vault gate criteria: no active workflow + overlaps a v2 database + not opened in 30 days = move to Vault.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Quick Capture must be a Notion template button — not a database link</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">A link to Writing Assets DB requires too many clicks to be a real capture mechanism. The button must live on the Master Dashboard, pre-fill Type = Idea, Status = Raw, Date = today, and produce a new record in under 8 seconds. Three sources agree on this mechanism specifically.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Writing Assets DB default view = "Unattached Ideas" — never "All Records"</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Implementation Plan</div>
+          <div class="c-desc">With 8 Types accumulating hundreds of records over time, "All Records" is a wall of noise and the database fails within months. Unattached Ideas — filtered to records with no linked Song — is the correct operational anchor. Three sources agree on this. The exact filter conditions are a Conflict item (see #2).</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Archive batch executes before v2 launches — not after</div>
+          <div class="c-sources">Architecture Review · Discovery Inventory · Workflow Audit</div>
+          <div class="c-desc">Items confirmed for Vault before launch: Funky Futuristic Music Command Center (post-audit), Freestyle Hub V1 Structure Snapshot, JaZeR Musician Page backup, 10_Music_Creative_Projects backup, Music Hub v1.0. Launching with these in "Review" limbo is how legacy content bleeds into active hubs.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Rollup properties deferred to 30 days post-launch</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">Writing Assets Count, Open Tasks Count, Session Count rollups on Songs DB are valuable but need real data to be meaningful. Building rollups on empty databases during initial build produces nothing useful and adds schema complexity. All three review sources agree: defer to 30 days after launch.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Weekly Review template deferred to 14 days of real use</div>
+          <div class="c-sources">Architecture Review · Workflow Audit</div>
+          <div class="c-desc">The Weekly Review cannot be designed until there is real data being generated by the databases. Build the core system first, run it for 14 days, then design the Review around what the data actually shows. Location when built: Song Lab, as a sub-page. Both sources agree on this deferral.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">Song page body template locked before first record is created</div>
+          <div class="c-sources">Architecture Review · DB Schema Audit · Workflow Audit</div>
+          <div class="c-desc">The Songs DB properties are sound. But the page body — where the daily work actually happens — is undefined. Without a locked template, every song page develops its own structure and the database becomes inconsistent within 30 days. Minimum body sections: reference track, key/BPM, lyrics working area, session notes, production notes, FL Studio project path (plain text), release checklist link.</div>
+        </div>
+      </div>
+
+      <div class="c-item">
+        <span class="c-check">✓</span>
+        <div class="c-body">
+          <div class="c-title">4 active songs migrate into Songs DB as first records</div>
+          <div class="c-sources">Architecture Review · Discovery Inventory · Workflow Audit</div>
+          <div class="c-desc">Transformative Trance, Mission Statement, The Divine Rerun, Cosmic Beam. These are confirmed active song projects. They become the first real records in Songs DB on Day 1 of the build, immediately validating the schema against real data.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 — CONFLICTS -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s2">
+    <div class="s-head">
+      <div class="s-label">
+        <span class="badge red">02</span>
+        <span class="s-num">Conflicting Instructions</span>
+      </div>
+      <h2>Must Be Resolved Before Build</h2>
+      <p class="s-intro">These are genuine contradictions between documents — not differences in emphasis, but different instructions that would produce different builds. Each has a recommended resolution. Your approval of the resolution closes the conflict.</p>
+    </div>
+
+    <div class="conflicts">
+
+      <!-- C1 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity block">Build-Blocker</span>
+          <span class="cc-title">C-01 · Songs DB Status First Step: "Idea" in Implementation Plan vs. "Concept" Everywhere Else</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Phase 2 Prompt (P2)</div>
+              <p>The status flow is stated as: <strong>Idea → Writing → Recording → Producing → Mixing → Review → Release Prep → Released</strong>. "Idea" appears as the first status option without the rename.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review · DB Schema Audit · Workflow Audit</div>
+              <p>All three review documents agree: Song Status "Idea" must be renamed to <strong>"Concept"</strong> to eliminate the naming collision with Writing Assets Type = "Idea." These are different objects.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution</div>
+            The correct status flow is: <strong>Concept → Writing → Recording → Producing → Mixing → Review → Release Prep → Released</strong>. The Implementation Plan Phase 2 prompt (P2) must be updated before use. Claude must use "Concept" as the first Songs DB status in all Phase 2 work. The Phase 5 prompt that says "Status is not Idea" must also be updated to "Status is not Concept."
+          </div>
+        </div>
+      </div>
+
+      <!-- C2 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity block">Build-Blocker</span>
+          <span class="cc-title">C-02 · "Unattached Ideas" Filter: Status = Active vs. Status ≠ Archived</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Initialization Prompt</div>
+              <p>Filter defined as: <strong>linked Song = empty AND Status = Active</strong>. This is restrictive — only shows records where Status is exactly "Active."</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review — DB Section 5</div>
+              <p>Filter defined as: <strong>Song relation is empty, Status ≠ Archived</strong>. This is permissive — shows everything except explicitly archived records.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution — Requires Your Decision</div>
+            These produce different result sets. "Status = Active" hides records in "Developing," "Raw," "In Progress," or any other non-Active status — which means a hook you're actively working on might not appear in this view. "Status ≠ Archived" shows all in-progress work regardless of status label, which is more operationally useful. <strong>Recommended: use Status ≠ Archived.</strong> It shows the full creative inbox except things you've explicitly put away. Confirm this before Phase 2.
+          </div>
+        </div>
+      </div>
+
+      <!-- C3 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity fix">Fix Required</span>
+          <span class="cc-title">C-03 · Sessions DB Property Cap: "3 required fields" vs. "cap at 5"</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Phase 2 Prompt (P3)</div>
+              <p>States: <strong>"Hard cap: 5 properties maximum."</strong> Framed as a property count ceiling for the entire database schema.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review · DB Schema Audit · Workflow Audit</div>
+              <p>States: <strong>"3 required fields only"</strong> with all others optional below the fold. Framed as a required-field floor, not a total cap.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution</div>
+            These are compatible but need unifying language. The correct spec is: <strong>Sessions DB has exactly 3 required database-column properties (Date, Type, Song). Additional optional properties — up to a total of 5 columns — may exist but should be hidden by default.</strong> The Implementation Plan's "cap at 5" should be reread as a total column cap. The Architecture Review's "3 required fields" describes the template behavior. Both can be true simultaneously. The Phase 2 Sessions prompt must clarify: 3 required, up to 5 total, nothing else without permission.
+          </div>
+        </div>
+      </div>
+
+      <!-- C4 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity block">Build-Blocker</span>
+          <span class="cc-title">C-04 · Hub Count Framing: "5 Hubs" in Implementation Plan vs. 3 Active Hubs in All Reviews</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Init Prompt + Phase 1 Contract</div>
+              <p>Lists <strong>5 Hubs</strong> and asks Claude to "produce verdicts" on Production Hub and Brand Hub as if they are open architectural questions needing resolution in Phase 1.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review · DB Schema Audit · Workflow Audit</div>
+              <p>All three review documents have already produced definitive verdicts: Production Hub → demoted to Dashboard sections. Brand Hub → demoted to Reference Page. These are <strong>closed decisions</strong>, not open questions.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution</div>
+            Phase 1 must be reframed. It should not ask Claude to "determine" these verdicts — it should ask Claude to <strong>confirm</strong> them. The active hub count is 3: Song Lab, Launch Hub, Vault. Production Hub becomes two named sections on the Master Dashboard. Brand Hub becomes one reference page pinned in the sidebar. The Implementation Plan initialization prompt and Phase 1 chain prompt both need this correction before use. See Section 5 for the revised Phase 1 execution contract.
+          </div>
+        </div>
+      </div>
+
+      <!-- C5 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity fix">Fix Required</span>
+          <span class="cc-title">C-05 · "Recent Sessions" Dashboard Widget: Architecture Review Cut It, Implementation Plan Didn't</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Phase 3 Chain Prompt (P4)</div>
+              <p>Phase 3 prompt gives no explicit instruction about the Recent Sessions widget. Claude will <strong>likely regenerate it</strong> since it was part of the original spec and nothing in Phase 3 removes it.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review — Dashboard Section 4</div>
+              <p>Explicit verdict: <strong>CUT "Recent Sessions."</strong> It answers "what did I do before?" — history, not decisions. Replace with "Songs with Open Production Tasks" — filtered Songs view showing active songs with at least one open Production task.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution</div>
+            The Phase 3 chain prompt (P4) must include an explicit instruction: "Do not include a Recent Sessions section. Replace it with a 'Songs in Production' section — a filtered Songs DB view showing records where Status is Recording, Producing, or Mixing AND at least one linked Task (Type = Production) is open." This decision must be passed forward explicitly or Claude will default to the original spec.
+          </div>
+        </div>
+      </div>
+
+      <!-- C6 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity clarify">Clarify Before Phase 2</span>
+          <span class="cc-title">C-06 · Writing Assets Type = "Concept": Cut It or Keep It?</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — all prompts</div>
+              <p>"Concept" appears only as the renamed Song Status. The Writing Assets Type list is not explicitly confirmed anywhere in the Implementation Plan prompts — Claude is told "do not add Types I haven't confirmed" but the confirmed list was never stated.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review — DB Section 5 (Writing Assets)</div>
+              <p>Notes that "the current Type list includes 'Concept' alongside 'Idea'" and raises the question: are they distinct enough to coexist, or should Concept be cut as a Type and represented as a Status progression instead?</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution — Requires Your Decision</div>
+            This has two options: (A) <strong>Keep "Concept" as a Writing Assets Type</strong> — define it as "developed enough to describe what the song is about" vs. Idea = "raw fragment." The Songs DB first Status is also "Concept" but refers to a song project, not a writing fragment. Different contexts, same word — workable but requires clear documentation. (B) <strong>Cut "Concept" as a Type</strong> — use Status = "Developing" on an Idea record to indicate the same progression. Simpler, no naming tension with Songs DB. Recommended: cut. Your call — decide before Phase 2.
+          </div>
+        </div>
+      </div>
+
+      <!-- C7 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity fix">Fix Required</span>
+          <span class="cc-title">C-07 · Tasks View Primary Filter: One Combined View vs. Two Separate Views</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Phase 5 Chain Prompt (P6)</div>
+              <p>States: default Tasks view = <strong>"This Week" filtered to Focus = true OR Due Date within 7 days.</strong> One view with OR logic combining two different priorities.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Architecture Review · Workflow Audit</div>
+              <p>Specifies <strong>two separate dashboard views:</strong> (1) "Focus Tasks" filtered on Focus = true, Status ≠ Done — for execution. (2) "Due This Week" filtered on Due Date ≤ 7 days, Status ≠ Done — for planning. Different purposes, different views.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution</div>
+            Two views is correct. A single OR-logic view conflates execution priority with calendar priority — they are not the same thing. A task due in 3 days might not be what you work on today; a Focus-checked task might not have a due date. The Phase 5 chain prompt must be updated to specify two separate Tasks views on the dashboard: "Focus Now" (Focus = true) and "Due This Week" (Due Date ≤ 7 days). The Tasks DB default view when opened directly from the sidebar should be "Focus Now."
+          </div>
+        </div>
+      </div>
+
+      <!-- C8 -->
+      <div class="conflict-card">
+        <div class="cc-head">
+          <span class="cc-severity clarify">Clarify Before Phase 2</span>
+          <span class="cc-title">C-08 · Releases DB Build Timing: Phase 2 Schema Work vs. "Build When 60 Days Out"</span>
+        </div>
+        <div class="cc-body">
+          <div class="cc-row">
+            <div class="cc-side a">
+              <div class="cc-side-label">Implementation Plan — Phase 2 Chain Prompt (P3)</div>
+              <p>Includes Releases DB in the main Phase 2 schema work alongside the other 4 databases — implies designing and building it as part of the initial workspace construction.</p>
+            </div>
+            <div class="cc-side b">
+              <div class="cc-side-label">Workflow Audit — Build Order Section 5</div>
+              <p>Explicitly states: <strong>"Build Releases DB only when a release is 60 days out."</strong> Build it then, not speculatively. Launch Hub page also deferred to pre-release.</p>
+            </div>
+          </div>
+          <div class="cc-resolution">
+            <div class="cc-resolution-label">Resolution</div>
+            <strong>Design the schema in Phase 2; defer the actual Notion build until pre-release.</strong> These are different activities. Phase 2 produces a written Releases DB property map so the schema is ready when needed. The Workflow Audit correctly identifies that building an empty Releases DB on Day 1 with no release in sight creates a dead database. Phase 2 chain prompt must clarify: "Produce the Releases DB property map spec. This schema will be used for reference but the database is NOT built in Notion until 60 days before the first release."
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 — TERMINOLOGY CORRECTIONS -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s3">
+    <div class="s-head">
+      <div class="s-label">
+        <span class="badge orange">03</span>
+        <span class="s-num">Terminology Corrections</span>
+      </div>
+      <h2>Canonical Vocabulary for the Build</h2>
+      <p class="s-intro">Five terms are used inconsistently across the documents. Any prompt sent to Claude must use the terms in the "Use This" column. Mixed terminology causes Claude to produce ambiguous specs and mis-classify pages.</p>
+    </div>
+
+    <table class="term-table">
+      <thead>
+        <tr>
+          <th>Term</th>
+          <th>Was Used As</th>
+          <th>Problem</th>
+          <th style="color:var(--green);">Canonical Definition</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hub</td>
+          <td>All 5 sidebar pages, including Brand Hub and Production Hub</td>
+          <td>Calls pages "hubs" even when they have no active workflows, creating a false equivalence between Song Lab (daily use) and Brand Hub (quarterly reference).</td>
+          <td class="def">A <strong>Hub</strong> is a first-level sidebar page that: (1) contains at least one active database view, (2) serves a daily or weekly workflow, and (3) would be opened at least once per week during active use. Currently: Song Lab, Launch Hub, Vault.</td>
+        </tr>
+        <tr>
+          <td>Reference Page</td>
+          <td>Sometimes "Reference Folder" (Implementation Plan) or "Reference Page" (Architecture Review). Both refer to Brand Hub's demoted state.</td>
+          <td>Two terms for the same thing across the same document set causes confusion about whether Brand Hub is a folder (like a sidebar group) or a page (like a Notion page).</td>
+          <td class="def">A <strong>Reference Page</strong> is a single Notion page in the sidebar that contains only: static reference links, external URLs, Drive file links, and embedded documents. No database views. No recurring workflow. Brand Hub becomes a Reference Page — one Notion page, not a folder.</td>
+        </tr>
+        <tr>
+          <td>Dashboard Section</td>
+          <td>Sometimes used for Production Hub's demoted state (correct), but also used loosely for any section heading on any page.</td>
+          <td>Without a precise definition, "dashboard section" blurs into "hub page section" and Claude may not know whether it's specifying the Master Dashboard layout or a hub page layout.</td>
+          <td class="def">A <strong>Dashboard Section</strong> is a named block on the Master Dashboard page that contains exactly one filtered database view, a section heading, and optionally a description. Production Hub becomes two Dashboard Sections: "Songs in Production" and "Production Tasks." These live on the Master Dashboard only — not on any hub page.</td>
+        </tr>
+        <tr>
+          <td>Hub Page Section</td>
+          <td>Rarely used — hub page layout sections are implicitly described but not given a distinct name from Dashboard Sections.</td>
+          <td>Without this term, specifications for hub page layout and specifications for dashboard layout use the same vocabulary, making it possible for Claude to mix them up in Phase 3.</td>
+          <td class="def">A <strong>Hub Page Section</strong> is a named block within a hub page (Song Lab, Launch Hub, Vault) that contains a database view filtered to that hub's scope. Hub Page Sections are different from Dashboard Sections — they are themed to their hub context, not optimized for the "what do I work on right now?" question.</td>
+        </tr>
+        <tr>
+          <td>Unattached Ideas</td>
+          <td>Used as both a view name and a filter description interchangeably, with two different filter definitions (see Conflict #2).</td>
+          <td>The term "Unattached Ideas" conflates the view name with a filtering concept. The filter conditions have been defined two different ways in two documents.</td>
+          <td class="def"><strong>Unattached Ideas</strong> is a view name only. The canonical filter conditions (per Conflict #2 resolution) are: <em>Song relation is empty</em> AND <em>Status ≠ Archived</em>, sorted by Date Created descending. This is the Writing Assets DB default view. It is not called "All Ideas" or "Inbox" — it is always called "Unattached Ideas."</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn" style="margin-top: 20px;">
+      <span class="ci">⚡</span>
+      <div>These five definitions should be included verbatim in the revised Phase 1 execution contract (Section 5 below) so Claude operates with a fixed vocabulary from the first message forward.</div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 — PHASE PLAN CORRECTIONS -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s4">
+    <div class="s-head">
+      <div class="s-label">
+        <span class="badge blue">04</span>
+        <span class="s-num">Phase Plan Corrections</span>
+      </div>
+      <h2>Changes Required Before Implementation Begins</h2>
+      <p class="s-intro">Seven corrections to the Implementation Plan's phase structure and chain prompts. These are not new scope — they are corrections to bring the plan into alignment with decisions already made across the source documents.</p>
+    </div>
+
+    <div class="phase-corrections">
+
+      <div class="pc-item">
+        <span class="pc-tag reframe">Reframe</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 1 Chain Prompt — Reframe From "Produce Verdicts" to "Confirm Decisions"</div>
+          <div class="pc-detail">The Phase 1 chain prompt asks Claude to "produce verdicts" on Production Hub and Brand Hub as if they are open architectural questions. They are not — the Architecture Review has already given definitive verdicts on both. Asking Claude to re-derive them wastes a phase and risks Claude producing different or weaker reasoning that re-opens a closed question. Phase 1 should instead confirm pre-resolved decisions and focus on the genuinely open questions that have not been resolved (see Section 5).</div>
+          <div class="pc-loc">Location: Phase 1 chain prompt (P1). Affects the entire Phase 1 deliverable structure.</div>
+        </div>
+      </div>
+
+      <div class="pc-item">
+        <span class="pc-tag fix">Fix</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 2 Chain Prompt P2 — Replace "Idea" with "Concept" in Status Flow</div>
+          <div class="pc-detail">The Phase 2 Songs DB prompt states the status flow as "Idea → Writing → Recording…" — this needs to read "Concept → Writing → Recording → Producing → Mixing → Review → Release Prep → Released." This is a direct copy-paste error that will cause Claude to build the wrong status option. If Claude uses "Idea" as the first Songs DB status, the naming collision the rename was designed to fix will be built into the database.</div>
+          <div class="pc-loc">Location: Phase 2 chain prompt (P2), first block, Songs DB status flow description.</div>
+        </div>
+      </div>
+
+      <div class="pc-item">
+        <span class="pc-tag fix">Fix</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 2 Chain Prompt P3 — Clarify Sessions DB as "3 required, 5 total max"</div>
+          <div class="pc-detail">The current phrasing "Hard cap: 5 properties maximum" doesn't distinguish required from optional. The correct spec is: "3 required database-column properties (Date, Type, Song). Up to 5 total columns maximum. All others optional and hidden by default." This framing prevents Claude from adding 5 required properties just because 5 is the cap, while still setting a ceiling.</div>
+          <div class="pc-loc">Location: Phase 2 chain prompt (P3), Sessions DB section.</div>
+        </div>
+      </div>
+
+      <div class="pc-item">
+        <span class="pc-tag fix">Fix</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 2 Chain Prompt P3 — Add Releases DB Deferral Instruction</div>
+          <div class="pc-detail">Add the following sentence to the Releases DB section: "Produce the property map as a written spec only. This database is NOT built in Notion during the initial build — it is built when a release is 60 days out. The spec is created now for reference; the Notion database is created pre-release." Without this clarification, Phase 7 will include Releases DB in the Day 1 build sequence.</div>
+          <div class="pc-loc">Location: Phase 2 chain prompt (P3), Releases DB section. Final sentence before the relation map instruction.</div>
+        </div>
+      </div>
+
+      <div class="pc-item">
+        <span class="pc-tag add">Add</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 3 Chain Prompt P4 — Add "No Recent Sessions" Explicit Instruction</div>
+          <div class="pc-detail">The Phase 3 prompt currently has no reference to the "Recent Sessions" cut. Without explicit instruction, Claude will likely regenerate a Recent Sessions view based on the original spec. Add to the Phase 3 Master Dashboard section: "Do not include a Recent Sessions section. Instead, include a 'Songs in Production' section — a filtered Songs DB view showing records where Status is Recording, Producing, or Mixing. This is the replacement for Recent Sessions and provides actionable context, not historical context."</div>
+          <div class="pc-loc">Location: Phase 3 chain prompt (P4), after the 6-section maximum rule.</div>
+        </div>
+      </div>
+
+      <div class="pc-item">
+        <span class="pc-tag fix">Fix</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 5 Chain Prompt P6 — Replace One Combined Tasks View with Two Separate Views</div>
+          <div class="pc-detail">Replace: "default view must be 'This Week' filtered to Focus = true OR Due Date within 7 days" with: "The Tasks DB must have two separate dashboard views: (1) 'Focus Now' — filter: Focus = true, Status ≠ Done, sort: manually or by Song. (2) 'Due This Week' — filter: Due Date ≤ 7 days from today, Status ≠ Done, sort: Due Date ascending. 'Focus Now' is the Tasks DB default view when opened from the sidebar." Also update: replace "Status is not Idea, not Released" in the Songs DB default view description with "Status is not Concept, not Released."</div>
+          <div class="pc-loc">Location: Phase 5 chain prompt (P6), Tasks DB section and Songs DB default view description.</div>
+        </div>
+      </div>
+
+      <div class="pc-item">
+        <span class="pc-tag fix">Fix</span>
+        <div class="pc-body">
+          <div class="pc-title">Phase 4 Chain Prompt P5 — Assign Weekly Review Location</div>
+          <div class="pc-detail">Phase 4 correctly defers the Weekly Review template but doesn't assign it a home. When it does get built (post 14 days), there's no documented location. Add: "When the Weekly Review template is eventually built, it lives as a sub-page inside Song Lab — not on the Master Dashboard and not as a standalone sidebar item. The dashboard may contain a link to the most recent weekly review page, but the template and its history live in Song Lab." This prevents a future build where the Review floats with no home.</div>
+          <div class="pc-loc">Location: Phase 4 chain prompt (P5), at the end of the deferral note.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 — REVISED PHASE 1 EXECUTION CONTRACT -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="section" id="s5">
+    <div class="s-head">
+      <div class="s-label">
+        <span class="badge gold">05</span>
+        <span class="s-num">Revised Execution Contract for Phase 1</span>
+      </div>
+      <h2>What Phase 1 Actually Does Now</h2>
+      <p class="s-intro">Phase 1 is not an architecture discovery session — that work has already been done. Phase 1 is a decision confirmation and vocabulary lock session. Here is the reframed contract, followed by the revised chain prompt to replace P1.</p>
+    </div>
+
+    <div class="contract-block">
+      <div class="cb-head">
+        <span class="cb-num">1</span>
+        <span class="cb-title">Confirm Pre-Resolved Hub Decisions</span>
+        <span class="cb-type confirm">Confirm</span>
+      </div>
+      <div class="cb-body">
+        Claude confirms — not determines — the following as locked decisions:
+        <ul>
+          <li>Production Hub = demoted. Its content becomes two Dashboard Sections on the Master Dashboard: "Songs in Production" and "Production Tasks." No sidebar hub page for Production Hub.</li>
+          <li>Brand Hub = demoted. Its content becomes one Reference Page pinned in the sidebar: all About JaZeR links, Drive report links, and website URL live there. No sidebar hub page for Brand Hub.</li>
+          <li>Active hubs in sidebar: Song Lab · Launch Hub · Vault · (Brand Reference Page linked, not a hub)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="contract-block">
+      <div class="cb-head">
+        <span class="cb-num">2</span>
+        <span class="cb-title">Lock the Vault Gate Protocol</span>
+        <span class="cb-type confirm">Confirm</span>
+      </div>
+      <div class="cb-body">
+        Claude confirms the Vault criteria: a resource moves to the Vault when it meets all three conditions: (1) no active workflow in v2, (2) overlaps with a confirmed v2 database or hub, (3) not opened in 30 days. The Phase 3I Archive Protocol Plan is the governing document and is linked at the top of the Vault page. Claude produces the confirmed archive batch list.
+      </div>
+    </div>
+
+    <div class="contract-block">
+      <div class="cb-head">
+        <span class="cb-num">3</span>
+        <span class="cb-title">Lock Scope Exclusions</span>
+        <span class="cb-type confirm">Confirm</span>
+      </div>
+      <div class="cb-body">
+        Claude restates exactly what is excluded from v2 — without adding new exclusions:
+        <ul>
+          <li>Finance / income / expense tracking</li>
+          <li>Collaborator CRM</li>
+          <li>Touring / live performance management</li>
+          <li>Sample library / sounds database</li>
+          <li>FL Studio Plugin Command Center (kept external as linked sibling)</li>
+          <li>Any 6th database without explicit written approval</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="contract-block">
+      <div class="cb-head">
+        <span class="cb-num">4</span>
+        <span class="cb-title">Define Canonical Workspace Vocabulary</span>
+        <span class="cb-type define">Define</span>
+      </div>
+      <div class="cb-body">
+        Claude produces and commits to the five canonical term definitions from Section 3 of this document: Hub, Reference Page, Dashboard Section, Hub Page Section, Unattached Ideas. Every subsequent prompt uses these terms. If Claude uses a non-canonical term, it must flag and self-correct before continuing.
+      </div>
+    </div>
+
+    <div class="contract-block">
+      <div class="cb-head">
+        <span class="cb-num">5</span>
+        <span class="cb-title">Produce the Workspace Page Hierarchy</span>
+        <span class="cb-type define">Define</span>
+      </div>
+      <div class="cb-body">
+        Claude produces the sidebar navigation structure as a written outline — what lives at each level of the Notion sidebar:
+        <ul>
+          <li>Level 0 (root): Master Dashboard</li>
+          <li>Level 1 (hubs): Song Lab · Launch Hub · Vault</li>
+          <li>Level 1 (reference): Brand Reference Page · FL Studio Plugin CC (linked)</li>
+          <li>Level 2 (inside Song Lab): The Book of JaZeR · Writing Assets DB · Songs DB</li>
+          <li>Level 2 (inside Launch Hub): Releases DB · Tasks DB (filtered)</li>
+          <li>Level 2 (inside Vault): Archive Batch pages · Phase 3I Protocol link</li>
+        </ul>
+        This hierarchy becomes the navigation spec for Phase 3.
+      </div>
+    </div>
+
+    <div class="contract-block">
+      <div class="cb-head">
+        <span class="cb-num">6</span>
+        <span class="cb-title">Resolve Four Genuine Open Questions</span>
+        <span class="cb-type resolve">Resolve</span>
+      </div>
+      <div class="cb-body">
+        These are the only genuinely unresolved decisions across all five source documents. Phase 1 produces a recommended answer to each — but these require your explicit approval to lock:
+      </div>
+    </div>
+
+    <div class="oq-list" style="margin-top: 16px; margin-bottom: 28px;">
+
+      <div class="oq-item">
+        <span class="oq-num">OQ-1</span>
+        <div>
+          <div class="oq-q">Writing Assets Type = "Concept" — Keep as a distinct Type or cut it?</div>
+          <div class="oq-why">The Architecture Review raised but did not close this question. Keeping "Concept" as a Writing Assets Type creates a second object named "Concept" alongside Songs DB Status = "Concept." Cutting it and using Status = "Developing" on an Idea record is simpler. Recommendation: cut. Your decision locks the confirmed Type list for Phase 2.</div>
+        </div>
+      </div>
+
+      <div class="oq-item">
+        <span class="oq-num">OQ-2</span>
+        <div>
+          <div class="oq-q">Unattached Ideas filter: Status = Active (restrictive) or Status ≠ Archived (permissive)?</div>
+          <div class="oq-why">See Conflict #2. These produce different result sets. Your decision on this closes the filter definition permanently. Recommendation: Status ≠ Archived. A hook you're actively working on should appear in this view regardless of its status label.</div>
+        </div>
+      </div>
+
+      <div class="oq-item">
+        <span class="oq-num">OQ-3</span>
+        <div>
+          <div class="oq-q">What is the confirmed Writing Assets Type list?</div>
+          <div class="oq-why">The Architecture Review references "8 Types" but the confirmed list is never explicitly enumerated in any document. The types mentioned across documents include: Idea, Hook, Verse, Chorus, Bridge, Lyric Sheet, Freestyle, Concept (disputed). Phase 2 cannot proceed without a confirmed, closed Type list. Phase 1 should lock this list.</div>
+        </div>
+      </div>
+
+      <div class="oq-item">
+        <span class="oq-num">OQ-4</span>
+        <div>
+          <div class="oq-q">Do the 4 active songs migrate in Phase 7 (build) or Phase 2 (schema validation)?</div>
+          <div class="oq-why">The Workflow Audit says migrate Transformative Trance, Mission Statement, The Divine Rerun, and Cosmic Beam on Day 1 of build. The Implementation Plan's Phase 7 handles the actual Notion build. These are compatible, but it needs to be explicit: migration of the 4 songs happens at the start of Phase 7 (build), not during schema design in Phase 2. Confirming this closes a timing ambiguity in the build sequence.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="prompt-wrap">
+      <div class="pw-label">Revised Phase 1 Chain Prompt — Replace the Original P1</div>
+      <pre>Begin Phase 1: Decision Confirmation and Vocabulary Lock.
+
+This phase does not re-derive architecture decisions. It confirms existing decisions, locks vocabulary, and resolves four open questions.
+
+PART A — CONFIRM THESE DECISIONS AS LOCKED (state each as a fact, no re-argument):
+1. Hub count and identity: Song Lab, Launch Hub, and Vault are the three active Hubs. State each with a one-sentence purpose.
+2. Production Hub disposition: Two Dashboard Sections on the Master Dashboard ("Songs in Production" and "Production Tasks"). No sidebar hub page.
+3. Brand Hub disposition: One Reference Page pinned in sidebar. No sidebar hub page.
+4. Vault gate criteria: confirm the three conditions that trigger archiving. Name the governing document and its placement.
+5. Master Dashboard rule: one sentence stating what can and cannot live on the dashboard.
+6. Scope exclusions: list everything excluded from v2 without adding new items.
+
+PART B — DEFINE CANONICAL VOCABULARY:
+Produce the exact definitions for these five terms as they apply to this workspace:
+- Hub
+- Reference Page
+- Dashboard Section
+- Hub Page Section
+- Unattached Ideas (including the confirmed filter: Song = empty, Status ≠ Archived)
+
+PART C — PRODUCE WORKSPACE PAGE HIERARCHY:
+Write the sidebar structure as a nested outline. Level 0 = Master Dashboard. Level 1 = Hubs and Reference Pages. Level 2 = databases and sub-pages within each Hub.
+
+PART D — ANSWER FOUR OPEN QUESTIONS (state a recommendation for each):
+1. Writing Assets Type = "Concept" — keep or cut? Recommend cut; use Status = "Developing" on Idea records.
+2. Confirmed Writing Assets Type list — produce the exact list of 8 Types (or fewer if Concept is cut). Do not add Types beyond what exists in the original spec.
+3. Unattached Ideas filter — confirm: Song relation = empty AND Status ≠ Archived, sorted by Date Created descending.
+4. Active song migration timing — confirm: 4 songs (Transformative Trance, Mission Statement, The Divine Rerun, Cosmic Beam) are migrated at the start of Phase 7 build, not during schema work.
+
+Produce the deliverable in the standard format:
+DECISIONS LOCKED / THE SPEC / OPEN QUESTIONS / WHAT I AM NOT SPECIFYING YET
+
+Wait for my approval before beginning Phase 2.</pre>
+    </div>
+
+    <div class="callout danger" style="margin-top: 16px;">
+      <span class="ci">⚠</span>
+      <div><strong>Before sending this prompt:</strong> Answer OQ-1 (Concept Type — keep or cut?) and OQ-2 (Unattached Ideas filter — Active or ≠ Archived?) yourself first. If you don't have a preference, the recommendations above are the right defaults. But Claude should receive your confirmed answer in the Phase 1 prompt, not derive it independently.</div>
+    </div>
+
+  </section>
+
+  <hr>
+
+  <footer class="doc-footer">
+    <span>JaZeR Music OS v2 — Source Alignment Pass · May 2026</span>
+    <span>Pre-Phase 1 · 5 Sources · 8 Conflicts · 4 Open Questions</span>
+  </footer>
+
+</div>
+</body>
+</html>

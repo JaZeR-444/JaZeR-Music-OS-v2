@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Critical Architecture Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b0e;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --border: #21212e;
+    --border2: #2c2c3e;
+    --gold: #e5c84a;
+    --purple: #8b6cf7;
+    --green: #3ecf8e;
+    --red: #f0455f;
+    --orange: #f5914a;
+    --muted: #50506a;
+    --text: #d8d8e8;
+    --text-dim: #808098;
+    --mono: 'DM Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Lora', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 36px 100px;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 40px;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .stamp {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    background: rgba(240,69,95,0.09);
+    border: 1px solid rgba(240,69,95,0.25);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: 58px;
+    line-height: 1;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  h1 span { color: var(--red); }
+  .header-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-top: 8px;
+  }
+
+  /* ── VERDICT BLOCK ── */
+  .verdict-block {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 56px;
+  }
+  .verdict-score {
+    background: var(--surface2);
+    border-right: 1px solid var(--border2);
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+  }
+  .score-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .score-num {
+    font-family: var(--display);
+    font-size: 80px;
+    line-height: 1;
+    color: var(--gold);
+    letter-spacing: -2px;
+  }
+  .score-denom {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .score-rating {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 8px;
+    text-align: center;
+  }
+  .verdict-text {
+    padding: 28px 32px;
+  }
+  .verdict-text .vt-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .verdict-text p {
+    font-size: 14.5px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .verdict-text p:last-child { margin-bottom: 0; }
+  .verdict-text strong { color: #fff; }
+
+  /* ── SECTION HEADERS ── */
+  .section { margin-bottom: 72px; }
+
+  .s-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(229,200,74,0.07);
+    border: 1px solid rgba(229,200,74,0.18);
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+  }
+  .s-tag.red { color: var(--red); background: rgba(240,69,95,0.07); border-color: rgba(240,69,95,0.2); }
+  .s-tag.purple { color: var(--purple); background: rgba(139,108,247,0.07); border-color: rgba(139,108,247,0.2); }
+  .s-tag.green { color: var(--green); background: rgba(62,207,142,0.07); border-color: rgba(62,207,142,0.2); }
+  .s-tag.orange { color: var(--orange); background: rgba(245,145,74,0.07); border-color: rgba(245,145,74,0.2); }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 40px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+  h3 {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin: 32px 0 14px;
+  }
+
+  p { margin-bottom: 14px; color: var(--text); font-size: 15px; }
+  p.dim { color: var(--text-dim); font-size: 14px; }
+  strong { color: #fff; }
+  em { color: var(--gold); font-style: italic; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+  /* ── STRENGTH / RISK ITEMS ── */
+  .item-list { display: flex; flex-direction: column; gap: 14px; margin: 16px 0; }
+  .item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    align-items: start;
+  }
+  .item.strength { border-left: 3px solid var(--green); }
+  .item.risk { border-left: 3px solid var(--red); }
+  .item.warn { border-left: 3px solid var(--orange); }
+  .item-icon {
+    font-size: 17px;
+    margin-top: 2px;
+    text-align: center;
+  }
+  .item-body {}
+  .item-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .item-text { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; }
+
+  /* ── HUB REVIEW CARDS ── */
+  .hub-grid { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+  .hub-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .hub-card-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+  .hub-name {
+    font-family: var(--display);
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+  .hub-verdict {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .hv-strong { background: rgba(62,207,142,0.12); color: var(--green); border: 1px solid rgba(62,207,142,0.25); }
+  .hv-weak { background: rgba(240,69,95,0.12); color: var(--red); border: 1px solid rgba(240,69,95,0.25); }
+  .hv-ok { background: rgba(229,200,74,0.1); color: var(--gold); border: 1px solid rgba(229,200,74,0.2); }
+  .hv-cut { background: rgba(245,145,74,0.1); color: var(--orange); border: 1px solid rgba(245,145,74,0.2); }
+  .hub-body { padding: 20px 22px; }
+  .hub-finding {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    margin-top: 14px;
+  }
+  .hub-finding:first-child { margin-top: 0; }
+  .hub-body p { font-size: 13.5px; color: var(--text-dim); margin-bottom: 8px; }
+  .hub-body p:last-child { margin-bottom: 0; }
+  .hub-body strong { color: #fff; }
+
+  .fix-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .fix-cut { background: rgba(240,69,95,0.12); color: var(--red); }
+  .fix-change { background: rgba(245,145,74,0.1); color: var(--orange); }
+  .fix-keep { background: rgba(62,207,142,0.1); color: var(--green); }
+  .fix-delay { background: rgba(139,108,247,0.1); color: var(--purple); }
+
+  /* ── DB REVIEW ── */
+  .db-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  @media(max-width:640px) { .db-review-grid { grid-template-columns: 1fr; } }
+  .db-review-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .db-review-card.full { grid-column: 1 / -1; }
+  .drc-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .drc-name {
+    font-family: var(--display);
+    font-size: 21px;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+  .drc-risk {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .risk-low { background: rgba(62,207,142,0.1); color: var(--green); }
+  .risk-med { background: rgba(229,200,74,0.1); color: var(--gold); }
+  .risk-high { background: rgba(240,69,95,0.12); color: var(--red); }
+  .risk-crit { background: rgba(245,145,74,0.12); color: var(--orange); }
+  .drc-body { padding: 16px 18px; }
+  .drc-body .drc-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+    margin-top: 12px;
+  }
+  .drc-body .drc-label:first-child { margin-top: 0; }
+  .drc-body p { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; line-height: 1.6; }
+  .drc-body p:last-child { margin-bottom: 0; }
+  .drc-body strong { color: #fff; }
+
+  /* ── MISSING / CUT TABLES ── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border2);
+  }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(33,33,46,0.6);
+    color: var(--text-dim);
+    vertical-align: top;
+    font-size: 13px;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: #fff; font-family: var(--mono); font-size: 12px; }
+  td.action-cut { color: var(--red); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 1px; }
+  td.action-delay { color: var(--purple); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 1px; }
+  td.action-change { color: var(--orange); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 1px; }
+
+  /* ── BUILD ORDER ── */
+  .build-phases { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+  .phase {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-bottom: none;
+  }
+  .phase:first-child { border-radius: 6px 6px 0 0; }
+  .phase:last-child { border-radius: 0 0 6px 6px; border-bottom: 1px solid var(--border2); }
+  .phase-label {
+    background: var(--surface2);
+    border-right: 1px solid var(--border2);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .phase-num {
+    font-family: var(--display);
+    font-size: 32px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .phase-name {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .phase-body {
+    background: var(--surface);
+    padding: 18px 22px;
+  }
+  .phase-body .ph-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .step-list { list-style: none; padding: 0; }
+  .step-list li {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 4px 0;
+    padding-left: 18px;
+    position: relative;
+  }
+  .step-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .step-list li strong { color: #fff; }
+  .step-list li em { color: var(--gold); font-style: normal; font-family: var(--mono); font-size: 11px; }
+
+  /* ── FINAL RECS TABLE ── */
+  .final-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .final-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .fi-action {
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px;
+    text-align: center;
+  }
+  .fi-action.keep { color: var(--green); }
+  .fi-action.change { color: var(--orange); }
+  .fi-action.cut { color: var(--red); }
+  .fi-action.delay { color: var(--purple); }
+  .fi-text { padding: 12px 16px 12px 0; font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+  .fi-text strong { color: #fff; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 18px 22px;
+    margin: 20px 0;
+  }
+  .callout.red { border-left-color: var(--red); }
+  .callout.purple { border-left-color: var(--purple); }
+  .callout.green { border-left-color: var(--green); }
+  .callout .icon { font-size: 20px; flex-shrink: 0; }
+  .callout p { margin: 0; font-size: 14px; color: var(--text-dim); }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    text-align: center;
+    padding-top: 40px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="stamp">Critical Review — Architecture Audit</div>
+  <h1>JaZeR Music OS <span>v2</span></h1>
+  <div style="font-family:var(--display);font-size:26px;color:var(--text-dim);letter-spacing:1.5px;margin-top:2px;">Structural Evaluation Report</div>
+  <div class="header-sub">Reviewing: Workspace Architecture · Hub Design · Database Ecosystem · Build Order · May 2026</div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 1 — VERDICT -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag">01 — Executive Verdict</div>
+  <h2>The Call</h2>
+
+  <div class="verdict-block">
+    <div class="verdict-score">
+      <div class="score-label">Rating</div>
+      <div class="score-num">7.5</div>
+      <div class="score-denom">out of 10</div>
+      <div class="score-rating">Needs Refinement</div>
+    </div>
+    <div class="verdict-text">
+      <div class="vt-label">Verdict</div>
+      <p>The foundation is genuinely strong. The decision to run five databases instead of twelve is correct. The unified Writing Assets DB is the right call. Keeping FL Studio Plugin CC as a sibling system is right. The discipline against over-building is the most important structural quality here and it holds.</p>
+      <p>But the architecture has <strong>two structural failures</strong> and <strong>three high-risk pressure points</strong> that will cause real-world problems within the first month of use if not corrected before build starts.</p>
+      <p><strong>Structural failure #1:</strong> The Production Hub is not a hub. It's two filtered database views and an external link — that's a dashboard section, not a dedicated hub page. Calling it a hub creates a navigation layer that doesn't earn its existence.</p>
+      <p><strong>Structural failure #2:</strong> The Brand Hub has no active workflow. It contains reference documents, a website link, and Drive file links. That's a folder. Building it as a full hub page wastes build time and creates a place people stop visiting after the first week.</p>
+      <p>The three high-risk pressure points — Sessions DB logging abandonment, Tasks DB view collapse, and the Writing Assets DB growing unnavigable — are all solvable before build, not after. Fix them at the schema level now or they compound.</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 2 — STRENGTHS -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag green">02 — Architecture Strengths</div>
+  <h2>What's Working</h2>
+
+  <div class="item-list">
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">5-Database Discipline</div>
+        <div class="item-text">The refusal to add a Collaborators DB, Finance DB, Samples DB, Hooks DB, Ideas DB, and Lyrics DB as separate entities is the single best decision in the system. Most Notion music workspaces collapse under 12–18 partially-populated databases that no one maintains. This architecture correctly identifies that most of those are Views, not databases.</div>
+      </div>
+    </div>
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">Unified Writing Assets DB</div>
+        <div class="item-text">This is the correct call. An idea that evolves into a hook that becomes a verse should be one record that changes its Type — not three records in three databases with no connection. The Type property elegantly replaces what four separate databases would have done. The "Unattached Ideas" filter view is the key operational mechanic and it's correctly identified.</div>
+      </div>
+    </div>
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">FL Studio Plugin CC as Linked Sibling</div>
+        <div class="item-text">Keeping the existing 7-database, 141-plugin production reference system as a separate sibling hub instead of merging it into Music OS v2 is the right architectural boundary. That system is reference-heavy and production-specific. Merging it would have made the Music OS a production archive — the exact failure mode the design philosophy explicitly warned against.</div>
+      </div>
+    </div>
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">Dashboard as Filtered View Surface</div>
+        <div class="item-text">The explicit constraint that the Master Dashboard contains no content — only filtered views of the five databases — is architecturally correct and will prevent the most common Notion failure: dashboards that become archives. The principle is right. The execution has one gap (addressed in the hub review).</div>
+      </div>
+    </div>
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">8-Step Song Status Flow</div>
+        <div class="item-text">Idea → Writing → Recording → Producing → Mixing → Review → Release Prep → Released is clean, linear, and covers every real stage without inventing phantom stages. It correctly maps to filtered dashboard views at each step. The only potential issue is the "Idea" status name conflicting with the Writing Assets Type = "Idea" — addressed in the database review below.</div>
+      </div>
+    </div>
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">One Tasks DB with Type Filtering</div>
+        <div class="item-text">Avoiding separate task lists for Production, Content, Release Prep, and Admin is correct. Four task databases that partially overlap is the second most common Notion collapse pattern after dashboard archive bloat. The Type property approach is right — the risk is in the view architecture, which needs tightening.</div>
+      </div>
+    </div>
+
+    <div class="item strength">
+      <div class="item-icon">✓</div>
+      <div class="item-body">
+        <div class="item-title">Vault as Hard Archive Boundary</div>
+        <div class="item-text">Designating a Vault as the explicit destination for all legacy material — Funky Futuristic CC, backup tree, Music Hub v1 — prevents the "not sure if I still need this" paralysis that keeps dead content polluting active workspaces. The Phase 3I Archive Protocol Plan already exists and anchors the Vault. This is the right pattern.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 3 — RISKS -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag red">03 — Architecture Risks</div>
+  <h2>What Will Fail</h2>
+
+  <div class="item-list">
+
+    <div class="item risk">
+      <div class="item-icon">⚠</div>
+      <div class="item-body">
+        <div class="item-title">Sessions DB Will Die Within Two Weeks</div>
+        <div class="item-text">The Sessions DB has the most value but the highest friction-to-reward ratio in the system. Logging a session after a creative session requires an additional step that produces no immediate visible benefit. In practice, people log the first few sessions, then stop when there's momentum to protect. If the Session template requires more than three clicks and three fields, usage will drop to zero. The current spec lists 7+ properties — that's too many for something that depends on frictionless, consistent use. This must be simplified before build.</div>
+      </div>
+    </div>
+
+    <div class="item risk">
+      <div class="item-icon">⚠</div>
+      <div class="item-body">
+        <div class="item-title">Tasks DB Will Become an Undifferentiated Backlog</div>
+        <div class="item-text">One Tasks DB with six Type options covering Production, Release Prep, Content, Brand/Website, Admin, and Review will grow quickly into a mixed list that no one wants to look at. The "This Week" filter view is the highest-risk view in the entire system — if it shows 40 tasks across all Types without a clear prioritization mechanism, the view gets ignored and tasks get created but not completed. The current spec is missing a Focus/Pinned property and the view architecture needs to be explicit before build starts.</div>
+      </div>
+    </div>
+
+    <div class="item risk">
+      <div class="item-icon">⚠</div>
+      <div class="item-body">
+        <div class="item-title">Writing Assets DB Will Become Unnavigable</div>
+        <div class="item-text">A unified Writing Assets DB with 8 Types will accumulate hundreds of records over 6–12 months. Without strict default views and a clear "Unattached Ideas" view as the primary entry point, it becomes a lyric graveyard — the same pattern as the fragmented legacy system this is replacing. The database design is sound; the operational risk is in what the default view is when you open Writing Assets. If it's "All Records," this database fails. It must be specified before build.</div>
+      </div>
+    </div>
+
+    <div class="item risk">
+      <div class="item-icon">⚠</div>
+      <div class="item-body">
+        <div class="item-title">Production Hub Is Architecturally Redundant</div>
+        <div class="item-text">The Production Hub as designed contains: a filtered Songs view (Status = Recording/Producing/Mixing) and a filtered Tasks view (Type = Production). Both of those can and should be sections on the Master Dashboard. The hub adds a navigation layer — a sidebar item, a page you have to open — without adding organizational value beyond what two dashboard sections would provide. It won't get daily use between active production sessions, which means it will feel like an archive page.</div>
+      </div>
+    </div>
+
+    <div class="item risk">
+      <div class="item-icon">⚠</div>
+      <div class="item-body">
+        <div class="item-title">Brand Hub Has No Active Workflow</div>
+        <div class="item-text">The Brand Hub contains: About JaZeR (reference document), persona/archetype reports (Drive files), and the Brand Website link. None of these require daily or weekly interaction. There are no tasks, no databases, no recurring workflows anchored here. A hub page with no active workflow becomes a folder that gets opened once per quarter. The build time spent on a Brand Hub could go toward Song Lab templates, which will be used every session.</div>
+      </div>
+    </div>
+
+    <div class="item warn">
+      <div class="item-icon">△</div>
+      <div class="item-body">
+        <div class="item-title">"Idea" Name Collision Between Songs DB and Writing Assets DB</div>
+        <div class="item-text">Songs DB has a Status = "Idea" (earliest stage of a song project). Writing Assets DB has a Type = "Idea" (raw creative fragment). These are different objects with the same name. Over time, the mental model of "what is an Idea?" becomes ambiguous. A Song at "Idea" status should be a named placeholder project. A Writing Asset of Type "Idea" is an unnamed fragment. The naming needs to be explicit in documentation and ideally differentiated at the property level.</div>
+      </div>
+    </div>
+
+    <div class="item warn">
+      <div class="item-icon">△</div>
+      <div class="item-body">
+        <div class="item-title">No Song Page Body Template Specified</div>
+        <div class="item-text">The Songs DB properties are well-defined. But the actual page body of a Song record — what appears when you open it — is undefined. This is where most of the daily writing and production work happens. Without a locked template specifying what appears in the body (lyrics section, session log, production notes, file links, reference tracks), every song page will develop a different structure and the database becomes inconsistent within 30 days.</div>
+      </div>
+    </div>
+
+    <div class="item warn">
+      <div class="item-icon">△</div>
+      <div class="item-body">
+        <div class="item-title">No Vault Gate Protocol</div>
+        <div class="item-text">The Vault is correctly designed as a hard archive boundary, but there's no defined trigger for moving something into it. The Phase 3I Archive Protocol Plan exists in the workspace and should explicitly govern what moves to the Vault, when, and by what decision. Without a gate, the Vault becomes a guilt-free dumping ground where things go but never truly resolve — and active hubs never stay clean.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 4 — HUB REVIEW -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag purple">04 — Hub-by-Hub Review</div>
+  <h2>Six Surfaces Evaluated</h2>
+
+  <div class="hub-grid">
+
+    <!-- Dashboard -->
+    <div class="hub-card">
+      <div class="hub-card-head">
+        <div class="hub-name">🎯 Master Dashboard</div>
+        <div class="hub-verdict hv-ok">Mostly Sound — Fix Two Things</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-finding">What's right</div>
+        <p>The "filtered views only, no content" constraint is the correct design principle. The Quick Capture section is rightly prioritized. The Active Songs and Writing Queue views are the right anchors.</p>
+
+        <div class="hub-finding">Problem 1 — Quick Capture must be a template button, not a link</div>
+        <p>The spec describes "Quick Capture → new Idea / Hook / Freestyle" but doesn't define the mechanism. If this is a link to the Writing Assets DB (to create a new record manually), capture friction is too high. It must be a <strong>Notion template button</strong> on the dashboard page itself that creates a Writing Asset record with Type, Date, and Status pre-filled. That's the difference between capturing an idea in 8 seconds versus losing it.</p>
+
+        <div class="hub-finding">Problem 2 — "Recent Sessions" is noise, not signal</div>
+        <p>The Recent Sessions widget shows the last 3 sessions sorted by date. That answers a question no one asks mid-session: "What did I do before?" It doesn't answer "What do I do next?" Cut this widget. Replace it with <strong>Songs with Open Production Tasks</strong> — that surface is actionable. Recent Sessions is history; the dashboard is for decisions.</p>
+
+        <div class="hub-finding">Problem 3 — Weekly Review is too vague</div>
+        <p>The dashboard anchor currently shows two text rows: "What got done this week?" and "What's the top priority next?" That's not a review system — it's a placeholder. The Weekly Review must be a <strong>linked recurring template page</strong> with auto-populated filtered views baked in, or it will be blank every week. Build the template before linking it from the dashboard.</p>
+      </div>
+    </div>
+
+    <!-- Song Lab -->
+    <div class="hub-card">
+      <div class="hub-card-head">
+        <div class="hub-name">🎵 Song Lab</div>
+        <div class="hub-verdict hv-strong">Strongest Hub — One Risk</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-finding">What's right</div>
+        <p>This is the correct hub. Writing Assets, Songs, Sessions, and The Book of JaZeR all naturally belong here. The Freestyle Hub becoming a filtered view within Writing Assets (rather than a separate database) is the right call. Song Lab is the daily creative workspace and its scope is appropriately bounded.</p>
+
+        <div class="hub-finding">The one serious risk — no Song page body template</div>
+        <p>The Songs DB has strong property definitions. But the page body is undefined. Every song page will become a free-form document with no structural consistency. Within 90 days, some songs have detailed production notes, some have pasted lyrics, some are empty, and the database is inconsistent.</p>
+        <p><strong>The Song page body template must be defined before the first Song record is created.</strong> Minimum required sections: reference track + key/BPM, lyrics working draft, session log (rollup or linked), production notes block, FL Studio project path (text field), release checklist link. Lock this as a template before build.</p>
+
+        <div class="hub-finding">Freestyle Hub V1 Structure Snapshot — archive now</div>
+        <p>This resource is tagged "Review" in the discovery inventory. That's ambiguous. It should be explicitly archived before v2 launches — not reviewed and potentially migrated. The Freestyle workflow now lives in Writing Assets DB. The snapshot has no active use.</p>
+      </div>
+    </div>
+
+    <!-- Production Hub -->
+    <div class="hub-card">
+      <div class="hub-card-head">
+        <div class="hub-name">🎛️ Production Hub</div>
+        <div class="hub-verdict hv-cut">Not a Hub — Demote or Absorb</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-finding">The structural problem</div>
+        <p>As currently defined, the Production Hub contains: a filtered Songs view (Status = Recording/Producing/Mixing), a filtered Tasks view (Type = Production), and a link to FL Studio Plugin CC. That is a <strong>dashboard section</strong>, not a hub. A hub requires at least one workflow or content layer that cannot exist on the dashboard — and Production Hub has none.</p>
+
+        <div class="hub-finding">What a real Production Hub would need to justify its existence</div>
+        <p>A standalone Production Hub earns its place only if it contains: song-specific production checklists (not just task views), mix notes or critical listening logs, A/B reference track comparisons, and the FL Studio integration surface. If those aren't being built, the hub is overhead.</p>
+
+        <div class="hub-finding"><span class="fix-change">CHANGE</span> Recommended action</div>
+        <p>Move the two filtered views (Songs in production + Production Tasks) onto the Master Dashboard as named sections. Link to FL Studio Plugin CC from the Dashboard sidebar or from individual Song pages. <strong>Eliminate Production Hub as a standalone page.</strong> This reduces navigation depth and removes a hub that will go dark between active production cycles.</p>
+        <p>Exception: if you plan to build song-level production checklists, A/B logs, or plugin chain notes as a structured subsystem — then rebuild Production Hub around that content. But build the content first. Don't build the hub and then fill it.</p>
+      </div>
+    </div>
+
+    <!-- Launch Hub -->
+    <div class="hub-card">
+      <div class="hub-card-head">
+        <div class="hub-name">🚀 Launch Hub</div>
+        <div class="hub-verdict hv-ok">Conditionally Justified — One Fix</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-finding">What's right</div>
+        <p>Launch Hub is justified because it aggregates release-specific objects that don't belong in Song Lab: the Releases DB, release prep tasks, the Content Calendar, promo assets, and Drive release strategy docs. That scope is coherent and distinct from creative work.</p>
+
+        <div class="hub-finding">The temporal gap problem</div>
+        <p>Between active release cycles, this hub is effectively empty. The Releases DB will show one or two records. The Content Tasks view will have minimal activity. The hub will feel dead for months at a time. This is acceptable <em>if</em> you mentally treat it as a campaign-mode hub — activated during release prep and dormant otherwise. The mistake would be trying to fill it with content during quiet periods to justify its existence.</p>
+
+        <div class="hub-finding">Tasks DB split — the real structural concern</div>
+        <p>Production Tasks appear in the (now demoted) Production Hub. Content Tasks appear in Launch Hub. Both come from the same Tasks DB filtered by Type. This means a person working on a release has to check two hubs to see their full workload for that song. <strong>The better pattern:</strong> The Master Dashboard should have one "Open Tasks This Week" view showing all Types, filtered by due date. Hub-level task views are supplementary, not primary. Make sure that hierarchy is explicit in how the views are built.</p>
+
+        <div class="hub-finding">Content Calendar Generator</div>
+        <p>This is a page tool, not a database — that's fine. But the output of the generator (the actual content tasks) must live in the Tasks DB (Type = Content), not in the generator page itself. If content tasks accumulate inside the generator page, the Tasks DB becomes incomplete and the dashboard view breaks. Define this data flow before build.</p>
+      </div>
+    </div>
+
+    <!-- Brand Hub -->
+    <div class="hub-card">
+      <div class="hub-card-head">
+        <div class="hub-name">🏷️ Brand Hub</div>
+        <div class="hub-verdict hv-weak">Not a Hub — Demote to Reference Page</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-finding">The structural problem</div>
+        <p>Brand Hub contains: About JaZeR, persona/archetype Drive reports, and the JaZeR Brand Website link. There is no task creation happening here. No database. No recurring workflow. No daily use. This is a reference folder with a hub-level navigation slot.</p>
+
+        <div class="hub-finding">What it would take to justify a Brand Hub</div>
+        <p>A Brand Hub earns its place only if it contains active brand workflows: website update tasks tracked in Tasks DB (Type = Brand/Website), a content voice guide that gets referenced during writing, a visual identity checklist for release assets, or an active brand strategy project with open decisions. If those workflows exist, build the hub. If they don't, this is a folder.</p>
+
+        <div class="hub-finding"><span class="fix-change">CHANGE</span> Recommended action</div>
+        <p>Demote Brand Hub to a <strong>reference page</strong> — a single Notion page pinned in the sidebar or linked from the Master Dashboard's reference section. It holds the About JaZeR link, the Drive persona report links, and the website URL. It does not appear as a top-level hub in the sidebar.</p>
+        <p>If brand workflow volume increases (active website dev, content strategy planning, brand refresh project), promote it back to hub status at that point. Right now it doesn't earn the navigation slot.</p>
+      </div>
+    </div>
+
+    <!-- Vault -->
+    <div class="hub-card">
+      <div class="hub-card-head">
+        <div class="hub-name">📦 Vault</div>
+        <div class="hub-verdict hv-ok">Correct Concept — Needs a Gate</div>
+      </div>
+      <div class="hub-body">
+        <div class="hub-finding">What's right</div>
+        <p>The Vault as a hard archive boundary is exactly right. Naming it explicitly and giving it a dedicated location prevents the "I might need this someday" inertia that keeps legacy content in active hubs. The Phase 3I Archive Protocol Plan already exists in the workspace — that's a major asset.</p>
+
+        <div class="hub-finding">The missing gate</div>
+        <p>There's no defined trigger for what moves something to the Vault. Without a gate, two failure modes emerge: (1) nothing gets archived because the decision feels too permanent, or (2) everything gets "archived" including things that should be actively deleted. The Phase 3I plan should be the governing document — link it explicitly at the top of the Vault page and define the criteria: <em>if a resource has no active workflow, overlaps with a v2 database, and hasn't been opened in 30 days, it moves to the Vault.</em></p>
+
+        <div class="hub-finding">Archive batch — execute before launch</div>
+        <p>The following should be explicitly moved to the Vault <em>before</em> v2 launches, not after: Funky Futuristic Music Command Center (post-audit), JaZeR Musician Page backup, 10_Music_Creative_Projects backup, Music Hub v1.0, Freestyle Hub V1 Structure Snapshot. Launching v2 with these pages still in ambiguous "Review" status is how legacy content bleeds back into active hubs.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 5 — DATABASE REVIEW -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag">05 — Database Ecosystem Review</div>
+  <h2>Five Databases Stress-Tested</h2>
+
+  <div class="db-review-grid">
+
+    <div class="db-review-card">
+      <div class="drc-head">
+        <div class="drc-name">Songs DB</div>
+        <div class="drc-risk risk-low">Low Risk</div>
+      </div>
+      <div class="drc-body">
+        <div class="drc-label">Verdict</div>
+        <p>Structurally sound. The schema is correct. The 8-step status flow maps cleanly to dashboard views. Relations to Writing Assets, Sessions, Releases, and Tasks are all warranted.</p>
+        <div class="drc-label">Fix — "Idea" status naming collision</div>
+        <p>A Song at Status = "Idea" is a named project placeholder. A Writing Asset at Type = "Idea" is an unnamed fragment. These are different objects with the same name. Rename the Song status to <strong>"Concept"</strong> to differentiate. A song becomes a Concept when it has a name and intentional direction. Before that, it's a Writing Asset fragment.</p>
+        <div class="drc-label">Fix — Song page body template must exist before first record</div>
+        <p>Define and lock the Song page body template before creating any records. Minimum: reference track, key/BPM (mirrored from DB properties), lyrics working area, session notes, production notes, FL Studio project path (plain text), release checklist link. Without this, the database becomes structurally inconsistent within 30 days.</p>
+        <div class="drc-label">Minor — "Playlist Pitch Deadline" property</div>
+        <p>Rename the generic "Pitch Deadline" property to "Playlist Pitch Deadline" — this is specifically for editorial playlist submission (typically 7 days before release date on DistroKid/Amuse). The current name is ambiguous.</p>
+      </div>
+    </div>
+
+    <div class="db-review-card">
+      <div class="drc-head">
+        <div class="drc-name">Writing Assets DB</div>
+        <div class="drc-risk risk-med">Medium Risk</div>
+      </div>
+      <div class="drc-body">
+        <div class="drc-label">Verdict</div>
+        <p>The unified approach is correct. The 8 Type options cover the necessary creative object spectrum. The "Unattached Ideas" view is the right operational anchor. The risk is entirely in default view configuration.</p>
+        <div class="drc-label">Critical — Default view must be Unattached Ideas</div>
+        <p>When you open Writing Assets DB, the default view <strong>must not</strong> be "All Records." With 8 Types and hundreds of entries over time, "All Records" is a wall of noise. The default view should be Unattached Ideas (filter: Song relation is empty, Status ≠ Archived), sorted by Date Created descending. This makes the database feel like a creative inbox, not an archive.</p>
+        <div class="drc-label">Risk — 500+ records within a year</div>
+        <p>Freestyles, ideas, hooks, verses, full lyric sheets — this database will grow fast. Every view must have explicit filters excluding Archived records. Build the views with filters locked from day one.</p>
+        <div class="drc-label">Clarify — "Concept" as a Type</div>
+        <p>The current Type list includes "Concept" alongside "Idea." These are easy to confuse. Define the distinction explicitly: Idea = raw fragment (a word, phrase, title, vibe note). Concept = developed enough to describe what the song is about. Alternatively, cut Concept as a Type and use Status = "Developing" on an Idea record to indicate the same progression.</p>
+      </div>
+    </div>
+
+    <div class="db-review-card">
+      <div class="drc-head">
+        <div class="drc-name">Sessions DB</div>
+        <div class="drc-risk risk-crit">Critical Risk</div>
+      </div>
+      <div class="drc-body">
+        <div class="drc-label">Verdict</div>
+        <p>This is the highest-risk database in the system. The architectural value is real — relational session data enriches Songs and Writing Assets significantly. The practical risk is that session logging is the first workflow to get skipped when creative momentum is high. If the template is more than 3 required fields, this database will be abandoned within two weeks.</p>
+        <div class="drc-label">Fix — Reduce required fields to 3</div>
+        <p>The current spec lists 7+ properties (Session Name, Type, Date, Duration, Key Outputs, Mood/Energy, Rating). That's too many for a post-session logging step. The <strong>only required fields should be: Date (auto-filled), Type (select), linked Song (relation)</strong>. Everything else — Duration, Mood, Rating, Key Outputs — is optional and appears below the fold. The template button on the dashboard should create a session with just those three pre-filled. Review notes go in the page body, not in properties.</p>
+        <div class="drc-label">Risk — No logging incentive</div>
+        <p>Sessions only feel worth logging if something is visibly returned — a rollup count on a Song record ("12 sessions logged"), a calendar view showing creative output over time. Build those rollup views into Songs DB before the Sessions DB is live, so the value is immediate and visible.</p>
+      </div>
+    </div>
+
+    <div class="db-review-card">
+      <div class="drc-head">
+        <div class="drc-name">Releases DB</div>
+        <div class="drc-risk risk-low">Low Risk</div>
+      </div>
+      <div class="drc-body">
+        <div class="drc-label">Verdict</div>
+        <p>Clean schema, appropriate scope, correct relations. No structural concerns. The release pipeline is a low-volume, high-stakes database — one to three active records at a time, which means it won't bloat and won't need aggressive view management.</p>
+        <div class="drc-label">Minor — Rename "Pitch Deadline" → "Playlist Pitch Deadline"</div>
+        <p>Same note as in Songs DB. This property is specifically for editorial playlist pitch submission windows, not general deadlines. The name should be unambiguous.</p>
+        <div class="drc-label">Minor — Add a "Promo Assets Ready" checkbox</div>
+        <p>A single checkbox property confirming that artwork, caption copy, and short-form video are ready before submission prevents the most common pre-release oversight. It doesn't need to be a full checklist in the DB — that lives in a linked Task. Just a gate-check property.</p>
+      </div>
+    </div>
+
+    <div class="db-review-card full">
+      <div class="drc-head">
+        <div class="drc-name">Tasks DB</div>
+        <div class="drc-risk risk-high">High Risk</div>
+      </div>
+      <div class="drc-body">
+        <div class="drc-label">Verdict</div>
+        <p>The one-Tasks-DB approach is architecturally correct. The operational risk is very high because six Task Types covering completely different domains (production, content, release, admin, brand, review) will generate a mixed backlog that becomes visually overwhelming fast. The view architecture is the make-or-break factor.</p>
+        <div class="drc-label">Critical Fix — Add a "Focus" property</div>
+        <p>Due Date filtering alone is insufficient for daily prioritization. Add a <strong>Focus checkbox property</strong> to Tasks DB. A task gets checked as Focus when it's a current-session priority — regardless of due date. The dashboard's primary task view should filter on Focus = true, not on Due Date = this week. Due Date views are for planning; Focus is for execution. Without this, the "This Week" view shows everything due this week (potentially 30 tasks across all Types) and becomes a wall no one reads.</p>
+        <div class="drc-label">Critical Fix — View architecture must be locked before build</div>
+        <p>Every hub that surfaces a Tasks DB view must use a strict filter: <strong>Type = [specific type] AND Status ≠ Done AND Focus = true OR Due = this week</strong>. If a hub shows all open tasks without Type filtering, the Tasks DB bleeds across the entire workspace. Document the exact filter spec for each view before building any of them.</p>
+        <div class="drc-label">Fix — Type must be Select, not Multi-select</div>
+        <p>If Type is Multi-select, a task can be both "Production" and "Content," which breaks every filtered view. Each task has exactly one Type. Enforce this at the schema level by using a Select property.</p>
+        <div class="drc-label">Risk — Admin and Review Types will accumulate ghost tasks</div>
+        <p>Production and Content tasks have natural completion triggers (mix done, post published). Admin and Review tasks often don't. "Update bio," "Review workspace," "Check metadata" — these tasks recur, get duplicated, and pile up. Consider whether recurring tasks should have a Recurrence property, or whether those specific tasks belong in a separate recurring checklist template rather than the Tasks DB proper.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 6 — MISSING PIECES -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag orange">06 — Missing Pieces</div>
+  <h2>What Must Exist Before Build</h2>
+
+  <table>
+    <thead>
+      <tr><th>Missing Element</th><th>Why It's Blocking</th><th>Where It Lives</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Song Page Body Template</td>
+        <td>Without a locked template, every Song page develops a different structure. DB becomes inconsistent within 30 days.</td>
+        <td>Songs DB — template button</td>
+      </tr>
+      <tr>
+        <td>Session Logging Template (3-field)</td>
+        <td>If logging takes more than 10 seconds, Sessions DB dies. Template must pre-fill Date, Type, and offer a Song relation dropdown — nothing else required.</td>
+        <td>Sessions DB — template button</td>
+      </tr>
+      <tr>
+        <td>Quick Capture Template Button</td>
+        <td>The dashboard "Quick Capture" must be a Notion template button, not a link to the Writing Assets DB. Pre-fills: Type = Idea, Status = Raw, Date = today. 8-second capture or ideas get lost.</td>
+        <td>Master Dashboard — inline button</td>
+      </tr>
+      <tr>
+        <td>Weekly Review Template</td>
+        <td>Dashboard links to "Weekly Review" but no template exists. Must be a recurring page with embedded filtered views: songs advanced this week, sessions logged, tasks completed, focus for next week.</td>
+        <td>Song Lab — sub-page</td>
+      </tr>
+      <tr>
+        <td>Tasks DB View Spec (written)</td>
+        <td>Before building any Tasks view in any hub or dashboard, the exact filter conditions for each view must be written out. Type = x, Status ≠ Done, Focus = true / Due = this week. If views are built without this spec, the filters will be inconsistent across the workspace.</td>
+        <td>Architecture doc (this doc)</td>
+      </tr>
+      <tr>
+        <td>Vault Gate Protocol (linked)</td>
+        <td>Phase 3I Archive Protocol Plan exists. It must be linked at the top of the Vault page as the governing document and the criteria must be explicit. Without a gate, nothing gets archived and everything stays in "Review" limbo.</td>
+        <td>Vault — top of page</td>
+      </tr>
+      <tr>
+        <td>Writing Assets Default View Spec</td>
+        <td>Before creating the Writing Assets DB, the default view must be defined: Unattached Ideas, sorted by Date Created desc. If this isn't locked, the default "All Records" view turns the DB into an archive on day one.</td>
+        <td>Writing Assets DB — view config</td>
+      </tr>
+      <tr>
+        <td>Naming Convention for "Idea" vs "Concept"</td>
+        <td>Song Status = "Idea" renamed to "Concept." Writing Assets Type = "Idea" stays. The distinction must be in the template instructions. Otherwise users create duplicate records for the same object in two places.</td>
+        <td>Both databases — documented</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 7 — CUT LIST -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag red">07 — Cut List</div>
+  <h2>What Should Not Be Built Yet</h2>
+
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Action</th><th>Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Production Hub (standalone)</td>
+        <td class="action-cut">CUT — absorb into dashboard</td>
+        <td>Two filtered views + a link does not justify a dedicated hub page. Move both views to the Master Dashboard. Revisit only if song-level production checklists or A/B logs become a built subsystem.</td>
+      </tr>
+      <tr>
+        <td>Brand Hub (standalone)</td>
+        <td class="action-cut">CUT — demote to reference page</td>
+        <td>No active workflow. Three reference documents and a website link belong on a single reference page, not a top-level hub. Promote to hub if brand workflow volume increases.</td>
+      </tr>
+      <tr>
+        <td>Dashboard "Recent Sessions" widget</td>
+        <td class="action-cut">CUT — replace with actionable view</td>
+        <td>Shows history, not decisions. Replace with "Songs with Open Production Tasks" — filtered Songs view showing active songs that have at least one open Task (Type = Production). That's actionable; recent sessions aren't.</td>
+      </tr>
+      <tr>
+        <td>Rollup properties (all)</td>
+        <td class="action-delay">DELAY — 30 days post-launch</td>
+        <td>Writing Assets Count, Open Tasks Count, Session Count rollups on Songs DB are valuable but require real data to be useful. Building them before the DB has records means you're testing rollup formulas on empty fields. Launch without them; add after 30 days of data.</td>
+      </tr>
+      <tr>
+        <td>Freestyle Hub V1 Structure Snapshot</td>
+        <td class="action-cut">CUT — archive immediately</td>
+        <td>Tagged "Review" in the discovery inventory. It has no active use — the Freestyle workflow now lives in Writing Assets DB. Archive it to the Vault before v2 launches. Don't leave "Review" items in ambiguous state.</td>
+      </tr>
+      <tr>
+        <td>Finance tracking (any form)</td>
+        <td class="action-delay">DELAY — build when revenue is consistent</td>
+        <td>No data volume warrants a Finance DB yet. Use a simple spreadsheet for expense/income tracking until streaming revenue and sync licensing require structured tracking. Build the DB when maintaining a spreadsheet becomes the bottleneck.</td>
+      </tr>
+      <tr>
+        <td>Collaborators DB</td>
+        <td class="action-delay">DELAY — build when collaborations are active</td>
+        <td>Solo artist context means a Collaborators DB has no real records. A contacts page in Brand Hub (reference page) handles current needs. Build the DB when you have 5+ active collaborator relationships that require tracking.</td>
+      </tr>
+      <tr>
+        <td>Weekly Review System (during initial build)</td>
+        <td class="action-delay">DELAY — build template, then link</td>
+        <td>The dashboard Weekly Review anchor should link to a template page. But don't build the full Weekly Review workflow during the initial build — build the core databases first, run them for two weeks, then design the Review based on what data is actually being generated.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 8 — BUILD ORDER -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag green">08 — Recommended Build Order</div>
+  <h2>Step-by-Step Sequence</h2>
+
+  <div class="callout red">
+    <span class="icon">🔒</span>
+    <p><strong>Before touching Notion:</strong> Write out the Song page body template, the Session 3-field template spec, the Tasks DB view filter conditions, and the Writing Assets default view spec. These are paper/doc decisions, not Notion builds. Skipping this step means you build, discover structural problems, and rebuild — which is how v1 ended up fragmented.</p>
+  </div>
+
+  <div class="build-phases">
+
+    <div class="phase">
+      <div class="phase-label">
+        <div class="phase-num">1</div>
+        <div class="phase-name">Core Data</div>
+      </div>
+      <div class="phase-body">
+        <div class="ph-label">Week 1 — Build the creative spine first</div>
+        <ul class="step-list">
+          <li><strong>Songs DB</strong> — Status flow (rename "Idea" → "Concept"), all properties, Song page body template locked. <em>Day 1</em></li>
+          <li><strong>Migrate 4 active songs</strong> (Transformative Trance, Mission Statement, The Divine Rerun, Cosmic Beam) into Songs DB as the first records. <em>Day 1</em></li>
+          <li><strong>Writing Assets DB</strong> — 8 Types, Status flow, default view = Unattached Ideas with filters locked. <em>Day 2</em></li>
+          <li><strong>Link Songs ↔ Writing Assets</strong> — create the relation, test by attaching a lyric fragment to a song. <em>Day 2</em></li>
+          <li><strong>Song Lab hub page</strong> — embed Songs DB (Active Songs view) and Writing Assets DB (Unattached Ideas view). The Book of JaZeR as a sub-page. <em>Day 3</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-label">
+        <div class="phase-num">2</div>
+        <div class="phase-name">Dashboard</div>
+      </div>
+      <div class="phase-body">
+        <div class="ph-label">Week 1 — Make the daily driver functional</div>
+        <ul class="step-list">
+          <li><strong>Master Dashboard</strong> — Quick Capture template button (Writing Asset, Type = Idea, Status = Raw), Active Songs view (filtered), Writing Queue view (Unattached Ideas). <em>Day 4</em></li>
+          <li><strong>Validate Quick Capture</strong> — test that a new record creates in under 10 seconds. If not, simplify the template. <em>Day 4</em></li>
+          <li>At this point: <em>the core creative loop is operational.</em> You can capture, develop, and track songs. Everything else is additive.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-label">
+        <div class="phase-num">3</div>
+        <div class="phase-name">Sessions</div>
+      </div>
+      <div class="phase-body">
+        <div class="ph-label">Week 2 — Add the time layer</div>
+        <ul class="step-list">
+          <li><strong>Sessions DB</strong> — 3 required fields only (Date auto, Type select, Song relation). All other properties optional below the fold. <em>Day 6</em></li>
+          <li><strong>Session template button</strong> — on the dashboard and inside each Song page. Should auto-populate Date = today and prompt for Type. <em>Day 6</em></li>
+          <li><strong>Add Session Count rollup to Songs DB</strong> — now that sessions exist, make the count visible on Song records so logging has immediate visible reward. <em>Day 7</em></li>
+          <li>Log every session for 14 days. Evaluate whether the 3-field template is sustainable before adding any additional properties.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-label">
+        <div class="phase-num">4</div>
+        <div class="phase-name">Tasks</div>
+      </div>
+      <div class="phase-body">
+        <div class="ph-label">Week 2 — Add the action layer</div>
+        <ul class="step-list">
+          <li><strong>Tasks DB</strong> — Type (Select, not Multi-select), Status, Due Date, Priority, Focus checkbox, Song relation, Release relation. <em>Day 8</em></li>
+          <li><strong>Build views with locked filters</strong> — Dashboard: "Focus Tasks" (Focus = true, Status ≠ Done). Dashboard: "Due This Week" (Due ≤ 7 days, Status ≠ Done). Song Lab: "Production Queue" (Type = Production). These are the only views needed at launch. <em>Day 8–9</em></li>
+          <li><strong>Absorb Production Hub content</strong> into dashboard — add the Production Queue section to the dashboard. Do not create a Production Hub page. <em>Day 9</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-label">
+        <div class="phase-num">5</div>
+        <div class="phase-name">Releases</div>
+      </div>
+      <div class="phase-body">
+        <div class="ph-label">Before first release — not before</div>
+        <ul class="step-list">
+          <li><strong>Releases DB</strong> — only when a release is 60 days out. Build it then, not speculatively. <em>Pre-release</em></li>
+          <li><strong>Launch Hub page</strong> — Releases DB view, Content Tasks view (Type = Content, linked to Release), Content Calendar link. <em>Pre-release</em></li>
+          <li><strong>Link Releases ↔ Songs</strong> — connect Cosmic Beam (first release candidate) to a Release record. <em>Pre-release</em></li>
+          <li><strong>Release prep Tasks</strong> — generate release prep task batch (Type = Release Prep) from a template. <em>Pre-release</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-label">
+        <div class="phase-num">6</div>
+        <div class="phase-name">Cleanup</div>
+      </div>
+      <div class="phase-body">
+        <div class="ph-label">Parallel to Phase 1 — do not delay this</div>
+        <ul class="step-list">
+          <li><strong>Execute archive batch</strong> before or during Phase 1: Funky Futuristic CC, Freestyle Hub V1 Snapshot, JaZeR Musician Page backup, 10_Music_Creative_Projects, Music Hub v1.0. All to Vault. Link Phase 3I Protocol at Vault top. <em>Week 1</em></li>
+          <li><strong>Brand Hub → reference page</strong> — create a single "Brand Reference" page with About JaZeR link, Drive report links, website URL. Pin in sidebar. <em>Week 1</em></li>
+          <li><strong>Weekly Review template</strong> — build after 14 days of real database use, when you know what data is actually being generated. <em>Week 3</em></li>
+          <li><strong>Rollup properties</strong> — add after 30 days. Writing Assets Count, Open Tasks Count on Songs DB. Not before. <em>Day 30+</em></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ================================================================ -->
+<!-- SECTION 9 — FINAL RECOMMENDATION -->
+<!-- ================================================================ -->
+<div class="section">
+  <div class="s-tag purple">09 — Final Architecture Recommendation</div>
+  <h2>Keep, Change, Cut, Delay</h2>
+
+  <div class="final-grid">
+
+    <div class="final-item">
+      <div class="fi-action keep">KEEP</div>
+      <div class="fi-text"><strong>Five databases (Songs, Writing Assets, Sessions, Releases, Tasks)</strong> — the discipline to stay at five is the most important structural decision in this architecture. Do not add databases without a clear workflow argument.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action keep">KEEP</div>
+      <div class="fi-text"><strong>Unified Writing Assets DB</strong> — correct call. One Type property replaces four databases. Protect this decision when the temptation to "just add a Hooks DB" comes up (it will).</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action keep">KEEP</div>
+      <div class="fi-text"><strong>FL Studio Plugin CC as linked sibling</strong> — do not move it, merge it, or simplify it. The boundary between reference system and operational system is one of the few structural decisions in the existing workspace worth preserving.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action keep">KEEP</div>
+      <div class="fi-text"><strong>Song Lab as primary creative hub</strong> — strongest hub in the system. Songs DB, Writing Assets DB, Sessions DB, and The Book of JaZeR all belong here.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action keep">KEEP</div>
+      <div class="fi-text"><strong>Vault with Phase 3I Protocol as governing document</strong> — hard archive boundary is correct. Execute the archive batch before v2 launches, not after.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action change">CHANGE</div>
+      <div class="fi-text"><strong>Song Status "Idea" → "Concept"</strong> — eliminates naming collision with Writing Assets Type = "Idea." A Song at Concept status is a named project. A Writing Asset of Type Idea is an unnamed fragment. Different objects need different names.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action change">CHANGE</div>
+      <div class="fi-text"><strong>Sessions DB template — reduce to 3 required fields</strong> — Date (auto), Type (select), Song (relation). All other properties optional. Logging must take under 10 seconds or it won't survive contact with real creative sessions.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action change">CHANGE</div>
+      <div class="fi-text"><strong>Tasks DB — add Focus checkbox property</strong> — the dashboard primary task view filters on Focus = true, not on Due Date = this week. Focus is for execution; Due Date is for planning. Without this property, the dashboard task view becomes an unworkable 40-item list.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action change">CHANGE</div>
+      <div class="fi-text"><strong>Quick Capture → Notion template button</strong> — must be a button on the Master Dashboard page that creates a Writing Asset with Type = Idea, Status = Raw, Date = today. Not a link to the database. 8-second capture is the target.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action change">CHANGE</div>
+      <div class="fi-text"><strong>Writing Assets DB default view → Unattached Ideas</strong> — lock the default view before the first record is created. Filter: Song relation = empty, Status ≠ Archived, sorted by Date Created desc. This makes the database feel like a creative inbox, not an archive.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action cut">CUT</div>
+      <div class="fi-text"><strong>Production Hub as standalone hub</strong> — absorb both views (Songs in production, Production Tasks) into the Master Dashboard as named sections. Link to FL Studio Plugin CC from the sidebar. Do not build a dedicated hub page for two filtered views.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action cut">CUT</div>
+      <div class="fi-text"><strong>Brand Hub as standalone hub</strong> — demote to a single "Brand Reference" pinned page. About JaZeR, persona reports, website link. No hub page needed until active brand workflow exists (website dev, content strategy, brand refresh project).</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action cut">CUT</div>
+      <div class="fi-text"><strong>Dashboard "Recent Sessions" widget</strong> — replace with "Songs with Open Production Tasks" (filtered Songs view: active status + at least one open Task). Shows decisions, not history.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action delay">DELAY</div>
+      <div class="fi-text"><strong>Releases DB + Launch Hub</strong> — build 60 days before first release. Not speculatively. The Releases DB built before a release is near has no meaningful data and creates maintenance pressure.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action delay">DELAY</div>
+      <div class="fi-text"><strong>All rollup properties</strong> — build after 30 days of real database use. Rollups on empty databases produce nothing useful and add build complexity to Phase 1.</div>
+    </div>
+
+    <div class="final-item">
+      <div class="fi-action delay">DELAY</div>
+      <div class="fi-text"><strong>Weekly Review template</strong> — design after 14 days of real use. You can't build a useful review template until you know what data the databases are actually generating.</div>
+    </div>
+
+  </div>
+
+  <div class="callout green" style="margin-top:32px;">
+    <span class="icon">🎯</span>
+    <p><strong>The rating ceiling is 8.5/10.</strong> The database discipline, the unified Writing Assets decision, and the sibling FL Studio system are genuinely strong foundations. Execute the six changes above — particularly Sessions DB simplification, Tasks DB Focus property, and cutting the two weak hubs — and this becomes one of the cleaner music operating systems you could build in Notion. The gap between 7.5 and 8.5 is entirely in pre-build specification work, not in architectural redesign.</p>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  JaZeR Music OS v2 — Critical Architecture Review · May 2026<br>
+  <span style="color:var(--border2);">Structural Audit · Pre-Build · Notion Workspace Evaluation</span>
+</div>
+
+</body>
+</html>

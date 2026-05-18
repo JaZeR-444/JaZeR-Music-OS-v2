@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Database Schema Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090c;
+    --s1: #111118;
+    --s2: #17171f;
+    --s3: #1e1e28;
+    --b1: #222230;
+    --b2: #2d2d3e;
+    --gold: #e2c547;
+    --purple: #9b7ff5;
+    --green: #41d49a;
+    --red: #f04c68;
+    --orange: #f59050;
+    --blue: #5ba8f5;
+    --muted: #4e4e66;
+    --text: #d5d5e5;
+    --dim: #7a7a98;
+    --white: #f0f0f8;
+    --mono: 'DM Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Lora', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 52px 32px 100px;
+  }
+
+  /* ─── HEADER ─── */
+  .doc-header { border-bottom: 1px solid var(--b2); padding-bottom: 36px; margin-bottom: 52px; }
+  .stamp {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--blue);
+    background: rgba(91,168,245,0.08); border: 1px solid rgba(91,168,245,0.2);
+    display: inline-block; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px;
+  }
+  h1 { font-family: var(--display); font-size: 56px; line-height: 1; letter-spacing: 2px; color: var(--white); margin-bottom: 6px; }
+  h1 span { color: var(--blue); }
+  .header-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 8px; }
+
+  /* ─── SECTION TAGS ─── */
+  .s-tag {
+    display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px;
+  }
+  .st-gold { color: var(--gold); background: rgba(226,197,71,0.07); border: 1px solid rgba(226,197,71,0.18); }
+  .st-purple { color: var(--purple); background: rgba(155,127,245,0.07); border: 1px solid rgba(155,127,245,0.18); }
+  .st-green { color: var(--green); background: rgba(65,212,154,0.07); border: 1px solid rgba(65,212,154,0.18); }
+  .st-red { color: var(--red); background: rgba(240,76,104,0.07); border: 1px solid rgba(240,76,104,0.18); }
+  .st-orange { color: var(--orange); background: rgba(245,144,80,0.07); border: 1px solid rgba(245,144,80,0.18); }
+  .st-blue { color: var(--blue); background: rgba(91,168,245,0.07); border: 1px solid rgba(91,168,245,0.18); }
+
+  h2 { font-family: var(--display); font-size: 38px; letter-spacing: 1.5px; color: var(--white); margin-bottom: 18px; line-height: 1; }
+  h3 { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--b1); padding-bottom: 7px; margin: 28px 0 12px; }
+  h4 { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); margin: 16px 0 6px; }
+  p { margin-bottom: 12px; color: var(--text); }
+  p.dim { color: var(--dim); font-size: 13.5px; }
+  strong { color: var(--white); }
+  em { color: var(--gold); font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--b1); margin: 48px 0; }
+
+  .section { margin-bottom: 68px; }
+
+  /* ─── VERDICT BLOCK ─── */
+  .verdict-block { display: grid; grid-template-columns: 140px 1fr; background: var(--s1); border: 1px solid var(--b2); border-radius: 8px; overflow: hidden; margin-bottom: 52px; }
+  .vs { background: var(--s2); border-right: 1px solid var(--b2); padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .vs-label { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .vs-score { font-family: var(--display); font-size: 74px; color: var(--blue); line-height: 1; }
+  .vs-denom { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .vs-rating { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); margin-top: 8px; text-align: center; }
+  .vt { padding: 26px 28px; }
+  .vt-label { font-family: var(--mono); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .vt p { font-size: 14px; color: var(--dim); margin-bottom: 10px; }
+  .vt p:last-child { margin-bottom: 0; }
+
+  /* ─── DB SCHEMA CARDS ─── */
+  .db-card {
+    background: var(--s1); border: 1px solid var(--b2); border-radius: 8px;
+    overflow: hidden; margin-bottom: 32px;
+  }
+  .db-card-header {
+    display: grid; grid-template-columns: 1fr auto; align-items: center;
+    padding: 18px 24px; border-bottom: 1px solid var(--b1); gap: 16px;
+  }
+  .db-title { font-family: var(--display); font-size: 28px; letter-spacing: 1.5px; color: var(--white); }
+  .db-risk { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; }
+  .r-low { background: rgba(65,212,154,0.1); color: var(--green); border: 1px solid rgba(65,212,154,0.2); }
+  .r-med { background: rgba(226,197,71,0.1); color: var(--gold); border: 1px solid rgba(226,197,71,0.2); }
+  .r-high { background: rgba(240,76,104,0.12); color: var(--red); border: 1px solid rgba(240,76,104,0.2); }
+  .r-crit { background: rgba(245,144,80,0.1); color: var(--orange); border: 1px solid rgba(245,144,80,0.2); }
+
+  .db-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .db-col { padding: 20px 24px; border-right: 1px solid var(--b1); }
+  .db-col:last-child { border-right: none; }
+  .db-col.full { grid-column: 1 / -1; border-right: none; border-top: 1px solid var(--b1); }
+  @media (max-width: 680px) { .db-body { grid-template-columns: 1fr; } .db-col { border-right: none; border-bottom: 1px solid var(--b1); } }
+
+  .prop-group { margin-bottom: 18px; }
+  .prop-group:last-child { margin-bottom: 0; }
+  .pg-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+  /* ─── PROPERTY ROWS ─── */
+  .prop-list { display: flex; flex-direction: column; gap: 4px; }
+  .prop-row { display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: start; }
+  .prop-name { font-family: var(--mono); font-size: 11.5px; color: var(--white); }
+  .prop-type { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .prop-desc { font-size: 12.5px; color: var(--dim); }
+  .prop-row .prop-type-badge {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+    padding: 1px 6px; border-radius: 2px; margin-left: 6px; vertical-align: middle; white-space: nowrap;
+  }
+  .tb-select { background: rgba(155,127,245,0.1); color: var(--purple); }
+  .tb-text { background: rgba(91,168,245,0.08); color: var(--blue); }
+  .tb-number { background: rgba(65,212,154,0.08); color: var(--green); }
+  .tb-date { background: rgba(226,197,71,0.08); color: var(--gold); }
+  .tb-checkbox { background: rgba(245,144,80,0.08); color: var(--orange); }
+  .tb-url { background: rgba(91,168,245,0.08); color: var(--blue); }
+  .tb-relation { background: rgba(240,76,104,0.08); color: var(--red); }
+  .tb-rollup { background: rgba(155,127,245,0.12); color: var(--purple); border: 1px solid rgba(155,127,245,0.2); }
+  .tb-formula { background: rgba(65,212,154,0.1); color: var(--green); border: 1px solid rgba(65,212,154,0.2); }
+  .tb-auto { background: rgba(91,168,245,0.08); color: var(--blue); border: 1px dashed rgba(91,168,245,0.25); }
+
+  /* ─── STATUS FLOWS ─── */
+  .status-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 10px 0; }
+  .sf { font-family: var(--mono); font-size: 10.5px; padding: 5px 11px; background: var(--s2); border: 1px solid var(--b2); color: var(--dim); }
+  .sf:first-of-type { border-radius: 4px 0 0 4px; }
+  .sf:last-of-type { border-radius: 0 4px 4px 0; }
+  .sf-arr { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 0 2px; }
+  .sf.active { color: var(--gold); border-color: rgba(226,197,71,0.3); background: rgba(226,197,71,0.06); }
+  .sf.end { color: var(--green); border-color: rgba(65,212,154,0.3); background: rgba(65,212,154,0.06); }
+  .sf.archive { color: var(--muted); border-color: var(--b1); }
+
+  /* ─── VIEW PILLS ─── */
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .pill { font-family: var(--mono); font-size: 10px; padding: 3px 9px; border-radius: 3px; background: var(--s2); border: 1px solid var(--b2); color: var(--dim); }
+  .pill.core { color: var(--gold); border-color: rgba(226,197,71,0.2); background: rgba(226,197,71,0.05); }
+  .pill.supp { color: var(--purple); border-color: rgba(155,127,245,0.2); background: rgba(155,127,245,0.05); }
+  .pill.ref { color: var(--green); border-color: rgba(65,212,154,0.2); background: rgba(65,212,154,0.05); }
+
+  /* ─── RELATION MAP ─── */
+  .rel-table { margin: 16px 0; }
+  .rel-row {
+    display: grid; grid-template-columns: 200px 60px 200px 90px 1fr;
+    gap: 10px; padding: 10px 16px; border-bottom: 1px solid rgba(34,34,48,0.5);
+    align-items: center; font-size: 13px;
+  }
+  .rel-row.head {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); padding: 8px 16px; background: var(--s2); border-bottom: 1px solid var(--b1);
+    border-radius: 6px 6px 0 0;
+  }
+  .rel-row:last-child { border-bottom: none; border-radius: 0 0 6px 6px; }
+  .rel-row { background: var(--s1); }
+  .rel-row:nth-child(even) { background: var(--s2); }
+  .rel-db { font-family: var(--mono); font-size: 11px; color: var(--white); }
+  .rel-arrow { font-family: var(--mono); font-size: 14px; color: var(--muted); text-align: center; }
+  .rel-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 7px; border-radius: 2px; text-align: center; white-space: nowrap; }
+  .rl-req { background: rgba(65,212,154,0.1); color: var(--green); }
+  .rl-opt { background: rgba(226,197,71,0.08); color: var(--gold); }
+  .rl-avoid { background: rgba(240,76,104,0.1); color: var(--red); }
+  .rel-note { font-size: 12px; color: var(--dim); }
+  @media (max-width: 720px) { .rel-row { grid-template-columns: 1fr; } }
+
+  /* ─── ROLLUP MAP ─── */
+  .rollup-table { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; margin: 16px 0; }
+  .rollup-head { display: grid; grid-template-columns: 160px 140px 100px 1fr; gap: 0; background: var(--s2); border-bottom: 1px solid var(--b1); }
+  .rollup-row { display: grid; grid-template-columns: 160px 140px 100px 1fr; gap: 0; border-bottom: 1px solid rgba(34,34,48,0.4); }
+  .rollup-row:last-child { border-bottom: none; }
+  .rc { padding: 10px 14px; font-size: 12.5px; }
+  .rollup-head .rc { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .rc.name { font-family: var(--mono); font-size: 11px; color: var(--white); border-right: 1px solid rgba(34,34,48,0.4); }
+  .rc.db { color: var(--dim); border-right: 1px solid rgba(34,34,48,0.4); font-size: 12px; }
+  .rc.verdict { text-align: center; border-right: 1px solid rgba(34,34,48,0.4); }
+  .rc.reason { color: var(--dim); font-size: 12px; }
+  .rv-build { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: rgba(65,212,154,0.1); color: var(--green); }
+  .rv-skip { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: rgba(240,76,104,0.1); color: var(--red); }
+  .rv-delay { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: rgba(226,197,71,0.08); color: var(--gold); }
+  @media (max-width: 680px) { .rollup-head, .rollup-row { grid-template-columns: 1fr; } }
+
+  /* ─── FORMULA BLOCKS ─── */
+  .formula-block { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; margin: 16px 0; }
+  .fb-head { padding: 14px 20px; background: var(--s2); border-bottom: 1px solid var(--b1); display: flex; align-items: center; justify-content: space-between; }
+  .fb-name { font-family: var(--display); font-size: 20px; letter-spacing: 1px; color: var(--white); }
+  .fb-db { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .fb-body { padding: 18px 20px; }
+  .fb-purpose { font-size: 13px; color: var(--dim); margin-bottom: 14px; }
+  .code-block { background: var(--bg); border: 1px solid var(--b1); border-radius: 4px; padding: 14px 18px; font-family: var(--mono); font-size: 12px; color: var(--green); line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; word-break: break-all; }
+  .code-block .c-keyword { color: var(--purple); }
+  .code-block .c-string { color: var(--gold); }
+  .code-block .c-prop { color: var(--blue); }
+  .code-block .c-comment { color: var(--muted); font-style: italic; }
+  .fb-surfaces { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+  .fb-surfaces span { color: var(--dim); }
+
+  /* ─── TEMPLATE SPECS ─── */
+  .template-card { background: var(--s2); border: 1px solid var(--b1); border-radius: 5px; padding: 16px 18px; margin-bottom: 10px; }
+  .tc-name { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+  .tc-trigger { font-size: 12px; color: var(--dim); margin-bottom: 10px; }
+  .tc-props { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tc-prop { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 2px; }
+  .tc-req { background: rgba(65,212,154,0.08); color: var(--green); border: 1px solid rgba(65,212,154,0.18); }
+  .tc-pre { background: rgba(226,197,71,0.07); color: var(--gold); border: 1px solid rgba(226,197,71,0.17); }
+
+  /* ─── BUILD SEQUENCE ─── */
+  .build-seq { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+  .bs-step { display: grid; grid-template-columns: 52px 1fr; gap: 0; border: 1px solid var(--b2); border-bottom: none; }
+  .bs-step:first-child { border-radius: 6px 6px 0 0; }
+  .bs-step:last-child { border-radius: 0 0 6px 6px; border-bottom: 1px solid var(--b2); }
+  .bs-num { background: var(--s2); border-right: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 28px; color: var(--gold); padding: 16px; }
+  .bs-content { background: var(--s1); padding: 14px 18px; }
+  .bs-title { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+  .bs-why { font-size: 13px; color: var(--dim); margin-bottom: 0; }
+  .bs-deps { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; letter-spacing: 0.5px; }
+
+  /* ─── CALLOUT ─── */
+  .callout { display: flex; gap: 14px; background: var(--s2); border: 1px solid var(--b2); border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; padding: 16px 20px; margin: 16px 0; }
+  .callout.red { border-left-color: var(--red); }
+  .callout.green { border-left-color: var(--green); }
+  .callout.purple { border-left-color: var(--purple); }
+  .callout.blue { border-left-color: var(--blue); }
+  .callout .icon { font-size: 18px; flex-shrink: 0; }
+  .callout p { margin: 0; font-size: 13.5px; color: var(--dim); }
+
+  /* ─── FINAL ARCH TABLE ─── */
+  .final-table { background: var(--s1); border: 1px solid var(--b2); border-radius: 6px; overflow: hidden; margin: 16px 0; }
+  .ft-row { display: grid; grid-template-columns: 160px 1fr 100px; gap: 0; border-bottom: 1px solid rgba(34,34,48,0.5); padding: 12px 18px; align-items: start; }
+  .ft-row:last-child { border-bottom: none; }
+  .ft-row.head { background: var(--s2); font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .ft-db { font-family: var(--mono); font-size: 11.5px; color: var(--white); }
+  .ft-desc { font-size: 12.5px; color: var(--dim); padding: 0 12px; }
+  .ft-status { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; text-align: center; }
+  .fs-build { background: rgba(65,212,154,0.1); color: var(--green); }
+  .fs-trim { background: rgba(226,197,71,0.08); color: var(--gold); }
+  .fs-watch { background: rgba(240,76,104,0.1); color: var(--red); }
+  @media (max-width: 640px) { .ft-row { grid-template-columns: 1fr; } }
+
+  /* ─── GENERAL TABLE ─── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+  th { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--b2); background: var(--s2); }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(34,34,48,0.5); color: var(--dim); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--white); font-family: var(--mono); font-size: 12px; }
+
+  .doc-footer { text-align: center; padding-top: 36px; border-top: 1px solid var(--b1); font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="stamp">Database Schema Audit — Technical Specification</div>
+  <h1>JaZeR Music OS <span>v2</span></h1>
+  <div style="font-family:var(--display);font-size:24px;color:var(--dim);letter-spacing:1.5px;margin-top:2px;">Relational Database Architecture Review</div>
+  <div class="header-sub">5 Databases · Relations · Rollups · Formulas · Views · Templates · Build Order · May 2026</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 1 — VERDICT -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-blue">01 — Database Model Verdict</div>
+  <h2>Structural Score</h2>
+
+  <div class="verdict-block">
+    <div class="vs">
+      <div class="vs-label">DB Score</div>
+      <div class="vs-score">6.5</div>
+      <div class="vs-denom">out of 10</div>
+      <div class="vs-rating">Schema Incomplete</div>
+    </div>
+    <div class="vt">
+      <div class="vt-label">Assessment</div>
+      <p>The <strong>five-database model is correct</strong>. The decision not to split Writing Assets into five separate databases is architecturally sound and will be defended below. The relational spine (Songs as the hub, all other databases orbiting it) is the right topology.</p>
+      <p>The score drops because <strong>the formula layer is entirely absent</strong>, the <strong>rollup selection is undefined</strong>, the <strong>property naming is inconsistent across databases</strong>, the <strong>Sessions → Writing Assets relation should be cut</strong>, and <strong>no templates are specified</strong> — meaning the system will be built, filled with data, and then discovered to have structural problems that require teardown.</p>
+      <p><strong>Biggest database risk:</strong> The Tasks DB without a Focus property and without an Overdue formula will generate a growing backlog of mixed-type tasks that no filtered view can surface cleanly. The result is a database people stop checking — which means tasks pile up, nothing gets done, and the whole task layer gets abandoned. This failure happens at the view architecture level, not the schema level. Fix it at the property level before the first record is created.</p>
+      <p>After the corrections in this document, the model should reach <strong>8.5/10</strong>. The remaining gap reflects that real-world Notion limitations (formula date arithmetic, rollup on filtered relations) will require minor adjustments during build.</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 2 — RECOMMENDED SCHEMAS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-gold">02 — Recommended Database Schemas</div>
+  <h2>Five Databases, Fully Specified</h2>
+
+  <!-- ── SONGS DB ── -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <div class="db-title">🎵 Songs DB</div>
+      <div class="db-risk r-low">Core · Low Risk</div>
+    </div>
+    <div class="db-body">
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Required Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Title <span class="prop-type-badge tb-text">Title</span></span><span class="prop-desc">Working title. No emoji, no status icons — clean naming only.</span></div>
+            <div class="prop-row"><span class="prop-name">Status <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">See status flow below.</span></div>
+            <div class="prop-row"><span class="prop-name">Priority <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">High · Medium · Low. Set manually — resist using formulas to auto-compute priority in v1.</span></div>
+            <div class="prop-row"><span class="prop-name">BPM <span class="prop-type-badge tb-number">Number</span></span><span class="prop-desc">Integer. Set when beat/arrangement begins.</span></div>
+            <div class="prop-row"><span class="prop-name">Key <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">24 options: C Maj · C Min · C# Maj · C# Min … B Maj · B Min.</span></div>
+            <div class="prop-row"><span class="prop-name">Energy <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">High · Medium · Low · Variable. Replaces vague "Mood/Vibe" — Energy is measurable and actionable.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Optional Properties (add when relevant)</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Song Type <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">Single · EP Cut · Album Cut · Instrumental · Collab</span></div>
+            <div class="prop-row"><span class="prop-name">Genre Tags <span class="prop-type-badge tb-select">Multi-select</span></span><span class="prop-desc">Soul · Hip-Hop · Neo-Soul · R&B · Electronic · Fusion</span></div>
+            <div class="prop-row"><span class="prop-name">ISRC <span class="prop-type-badge tb-text">Text</span></span><span class="prop-desc">Add at Release Prep stage only. Leave blank before that.</span></div>
+            <div class="prop-row"><span class="prop-name">LUFS Target <span class="prop-type-badge tb-number">Number</span></span><span class="prop-desc">Mastering target. Add during Mix/Review stage.</span></div>
+            <div class="prop-row"><span class="prop-name">LUFS Actual <span class="prop-type-badge tb-number">Number</span></span><span class="prop-desc">After master bounce. Separate from Target so the gap is visible.</span></div>
+            <div class="prop-row"><span class="prop-name">DAW Project Link <span class="prop-type-badge tb-url">URL</span></span><span class="prop-desc">FL Studio project file path or cloud link. One per song.</span></div>
+            <div class="prop-row"><span class="prop-name">Reference Track <span class="prop-type-badge tb-url">URL</span></span><span class="prop-desc">One primary YouTube/Spotify URL for sonic reference. One only.</span></div>
+            <div class="prop-row"><span class="prop-name">Playlist Pitch Deadline <span class="prop-type-badge tb-date">Date</span></span><span class="prop-desc">Editorial pitch window — typically 7 days before release. Rename from "Pitch Deadline."</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Relation Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Writing Assets <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Writing Assets DB. Many-to-many. Show on Writing Assets as "Song" (singular — not "Songs").</span></div>
+            <div class="prop-row"><span class="prop-name">Sessions <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Sessions DB. Many-to-many. Show on Sessions as "Song".</span></div>
+            <div class="prop-row"><span class="prop-name">Tasks <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Tasks DB. Primary parent. Manage from the Song page; Tasks are children.</span></div>
+            <div class="prop-row"><span class="prop-name">Release <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Releases DB. Many-to-many. A song can appear on multiple releases (single + later EP).</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Rollup Properties <span style="color:var(--muted);font-size:10px;font-family:var(--mono);">(build after 30 days)</span></div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Asset Count <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Writing Assets → Count All. Shows creative material volume per song.</span></div>
+            <div class="prop-row"><span class="prop-name">Open Tasks <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Tasks → Count where Status ≠ Done. Dashboard urgency signal.</span></div>
+            <div class="prop-row"><span class="prop-name">Session Count <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Sessions → Count All. Logging reward — visible work history.</span></div>
+            <div class="prop-row"><span class="prop-name">Last Session <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Sessions → Latest Date. Feeds the Stale Flag formula.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Formula Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Days Stale <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">Integer: days since Last Session. Powers the Stale Warning.</span></div>
+            <div class="prop-row"><span class="prop-name">Stale Warning <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">"⚠️ Stale" if active status and Days Stale > 14. Empty otherwise.</span></div>
+            <div class="prop-row"><span class="prop-name">Release Health <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">"🚨 At Risk" if Status = Release Prep and Playlist Pitch Deadline within 7 days.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="db-col full">
+        <div class="pg-label">Status Flow — rename "Idea" to "Concept" to eliminate naming collision with Writing Assets</div>
+        <div class="status-flow" style="margin-top:10px;">
+          <div class="sf">Concept</div><div class="sf-arr">→</div>
+          <div class="sf active">Writing</div><div class="sf-arr">→</div>
+          <div class="sf active">Recording</div><div class="sf-arr">→</div>
+          <div class="sf active">Producing</div><div class="sf-arr">→</div>
+          <div class="sf active">Mixing</div><div class="sf-arr">→</div>
+          <div class="sf active">Review</div><div class="sf-arr">→</div>
+          <div class="sf active">Release Prep</div><div class="sf-arr">→</div>
+          <div class="sf end">Released</div><div class="sf-arr">→</div>
+          <div class="sf archive">Shelved</div>
+        </div>
+        <p class="dim" style="margin-top:8px;">Add "Shelved" as a terminal state for songs that are complete but being held back or permanently parked. It differs from Released (not out) and Concept (not abandoned). Never delete songs — Shelve them.</p>
+
+        <div class="pg-label" style="margin-top:20px;">Views to Create</div>
+        <div class="pill-grid">
+          <span class="pill core">⭐ Active Board (filter: Status ≠ Concept, ≠ Released, ≠ Shelved — board by Status)</span>
+          <span class="pill core">⭐ Writing Queue (filter: Status = Concept OR Writing)</span>
+          <span class="pill core">⭐ Production Queue (filter: Status = Recording OR Producing OR Mixing)</span>
+          <span class="pill core">⭐ Release Pipeline (filter: Status = Release Prep)</span>
+          <span class="pill supp">Released Catalog (filter: Status = Released — gallery)</span>
+          <span class="pill supp">All Songs (table — no filter, full catalog)</span>
+          <span class="pill supp">Stale Songs (filter: Stale Warning = ⚠️ Stale — weekly review use)</span>
+          <span class="pill supp">By Priority (filter: Priority = High, Status ≠ Released)</span>
+          <span class="pill ref">Shelved (filter: Status = Shelved — archive reference)</span>
+        </div>
+
+        <div class="pg-label" style="margin-top:20px;">Templates to Create</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+          <div class="template-card">
+            <div class="tc-name">⚡ Quick Concept</div>
+            <div class="tc-trigger">Use: idea has a name and direction, not fully written yet</div>
+            <div class="tc-props">
+              <span class="tc-prop tc-pre">Status = Concept</span>
+              <span class="tc-prop tc-pre">Priority = Medium</span>
+              <span class="tc-prop tc-req">BPM — prompt</span>
+              <span class="tc-prop tc-req">Key — prompt</span>
+            </div>
+          </div>
+          <div class="template-card">
+            <div class="tc-name">🎵 Full Track Project</div>
+            <div class="tc-trigger">Use: song is actively being written and produced</div>
+            <div class="tc-props">
+              <span class="tc-prop tc-pre">Status = Writing</span>
+              <span class="tc-prop tc-pre">Priority = High</span>
+              <span class="tc-prop tc-req">Page body: Reference · Lyrics Draft · Production Notes · Sessions view · Release Checklist</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WRITING ASSETS DB ── -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <div class="db-title">✍️ Writing Assets DB</div>
+      <div class="db-risk r-med">High Volume · View Risk</div>
+    </div>
+    <div class="db-body">
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Required Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Title <span class="prop-type-badge tb-text">Title</span></span><span class="prop-desc">Descriptive label, not the full lyric. Ex: "Chorus v1 — TT" or "Hook idea — soulful defiance theme". Never leave untitled.</span></div>
+            <div class="prop-row"><span class="prop-name">Asset Type <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">Renamed from "Type" to prevent confusion in filters and formulas. Options below.</span></div>
+            <div class="prop-row"><span class="prop-name">Status <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">See status flow below.</span></div>
+            <div class="prop-row"><span class="prop-name">Date Created <span class="prop-type-badge tb-auto">Created Time</span></span><span class="prop-desc">Auto-populated. Do NOT use a manual Date property — it will drift. Created Time is immutable and always accurate.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Optional Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Energy <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">High · Medium · Low. Useful for Hook Bank filtering — matching energy to a song in progress.</span></div>
+            <div class="prop-row"><span class="prop-name">Genre Fit <span class="prop-type-badge tb-select">Multi-select</span></span><span class="prop-desc">Reuse same tags as Songs DB Genre Tags. Useful when an unattached hook might fit multiple songs.</span></div>
+            <div class="prop-row"><span class="prop-name">Recorded <span class="prop-type-badge tb-checkbox">Checkbox</span></span><span class="prop-desc">Has this content been recorded to audio? Separate from Status — a raw lyric can be recorded before it's "Used."</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Relation Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Song <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Songs DB. Many-to-many. A hook can theoretically appear in two songs. "Song" singular — when you link, you pick the Song.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Rollup Properties</div>
+          <p class="dim" style="font-size:12px;">None. Writing Assets is a content leaf node. It receives meaning from its Song relation — it doesn't need to surface data from other databases. Any temptation to add rollups here should be redirected to a filtered view instead.</p>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Formula Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Floating <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">Boolean: Song relation is empty AND Status ≠ Archived. Powers the Unattached Ideas view without needing to configure a complex filter every time.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Asset Type Options — select, not multi-select</div>
+          <table>
+            <thead><tr><th>Type</th><th>What It Is</th><th>Evolves To</th></tr></thead>
+            <tbody>
+              <tr><td>Idea</td><td>Unnamed fragment: a word, title, vibe note, concept sentence</td><td>Hook, Concept Note, or attached to a Song</td></tr>
+              <tr><td>Hook</td><td>Melodic or lyrical phrase with strong potential — the "thing people remember"</td><td>Chorus, attached to a Song</td></tr>
+              <tr><td>Verse</td><td>Completed or near-complete verse draft</td><td>Part of a Full Lyric Sheet</td></tr>
+              <tr><td>Chorus</td><td>Completed or near-complete chorus</td><td>Part of a Full Lyric Sheet</td></tr>
+              <tr><td>Bridge</td><td>Transition section draft</td><td>Part of a Full Lyric Sheet</td></tr>
+              <tr><td>Freestyle</td><td>Unstructured, raw session output — typed or transcribed</td><td>Verse, Hook, Idea</td></tr>
+              <tr><td>Lyric Sheet</td><td>Complete assembled lyric document for a song</td><td>Terminal — attached to a Released song</td></tr>
+              <tr><td>Concept Note</td><td>A description of what a song is about, its narrative arc, its emotional target</td><td>Attached to a Song record at Concept stage</td></tr>
+            </tbody>
+          </table>
+          <div class="callout" style="margin-top:10px;">
+            <span class="icon">⚠️</span>
+            <p>Remove "Concept" as a Type and replace with "Concept Note" — the word "Concept" was causing collision with Song Status = "Concept." A Concept Note is a writing asset describing the song's vision. A Song at Concept status is the project placeholder. Different objects, now unambiguously named.</p>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Status Flow</div>
+          <div class="status-flow">
+            <div class="sf">Raw</div><div class="sf-arr">→</div>
+            <div class="sf active">Developing</div><div class="sf-arr">→</div>
+            <div class="sf active">Attached</div><div class="sf-arr">→</div>
+            <div class="sf end">Used</div><div class="sf-arr">→</div>
+            <div class="sf archive">Archived</div>
+          </div>
+          <p class="dim" style="margin-top:8px;font-size:12px;">"Used" = appears in a released or recorded song. "Attached" = linked to a Song but not yet recorded. "Archived" = dead-end idea or superseded version. Never delete — archive.</p>
+        </div>
+        <div class="pg-label" style="margin-top:16px;">Views to Create</div>
+        <div class="pill-grid">
+          <span class="pill core">⭐ Unattached Ideas (DEFAULT — filter: Floating = true, sorted by Date Created desc)</span>
+          <span class="pill core">⭐ Hook Bank (filter: Asset Type = Hook, Status ≠ Archived — gallery)</span>
+          <span class="pill supp">Freestyles (filter: Asset Type = Freestyle)</span>
+          <span class="pill supp">Full Lyric Sheets (filter: Asset Type = Lyric Sheet)</span>
+          <span class="pill supp">By Asset Type (board by Asset Type — Status ≠ Archived)</span>
+          <span class="pill ref">Archived (filter: Status = Archived — reference only)</span>
+        </div>
+        <div class="pg-label" style="margin-top:16px;">Templates to Create</div>
+        <div class="template-card" style="margin-top:8px;">
+          <div class="tc-name">⚡ Quick Idea (Dashboard Button)</div>
+          <div class="tc-trigger">Use: any raw creative fragment — fastest possible capture</div>
+          <div class="tc-props"><span class="tc-prop tc-pre">Asset Type = Idea</span><span class="tc-prop tc-pre">Status = Raw</span><span class="tc-prop tc-pre">Date Created = auto</span></div>
+        </div>
+        <div class="template-card">
+          <div class="tc-name">🎤 Freestyle Session</div>
+          <div class="tc-trigger">Use: after a freestyle vocal or writing session</div>
+          <div class="tc-props"><span class="tc-prop tc-pre">Asset Type = Freestyle</span><span class="tc-prop tc-pre">Status = Raw</span><span class="tc-prop tc-req">Page body: date + session notes block</span></div>
+        </div>
+        <div class="template-card">
+          <div class="tc-name">📄 Full Lyric Sheet</div>
+          <div class="tc-trigger">Use: assembling final lyrics for a song</div>
+          <div class="tc-props"><span class="tc-prop tc-pre">Asset Type = Lyric Sheet</span><span class="tc-prop tc-pre">Status = Developing</span><span class="tc-prop tc-req">Page body: Intro / Verse 1 / Pre / Chorus / Verse 2 / Bridge / Outro sections</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SESSIONS DB ── -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <div class="db-title">⏱ Sessions DB</div>
+      <div class="db-risk r-crit">Highest Abandonment Risk</div>
+    </div>
+    <div class="db-body">
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Required Properties — 3 ONLY. This is a hard limit.</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Name <span class="prop-type-badge tb-auto">Auto Title</span></span><span class="prop-desc">Auto-generate with formula: "[Session Type] — [Date]". Do not require manual naming. Naming overhead kills logging habits.</span></div>
+            <div class="prop-row"><span class="prop-name">Session Type <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">Renamed from "Type" — Writing · Freestyle · Recording · Production · Mix Review</span></div>
+            <div class="prop-row"><span class="prop-name">Date <span class="prop-type-badge tb-date">Date</span></span><span class="prop-desc">The only manually required field. Should default to today in every template.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Optional Properties — below the fold in templates</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Duration <span class="prop-type-badge tb-number">Number</span></span><span class="prop-desc">Minutes. Optional — add only if you want session-length analytics later.</span></div>
+            <div class="prop-row"><span class="prop-name">Energy <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">🔥 Fired Up · ⚡ Focused · 😐 Neutral · 😩 Forced. Three words or an emoji — don't ask for a sentence here.</span></div>
+            <div class="prop-row"><span class="prop-name">Key Win <span class="prop-type-badge tb-text">Text</span></span><span class="prop-desc">One sentence. "Locked the chorus melody." Not a paragraph — one sentence only, enforced by label.</span></div>
+            <div class="prop-row"><span class="prop-name">Next Step <span class="prop-type-badge tb-text">Text</span></span><span class="prop-desc">One sentence. "Record the verse vocal next session." This replaces the Session as a task-driver without adding to Tasks DB.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Relation Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Song <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Songs DB. Pick the song this session was for. Required in template — prompt appears on creation.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label" style="color:var(--red);">Cut: Sessions → Writing Assets Relation</div>
+          <p class="dim" style="font-size:12px;">This relation requires manually linking each Writing Asset created during a session to the session record. That's two extra steps after every session. The Writing Asset already knows which Song it belongs to via its own Song relation. Asking someone to also link it to a Session is overhead with zero payoff — the session page body notes cover this. Cut this relation entirely.</p>
+        </div>
+      </div>
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Rollup Properties</div>
+          <p class="dim" style="font-size:12px;">None needed. Sessions are time-stamped event records, not aggregation surfaces. The value flows upward into Songs DB (Session Count, Last Session Date rollups) — not downward into Sessions from other databases.</p>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Formula Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Auto Name <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">Generates: "[Session Type] — [Date formatted]". Eliminates the naming step entirely. Use Notion's format() date function.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Status Flow</div>
+          <p class="dim" style="font-size:12px;">Sessions DB does NOT need a Status property. A session either happened or it didn't. Adding a status (Planned / Done) creates a to-do system inside an event log. If you want to plan future sessions, use a Task (Type = Production/Writing) in the Tasks DB instead.</p>
+        </div>
+        <div class="pg-label" style="margin-top:8px;">Views to Create</div>
+        <div class="pill-grid">
+          <span class="pill core">⭐ Recent Sessions (sort: Date desc — table, 10 rows)</span>
+          <span class="pill supp">Calendar (calendar view by Date)</span>
+          <span class="pill supp">By Session Type (board by Session Type)</span>
+          <span class="pill supp">By Song (linked DB view inside each Song page)</span>
+        </div>
+        <div class="pg-label" style="margin-top:16px;">Templates to Create</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+          <div class="template-card">
+            <div class="tc-name">✍️ Writing Session</div>
+            <div class="tc-trigger">One-click from dashboard or Song page</div>
+            <div class="tc-props"><span class="tc-prop tc-pre">Session Type = Writing</span><span class="tc-prop tc-pre">Date = Today (prompt)</span><span class="tc-prop tc-req">Song = (select prompt)</span></div>
+          </div>
+          <div class="template-card">
+            <div class="tc-name">🎛️ Production Session</div>
+            <div class="tc-props"><span class="tc-prop tc-pre">Session Type = Production</span><span class="tc-prop tc-pre">Date = Today</span><span class="tc-prop tc-req">Song = (select prompt)</span></div>
+          </div>
+          <div class="template-card">
+            <div class="tc-name">🎤 Recording Session</div>
+            <div class="tc-props"><span class="tc-prop tc-pre">Session Type = Recording</span><span class="tc-prop tc-pre">Date = Today</span><span class="tc-prop tc-req">Song = (select prompt)</span></div>
+          </div>
+          <div class="template-card">
+            <div class="tc-name">🎧 Mix Review</div>
+            <div class="tc-props"><span class="tc-prop tc-pre">Session Type = Mix Review</span><span class="tc-prop tc-req">Song = (select)</span><span class="tc-prop tc-req">Page body: LUFS reading · reference comparison · fix list</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RELEASES DB ── -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <div class="db-title">🚀 Releases DB</div>
+      <div class="db-risk r-low">Low Volume · Low Risk</div>
+    </div>
+    <div class="db-body">
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Required Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Release Title <span class="prop-type-badge tb-text">Title</span></span><span class="prop-desc">Name of the release. Can differ from song title for singles.</span></div>
+            <div class="prop-row"><span class="prop-name">Status <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">See status flow below.</span></div>
+            <div class="prop-row"><span class="prop-name">Format <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">Single · EP · Album · Compilation</span></div>
+            <div class="prop-row"><span class="prop-name">Release Date <span class="prop-type-badge tb-date">Date</span></span><span class="prop-desc">Target date. Update when confirmed with distributor.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Optional Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Distributor <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">DistroKid · Amuse · TuneCore · CD Baby · Direct · Other</span></div>
+            <div class="prop-row"><span class="prop-name">UPC <span class="prop-type-badge tb-text">Text</span></span><span class="prop-desc">Assigned by distributor. Add at submission stage.</span></div>
+            <div class="prop-row"><span class="prop-name">Distribution Link <span class="prop-type-badge tb-url">URL</span></span><span class="prop-desc">Live release URL once published.</span></div>
+            <div class="prop-row"><span class="prop-name">Playlist Pitch Deadline <span class="prop-type-badge tb-date">Date</span></span><span class="prop-desc">Editorial playlist submission deadline — typically 7 days before release. One date field, clearly named.</span></div>
+            <div class="prop-row"><span class="prop-name">Artwork Done <span class="prop-type-badge tb-checkbox">Checkbox</span></span><span class="prop-desc">Release art finalized and formatted.</span></div>
+            <div class="prop-row"><span class="prop-name">Metadata Verified <span class="prop-type-badge tb-checkbox">Checkbox</span></span><span class="prop-desc">Title, artist, genre, ISRC all confirmed in distributor portal.</span></div>
+            <div class="prop-row"><span class="prop-name">Promo Assets Ready <span class="prop-type-badge tb-checkbox">Checkbox</span></span><span class="prop-desc">IG post, story, caption copy all prepared.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Relation Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Songs <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Songs DB. Many-to-many. One release can have many songs; one song can appear on multiple releases.</span></div>
+            <div class="prop-row"><span class="prop-name">Tasks <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Tasks DB. One release generates release prep and promo tasks. Manage from Release page.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Rollup Properties — build immediately (low volume DB, high value)</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Song Count <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Songs → Count All. Instant EP/album progress signal.</span></div>
+            <div class="prop-row"><span class="prop-name">Open Tasks <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Tasks → Count where Status ≠ Done. Core release readiness signal.</span></div>
+            <div class="prop-row"><span class="prop-name">Songs Ready <span class="prop-type-badge tb-rollup">Rollup</span></span><span class="prop-desc">Songs → Count where Status = Released. For EP/album tracking: "3 of 6 songs done."</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Formula Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Days Until Release <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">Integer: days between now() and Release Date. Negative = overdue. Used by Release Health.</span></div>
+            <div class="prop-row"><span class="prop-name">Release Health <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">"🚨 At Risk" · "⚡ Active" · "📅 Planned" — see formula spec in Section 5.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Status Flow</div>
+          <div class="status-flow">
+            <div class="sf">Planned</div><div class="sf-arr">→</div>
+            <div class="sf active">In Prep</div><div class="sf-arr">→</div>
+            <div class="sf active">Submitted</div><div class="sf-arr">→</div>
+            <div class="sf end">Live</div><div class="sf-arr">→</div>
+            <div class="sf active">Promoting</div><div class="sf-arr">→</div>
+            <div class="sf archive">Complete</div>
+          </div>
+        </div>
+        <div class="pg-label" style="margin-top:16px;">Views to Create</div>
+        <div class="pill-grid">
+          <span class="pill core">⭐ Release Pipeline (filter: Status ≠ Complete — table, sort by Release Date asc)</span>
+          <span class="pill supp">Calendar (calendar by Release Date)</span>
+          <span class="pill ref">All Releases (table — full history)</span>
+        </div>
+        <div class="pg-label" style="margin-top:12px;">Template to Create</div>
+        <div class="template-card" style="margin-top:8px;">
+          <div class="tc-name">📦 New Release — with Task Bundle</div>
+          <div class="tc-trigger">Creates Release record + 8 standard release prep tasks linked to it</div>
+          <div class="tc-props">
+            <span class="tc-prop tc-pre">Status = Planned</span>
+            <span class="tc-prop tc-req">Release Date = (prompt)</span>
+            <span class="tc-prop tc-req">Creates 8 Tasks: artwork · metadata · ISRC · distribution submit · playlist pitch · IG post · IG story · press email</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TASKS DB ── -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <div class="db-title">✅ Tasks DB</div>
+      <div class="db-risk r-high">Highest Operational Risk</div>
+    </div>
+    <div class="db-body">
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Required Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Task <span class="prop-type-badge tb-text">Title</span></span><span class="prop-desc">Action-verb title. "Mix vocal chain — TT" not "Vocals." Every task title must describe the specific action.</span></div>
+            <div class="prop-row"><span class="prop-name">Task Type <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">Renamed from "Type." Production · Release Prep · Content · Brand · Admin · Review. Select, not multi-select — each task has exactly one type.</span></div>
+            <div class="prop-row"><span class="prop-name">Status <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">Open · In Progress · Done · Blocked. Four options only. Do not add "Someday/Maybe" — those are Shelved songs, not tasks.</span></div>
+            <div class="prop-row"><span class="prop-name">Focus <span class="prop-type-badge tb-checkbox">Checkbox</span></span><span class="prop-desc">THE KEY ADDITION. Checked = this task is a current execution priority. The dashboard primary task view filters on Focus = true. This is the daily driver, not Due Date.</span></div>
+            <div class="prop-row"><span class="prop-name">Priority <span class="prop-type-badge tb-select">Select</span></span><span class="prop-desc">High · Medium · Low. Separate from Focus — a task can be High priority but not in Focus yet.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Optional Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Due Date <span class="prop-type-badge tb-date">Date</span></span><span class="prop-desc">Add only when there's a real deadline. Most production tasks don't have hard deadlines — don't invent them. Release prep tasks always have real deadlines.</span></div>
+            <div class="prop-row"><span class="prop-name">Notes <span class="prop-type-badge tb-text">Text</span></span><span class="prop-desc">Short context. Not a page — a text property. Long context goes in the page body.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Relation Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Song <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Songs DB. Optional — required for Production tasks, optional for Admin/Review tasks.</span></div>
+            <div class="prop-row"><span class="prop-name">Release <span class="prop-type-badge tb-relation">Relation</span></span><span class="prop-desc">↔ Releases DB. Optional — required for Release Prep and Content tasks linked to a specific release.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="db-col">
+        <div class="prop-group">
+          <div class="pg-label">Rollup Properties</div>
+          <p class="dim" style="font-size:12px;">None. Tasks DB is a terminal node — it receives context from Songs and Releases via relations; it does not surface aggregate data back. Adding rollups here would mean displaying Songs data on a Task record, which adds visual noise without enabling any decision.</p>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Formula Properties</div>
+          <div class="prop-list">
+            <div class="prop-row"><span class="prop-name">Overdue <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">"⚠️ Overdue" if Due Date exists AND Due Date is before now() AND Status ≠ Done. Empty otherwise.</span></div>
+            <div class="prop-row"><span class="prop-name">Days Until Due <span class="prop-type-badge tb-formula">Formula</span></span><span class="prop-desc">Integer days until Due Date. Negative = overdue. Only meaningful on tasks with Due Date set.</span></div>
+          </div>
+        </div>
+        <div class="prop-group">
+          <div class="pg-label">Status Flow — Tasks have no archive status. Done = done.</div>
+          <div class="status-flow">
+            <div class="sf">Open</div><div class="sf-arr">→</div>
+            <div class="sf active">In Progress</div><div class="sf-arr">→</div>
+            <div class="sf end">Done</div>
+            <div class="sf-arr" style="margin-left:12px;">⚡</div>
+            <div class="sf" style="border-color:rgba(240,76,104,0.3);color:var(--red);">Blocked</div>
+          </div>
+          <p class="dim" style="margin-top:8px;font-size:12px;">Blocked is a lateral status — move to Open or In Progress when unblocked. Never let Blocked tasks sit for more than one weekly review cycle without resolution or deletion.</p>
+        </div>
+        <div class="pg-label" style="margin-top:8px;">Views to Create — lock these filters, do not build ad hoc</div>
+        <div class="pill-grid">
+          <span class="pill core">⭐ Focus Board (filter: Focus = true, Status ≠ Done — PRIMARY DASHBOARD VIEW)</span>
+          <span class="pill core">⭐ Due This Week (filter: Due ≤ 7 days, Status ≠ Done, Overdue)</span>
+          <span class="pill supp">Production Queue (filter: Task Type = Production, Status ≠ Done)</span>
+          <span class="pill supp">Release Prep (filter: Task Type = Release Prep, Status ≠ Done)</span>
+          <span class="pill supp">Content Queue (filter: Task Type = Content, Status ≠ Done)</span>
+          <span class="pill supp">Blocked (filter: Status = Blocked)</span>
+          <span class="pill supp">By Song (linked view inside each Song page)</span>
+          <span class="pill supp">By Release (linked view inside each Release page)</span>
+          <span class="pill ref">All Open (board by Task Type — Status ≠ Done)</span>
+        </div>
+        <div class="pg-label" style="margin-top:14px;">Templates to Create</div>
+        <div class="template-card" style="margin-top:8px;">
+          <div class="tc-name">🎛️ Production Task</div>
+          <div class="tc-props"><span class="tc-prop tc-pre">Task Type = Production</span><span class="tc-prop tc-pre">Status = Open</span><span class="tc-prop tc-pre">Priority = High</span><span class="tc-prop tc-req">Song = (select prompt)</span></div>
+        </div>
+        <div class="template-card">
+          <div class="tc-name">📦 Release Prep Bundle (8 tasks)</div>
+          <div class="tc-trigger">Creates: artwork · metadata · ISRC · distribution · pitch · IG post · IG story · press email</div>
+          <div class="tc-props"><span class="tc-prop tc-pre">Task Type = Release Prep</span><span class="tc-prop tc-req">Release = (select prompt)</span><span class="tc-prop tc-pre">Status = Open</span></div>
+        </div>
+        <div class="callout red" style="margin-top:12px;">
+          <span class="icon">🔒</span>
+          <p><strong>Governance rule:</strong> If a task has been Open with no Due Date, Focus = false, and hasn't been touched in 30 days — delete it. Stale open tasks are worse than no tasks. They make the database feel overwhelming and cause avoidance. Weekly review should include a 5-minute ghost task purge.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 3 — RELATION MAP -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-purple">03 — Relation Map</div>
+  <h2>Every Connection Evaluated</h2>
+
+  <div class="rel-table">
+    <div class="rel-row head">
+      <div>From</div><div></div><div>To</div><div>Classification</div><div>Rationale</div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-db">Songs DB</div>
+      <div class="rel-arrow">↔</div>
+      <div class="rel-db">Writing Assets DB</div>
+      <div class="rel-label rl-req">Required</div>
+      <div class="rel-note">The most important relation in the system. An asset that isn't linked to a song is "floating" — surfaced in the Unattached Ideas view. An asset linked to a song has context and purpose. Manage from the Writing Asset (select which Song). Many-to-many: a hook can appear in two songs.</div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-db">Songs DB</div>
+      <div class="rel-arrow">↔</div>
+      <div class="rel-db">Sessions DB</div>
+      <div class="rel-label rl-req">Required</div>
+      <div class="rel-note">Enables Session Count and Last Session Date rollups on Songs — the data that powers the Stale Warning formula. Also allows a linked view of all sessions inside a Song page. Manage from the Session (select Song when creating). Many-to-many: a session can cover two songs.</div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-db">Songs DB</div>
+      <div class="rel-arrow">↔</div>
+      <div class="rel-db">Tasks DB</div>
+      <div class="rel-label rl-req">Required</div>
+      <div class="rel-note">Production tasks live in Tasks DB with a Song relation. The Open Tasks rollup on Songs surfaces this count on the dashboard. Manage primarily from the Song page (create task, select Song = this song). Many-to-many in Notion's data model but functionally one-to-many: tasks belong to one song.</div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-db">Songs DB</div>
+      <div class="rel-arrow">↔</div>
+      <div class="rel-db">Releases DB</div>
+      <div class="rel-label rl-req">Required</div>
+      <div class="rel-note">Connects songs to their release record. Enables Songs Ready rollup on Releases. A single song will appear on a Single release; it may later appear on an EP (same song, two releases — many-to-many is the correct cardinality). Manage from the Release (link which Songs are on it).</div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-db">Releases DB</div>
+      <div class="rel-arrow">↔</div>
+      <div class="rel-db">Tasks DB</div>
+      <div class="rel-label rl-req">Required</div>
+      <div class="rel-note">Release prep and promo tasks link to a Release. The Open Tasks rollup on Releases is the core release readiness signal. The Release Prep Bundle template creates 8 tasks pre-linked to the Release. Manage from the Release (create tasks, select Release = this release).</div>
+    </div>
+    <div class="rel-row">
+      <div class="rel-db">Sessions DB</div>
+      <div class="rel-arrow">↔</div>
+      <div class="rel-db">Writing Assets DB</div>
+      <div class="rel-label rl-avoid">Avoid</div>
+      <div class="rel-note">Requires manually linking every Writing Asset created during a session to the session record — two extra steps after every session, during the highest-friction moment (post-creative cooldown). The Writing Asset's Song relation already captures the lineage. Session page body notes handle the "what was created" question. This relation adds maintenance overhead with zero workflow return. Do not build it.</div>
+    </div>
+  </div>
+
+  <div class="callout blue" style="margin-top:12px;">
+    <span class="icon">📐</span>
+    <p><strong>Relation naming convention:</strong> Always use singular for the relation property name on the "child" side. On a Task record, the relation to Songs is called "Song" (not "Songs"). On a Writing Asset, the relation is "Song." On a Session, "Song." The plural "Songs" only appears on the Releases DB where a release genuinely contains multiple songs as a collection. Consistent singular naming prevents filter confusion when building views.</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 4 — ROLLUP MAP -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-green">04 — Rollup Map</div>
+  <h2>Which Rollups to Build, Which to Skip</h2>
+
+  <div class="rollup-table">
+    <div class="rollup-head">
+      <div class="rc">Rollup Name</div>
+      <div class="rc">Database → Source</div>
+      <div class="rc">Verdict</div>
+      <div class="rc">Reason</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Open Tasks</div>
+      <div class="rc db">Songs → Tasks (count where Status ≠ Done)</div>
+      <div class="rc verdict"><span class="rv-build">Build</span></div>
+      <div class="rc reason">The most actionable rollup in the system. If a song has 4 open production tasks, that number appears on the song card and on the dashboard. This drives decisions.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Session Count</div>
+      <div class="rc db">Songs → Sessions (count all)</div>
+      <div class="rc verdict"><span class="rv-build">Build</span></div>
+      <div class="rc reason">Creates a visible logging reward — "12 sessions on Transformative Trance" tells you this song has real investment. Motivates continued session logging.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Last Session</div>
+      <div class="rc db">Songs → Sessions (latest Date)</div>
+      <div class="rc verdict"><span class="rv-build">Build</span></div>
+      <div class="rc reason">The only way to power the Days Stale formula. Without this rollup, the Stale Warning cannot be computed. Required for the formula layer to work.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Asset Count</div>
+      <div class="rc db">Songs → Writing Assets (count all)</div>
+      <div class="rc verdict"><span class="rv-delay">Delay 30d</span></div>
+      <div class="rc reason">Useful but not urgent. Tells you how much creative material exists for a song. Build after the Writing Assets DB has real data — counting zero assets has no value.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Song Count</div>
+      <div class="rc db">Releases → Songs (count all)</div>
+      <div class="rc verdict"><span class="rv-build">Build</span></div>
+      <div class="rc reason">Immediately useful for EP/album planning: "3 songs linked to this release." Build this when Releases DB is created.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Open Release Tasks</div>
+      <div class="rc db">Releases → Tasks (count where Status ≠ Done)</div>
+      <div class="rc verdict"><span class="rv-build">Build</span></div>
+      <div class="rc reason">Core release readiness signal. Combined with the Days Until Release formula, this creates the Release Health formula: "8 days until release, 5 open tasks = 🚨 At Risk."</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Songs Ready</div>
+      <div class="rc db">Releases → Songs (count where Status = Released)</div>
+      <div class="rc verdict"><span class="rv-delay">Delay 30d</span></div>
+      <div class="rc reason">Useful for EP/album tracking ("3 of 6 songs done"). Irrelevant for single releases. Build when you have an EP in progress.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Avg Session Rating</div>
+      <div class="rc db">Songs → Sessions (average of Energy/Rating)</div>
+      <div class="rc verdict"><span class="rv-skip">Skip</span></div>
+      <div class="rc reason">Averaging subjective session energy produces a meaningless number. "This song averages 3.2/5 energy" answers no question you'll actually ask.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Total Session Hours</div>
+      <div class="rc db">Songs → Sessions (sum of Duration)</div>
+      <div class="rc verdict"><span class="rv-skip">Skip</span></div>
+      <div class="rc reason">Interesting trivia, not a decision-driver. If Duration is often left blank (likely), this rollup is also inaccurate. Skip.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Writing Assets by Type</div>
+      <div class="rc db">Songs → Writing Assets (count by Asset Type)</div>
+      <div class="rc verdict"><span class="rv-skip">Skip</span></div>
+      <div class="rc reason">This would require multiple rollup properties (one per type). Use a filtered linked view inside the Song page instead — it shows this information more clearly and doesn't clutter the properties panel.</div>
+    </div>
+    <div class="rollup-row">
+      <div class="rc name">Release Date (on Songs)</div>
+      <div class="rc db">Songs → Releases (earliest Release Date)</div>
+      <div class="rc verdict"><span class="rv-skip">Skip</span></div>
+      <div class="rc reason">Use the song's own properties to track release date, not a rollup from Releases. Rolling up a date from a relation creates a display dependency that breaks if the Release record changes.</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 5 — FORMULAS -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-green">05 — Formula Recommendations</div>
+  <h2>Automated Intelligence Layer</h2>
+
+  <p class="dim">These formulas transform static databases into active decision surfaces. All use Notion's formula syntax. Build them after the rollup properties they depend on are confirmed working.</p>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Days Stale</div>
+      <div class="fb-db">Songs DB → requires: Last Session (rollup)</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Returns the number of days since the last logged session. The raw integer behind the Stale Warning — also useful as a sortable property in the "Stale Songs" view.</div>
+      <div class="code-block"><span class="c-keyword">if</span>(<span class="c-prop">prop("Last Session")</span> != <span class="c-string">empty</span>,
+  <span class="c-keyword">dateBetween</span>(<span class="c-keyword">now</span>(), <span class="c-prop">prop("Last Session")</span>, <span class="c-string">"days"</span>),
+  <span class="c-number">999</span>  <span class="c-comment">// 999 = never worked on; surfaces at top of stale sort</span>
+)</div>
+      <div class="fb-surfaces">Surfaces in: <span>Stale Songs view (sort descending) · Weekly Review · Tooltip on song cards</span></div>
+    </div>
+  </div>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Stale Warning</div>
+      <div class="fb-db">Songs DB → requires: Days Stale (formula) · Status</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Flags songs that are active in the pipeline (not Concept, not Released, not Shelved) but haven't had a logged session in 14+ days. This is the accountability mechanism that prevents songs from silently dying.</div>
+      <div class="code-block"><span class="c-keyword">if</span>(
+  <span class="c-keyword">and</span>(
+    <span class="c-prop">prop("Status")</span> != <span class="c-string">"Concept"</span>,
+    <span class="c-prop">prop("Status")</span> != <span class="c-string">"Released"</span>,
+    <span class="c-prop">prop("Status")</span> != <span class="c-string">"Shelved"</span>,
+    <span class="c-prop">prop("Days Stale")</span> > <span class="c-number">14</span>
+  ),
+  <span class="c-string">"⚠️ Stale"</span>,
+  <span class="c-string">""</span>
+)</div>
+      <div class="fb-surfaces">Surfaces in: <span>Active Songs board (visible property) · Stale Songs filtered view · Weekly Review checklist</span></div>
+    </div>
+  </div>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Release Health</div>
+      <div class="fb-db">Releases DB → requires: Days Until Release (formula) · Open Release Tasks (rollup) · Artwork Done · Promo Assets Ready</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Produces a three-tier health signal for releases in progress. Answers "is this release on track?" without manually checking four properties.</div>
+      <div class="code-block"><span class="c-keyword">if</span>(
+  <span class="c-keyword">and</span>(
+    <span class="c-prop">prop("Days Until Release")</span> < <span class="c-number">21</span>,
+    <span class="c-keyword">or</span>(
+      <span class="c-prop">prop("Open Release Tasks")</span> > <span class="c-number">3</span>,
+      <span class="c-prop">prop("Artwork Done")</span> == <span class="c-string">false</span>,
+      <span class="c-prop">prop("Promo Assets Ready")</span> == <span class="c-string">false</span>
+    )
+  ),
+  <span class="c-string">"🚨 At Risk"</span>,
+  <span class="c-keyword">if</span>(
+    <span class="c-prop">prop("Days Until Release")</span> < <span class="c-number">60</span>,
+    <span class="c-string">"⚡ Active"</span>,
+    <span class="c-string">"📅 Planned"</span>
+  )
+)</div>
+      <div class="fb-surfaces">Surfaces in: <span>Release Pipeline view (visible as first property after Status) · Master Dashboard release widget</span></div>
+    </div>
+  </div>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Days Until Release</div>
+      <div class="fb-db">Releases DB → requires: Release Date</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Simple integer countdown. Negative values indicate overdue releases. Used by Release Health and as a sort key in the Pipeline view.</div>
+      <div class="code-block"><span class="c-keyword">if</span>(
+  <span class="c-prop">prop("Release Date")</span> != <span class="c-string">empty</span>,
+  <span class="c-keyword">dateBetween</span>(<span class="c-prop">prop("Release Date")</span>, <span class="c-keyword">now</span>(), <span class="c-string">"days"</span>),
+  <span class="c-number">9999</span>  <span class="c-comment">// No date = treat as far future; sorts to bottom</span>
+)</div>
+    </div>
+  </div>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Overdue</div>
+      <div class="fb-db">Tasks DB → requires: Due Date · Status</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Flags tasks with a past Due Date that aren't marked Done. Surfaces in the Due This Week view as a red marker. The most important signal in the Tasks DB — overdue tasks need immediate resolution or deletion.</div>
+      <div class="code-block"><span class="c-keyword">if</span>(
+  <span class="c-keyword">and</span>(
+    <span class="c-prop">prop("Due Date")</span> != <span class="c-string">empty</span>,
+    <span class="c-keyword">dateBetween</span>(<span class="c-prop">prop("Due Date")</span>, <span class="c-keyword">now</span>(), <span class="c-string">"days"</span>) < <span class="c-number">0</span>,
+    <span class="c-prop">prop("Status")</span> != <span class="c-string">"Done"</span>
+  ),
+  <span class="c-string">"⚠️ Overdue"</span>,
+  <span class="c-string">""</span>
+)</div>
+      <div class="fb-surfaces">Surfaces in: <span>Due This Week view · Focus Board (sorted to top) · Weekly Review task purge</span></div>
+    </div>
+  </div>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Auto Session Name</div>
+      <div class="fb-db">Sessions DB → requires: Session Type · Date</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Eliminates the naming step entirely when creating a session. Reduces logging friction to two required inputs (Type and Date). The name is generated automatically — no typing required.</div>
+      <div class="code-block"><span class="c-keyword">if</span>(
+  <span class="c-prop">prop("Session Type")</span> != <span class="c-string">empty</span>,
+  <span class="c-prop">prop("Session Type")</span> + <span class="c-string">" — "</span> + 
+    <span class="c-keyword">formatDate</span>(<span class="c-prop">prop("Date")</span>, <span class="c-string">"MMM D, YYYY"</span>),
+  <span class="c-string">"New Session"</span>
+)
+<span class="c-comment">// Result: "Writing — May 16, 2026"</span></div>
+      <div class="callout" style="margin-top:10px;border-left-color:var(--orange);">
+        <span class="icon">⚠️</span>
+        <p>Notion requires the Title property to be a Title type, not a Formula type. Work around this: keep Title as a regular Title property but make it optional in the template, and add the Auto Name formula as a separate Formula property used for display in views. Use the Formula property as the display name in gallery and board views.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-block">
+    <div class="fb-head">
+      <div class="fb-name">Floating</div>
+      <div class="fb-db">Writing Assets DB → requires: Song (relation) · Status</div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-purpose">Boolean that powers the Unattached Ideas view without requiring a complex filter setup on every view. If Floating = true, the asset has no Song and isn't Archived — it needs attention.</div>
+      <div class="code-block"><span class="c-keyword">and</span>(
+  <span class="c-keyword">empty</span>(<span class="c-prop">prop("Song")</span>),
+  <span class="c-prop">prop("Status")</span> != <span class="c-string">"Archived"</span>
+)</div>
+      <div class="fb-surfaces">Surfaces in: <span>Unattached Ideas view (filter: Floating = true) · Dashboard Quick Capture widget</span></div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 6 — SIMPLIFICATION -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-red">06 — Database Simplification</div>
+  <h2>Remove, Merge, Delay</h2>
+
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Action</th><th>Reason</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sessions → Writing Assets relation</td>
+        <td style="color:var(--red);font-family:var(--mono);font-size:11px;">REMOVE</td>
+        <td>Maintenance overhead with zero workflow return. The session page body handles "what was created." The Writing Asset's Song relation handles lineage. This relation solves a problem that doesn't exist in practice.</td>
+      </tr>
+      <tr>
+        <td>"Type" property naming across all databases</td>
+        <td style="color:var(--orange);font-family:var(--mono);font-size:11px;">RENAME</td>
+        <td>Three databases currently use "Type" — Writing Assets, Sessions, Tasks. When building filters or formulas, "Type" is ambiguous in the context of a multi-database view. Rename to "Asset Type," "Session Type," "Task Type" — unambiguous in any context.</td>
+      </tr>
+      <tr>
+        <td>Song Status "Idea"</td>
+        <td style="color:var(--orange);font-family:var(--mono);font-size:11px;">RENAME → "Concept"</td>
+        <td>Naming collision with Writing Assets Type = "Idea." A Song at this status is a named, intentional project placeholder. A Writing Asset of type Idea is a fragment. Different objects need different names.</td>
+      </tr>
+      <tr>
+        <td>"Mood/Vibe" or "Mood/Energy" properties</td>
+        <td style="color:var(--orange);font-family:var(--mono);font-size:11px;">CONSOLIDATE → "Energy"</td>
+        <td>Both "Mood" and "Vibe" are subjective and hard to filter consistently. "Energy" (High/Medium/Low/Variable) is measurable, actionable, and consistent across Songs and Writing Assets. Use one property name, one option set, everywhere.</td>
+      </tr>
+      <tr>
+        <td>Sessions DB Status property</td>
+        <td style="color:var(--red);font-family:var(--mono);font-size:11px;">DO NOT BUILD</td>
+        <td>Sessions are event records. They don't have a "Planned/Done" status — that's task thinking applied to event logging. If you want to plan future sessions, create a Task (Type = Production) instead. Adding a Status to Sessions creates a to-do system inside an event log.</td>
+      </tr>
+      <tr>
+        <td>Writing Assets "Concept" type option</td>
+        <td style="color:var(--orange);font-family:var(--mono);font-size:11px;">RENAME → "Concept Note"</td>
+        <td>Same naming collision issue. A Concept Note (Writing Asset) is a description of what a song is about. A Concept (Song Status) is a song project placeholder. Renaming to "Concept Note" disambiguates.</td>
+      </tr>
+      <tr>
+        <td>All rollup properties in Phase 1</td>
+        <td style="color:var(--purple);font-family:var(--mono);font-size:11px;">DELAY 30 DAYS</td>
+        <td>Exception: Releases DB rollups (Song Count, Open Release Tasks) should be built when Releases DB is created — they're low-volume and immediately useful. All Songs DB rollups should wait until there are 20+ records and 10+ sessions logged. Building rollups on empty databases produces nothing useful and adds build complexity.</td>
+      </tr>
+      <tr>
+        <td>Finance / Income tracking</td>
+        <td style="color:var(--purple);font-family:var(--mono);font-size:11px;">DELAY indefinitely</td>
+        <td>No database until streaming income or sync licensing requires structured tracking. A simple linked spreadsheet is sufficient until the bottleneck is tracking, not volume.</td>
+      </tr>
+      <tr>
+        <td>Collaborators DB</td>
+        <td style="color:var(--purple);font-family:var(--mono);font-size:11px;">DELAY until active</td>
+        <td>Build when there are 5+ active collaborators requiring tracking. Until then, a "Collaborators" section on the Brand Reference page handles the use case with zero maintenance overhead.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 7 — BUILD SEQUENCE -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-gold">07 — Build Sequence</div>
+  <h2>Exact Order and Dependencies</h2>
+
+  <div class="callout red" style="margin-bottom:20px;">
+    <span class="icon">🔒</span>
+    <p><strong>Pre-build requirement:</strong> Before creating any database in Notion, write down the exact filter conditions for your three most-used views: Focus Board (Tasks), Unattached Ideas (Writing Assets), and Active Songs (Songs). If you can't describe those filter conditions from memory, the build isn't ready. Property decisions made during build under time pressure are the primary source of structural inconsistency.</p>
+  </div>
+
+  <div class="build-seq">
+    <div class="bs-step">
+      <div class="bs-num">1</div>
+      <div class="bs-content">
+        <div class="bs-title">Songs DB — schema only, no relations yet</div>
+        <div class="bs-why">Build the title property, all Status options (including Concept and Shelved), Priority, BPM, Key, Energy, Song Type, Genre Tags. Apply the Full Track template spec. Create Active Songs board view and Writing Queue view. Migrate the 4 active songs (Transformative Trance, Mission Statement, Divine Rerun, LIFE). Do not build any relations until Step 3.</div>
+        <div class="bs-deps">Dependencies: None · Duration: 1–2 hours</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">2</div>
+      <div class="bs-content">
+        <div class="bs-title">Writing Assets DB — schema only, no relations yet</div>
+        <div class="bs-why">Build Asset Type (8 options, correctly named), Status flow, Date Created (Created Time auto), Energy, Genre Fit, Recorded checkbox. Set default view = Unattached Ideas with Floating formula pre-configured. Build Hook Bank view. Create Quick Idea, Freestyle, and Lyric Sheet templates. Do not build the Song relation until Songs DB is confirmed complete.</div>
+        <div class="bs-deps">Dependencies: None · Duration: 1–2 hours</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">3</div>
+      <div class="bs-content">
+        <div class="bs-title">Songs ↔ Writing Assets relation</div>
+        <div class="bs-why">Create the relation between Songs and Writing Assets. Verify the reverse relation appears correctly on Writing Assets as "Song" (singular). Test by linking a Writing Asset to one of the 4 active songs. Confirm the Unattached Ideas view correctly filters to assets with no Song linked. This is the most important relation in the system — test it thoroughly before adding more.</div>
+        <div class="bs-deps">Dependencies: Steps 1 + 2 · Duration: 30 minutes</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">4</div>
+      <div class="bs-content">
+        <div class="bs-title">Sessions DB — minimal schema</div>
+        <div class="bs-why">Build Name (title), Session Type (5 options), Date. Add optional properties below the fold: Energy, Key Win, Next Step, Duration. Build the Songs relation immediately (it's the core of Sessions usefulness). Create all 4 session templates. Confirm each template defaults Date to today. Test with one real session log. Do NOT add any rollups to Songs DB yet — wait for 10+ sessions.</div>
+        <div class="bs-deps">Dependencies: Step 1 (Songs DB must exist for the relation) · Duration: 1 hour</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">5</div>
+      <div class="bs-content">
+        <div class="bs-title">Tasks DB — full schema with Focus property</div>
+        <div class="bs-why">Build Task (title), Task Type (6 options), Status (4 options), Focus checkbox, Priority. Add optional: Due Date, Notes. Build Songs and Releases relations (Releases DB doesn't exist yet — add the relation property now as a placeholder; it will resolve when Releases is created in Step 7). Build Focus Board view and Due This Week view with exact filter specs locked. Create Production Task template.</div>
+        <div class="bs-deps">Dependencies: Step 1 (Songs relation) · Duration: 1–2 hours</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">6</div>
+      <div class="bs-content">
+        <div class="bs-title">Songs ↔ Tasks relation + Overdue formula</div>
+        <div class="bs-why">Link Songs and Tasks databases. Test by creating one Production Task for an active song and confirming it appears in the Songs DB Tasks relation. Build the Overdue formula on Tasks. Build the Tasks linked view inside a Song page body (filtered to that Song). Confirm the filter works correctly.</div>
+        <div class="bs-deps">Dependencies: Steps 1 + 5 · Duration: 45 minutes</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">7</div>
+      <div class="bs-content">
+        <div class="bs-title">Releases DB — build only when a release is 60 days out</div>
+        <div class="bs-why">Build full Releases schema: Title, Status, Format, Release Date, all optional properties, Songs relation, Tasks relation. Build Days Until Release formula and Release Health formula. Build Song Count and Open Release Tasks rollups immediately (Releases is low-volume — rollups are safe to build from day one here). Build New Release template with task bundle. Resolve the Tasks → Release relation placeholder created in Step 5.</div>
+        <div class="bs-deps">Dependencies: Steps 1 + 5 · Duration: 2 hours · Timing: Pre-release only</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">8</div>
+      <div class="bs-content">
+        <div class="bs-title">Songs DB rollups — 30 days after launch</div>
+        <div class="bs-why">Add Session Count, Last Session Date, and Open Tasks rollups to Songs DB. Then build Days Stale formula (requires Last Session rollup) and Stale Warning formula (requires Days Stale formula). By this point there should be 10+ sessions logged and multiple tasks completed — rollup data will be real and useful rather than displaying zeros.</div>
+        <div class="bs-deps">Dependencies: Steps 1 + 4 + 5 + real data · Duration: 1 hour · Timing: Day 30+</div>
+      </div>
+    </div>
+    <div class="bs-step">
+      <div class="bs-num">9</div>
+      <div class="bs-content">
+        <div class="bs-title">Writing Assets Asset Count rollup on Songs — 30 days after launch</div>
+        <div class="bs-why">Add the Asset Count rollup to Songs DB after there are 30+ Writing Assets in the system. Also add the Floating formula to Writing Assets if it wasn't built in Step 2. Confirm the Unattached Ideas view is correctly filtering. Review which Writing Assets are still floating after 30 days and decide: attach, develop, or archive.</div>
+        <div class="bs-deps">Dependencies: Steps 1 + 2 + 3 + real data · Duration: 30 minutes · Timing: Day 30+</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- SECTION 8 — FINAL ARCHITECTURE -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="s-tag st-blue">08 — Final Database Architecture</div>
+  <h2>The Cleanest Version of the System</h2>
+
+  <div class="final-table">
+    <div class="ft-row head">
+      <div>Database</div><div>Schema Summary</div><div>Status</div>
+    </div>
+    <div class="ft-row">
+      <div class="ft-db">🎵 Songs DB</div>
+      <div class="ft-desc">Title · Status (8 options, "Concept" not "Idea") · Priority · BPM · Key · Energy · Song Type · Genre Tags · ISRC · LUFS Target · LUFS Actual · DAW Link · Reference Track · Playlist Pitch Deadline. Relations: Writing Assets · Sessions · Tasks · Release. Rollups (Day 30): Open Tasks · Session Count · Last Session · Asset Count. Formulas (Day 30): Days Stale · Stale Warning · Release Health.</div>
+      <div class="ft-status fs-build">Build First</div>
+    </div>
+    <div class="ft-row">
+      <div class="ft-db">✍️ Writing Assets DB</div>
+      <div class="ft-desc">Title · Asset Type (8 options, "Concept Note" not "Concept") · Status (5 options) · Date Created (Created Time auto) · Energy · Genre Fit · Recorded. Relations: Song (singular). Rollups: None. Formulas: Floating (boolean). Default view: Unattached Ideas. Templates: Quick Idea · Freestyle · Lyric Sheet.</div>
+      <div class="ft-status fs-build">Build Second</div>
+    </div>
+    <div class="ft-row">
+      <div class="ft-db">⏱ Sessions DB</div>
+      <div class="ft-desc">Name (title) · Session Type (5 options) · Date · Duration (opt) · Energy (opt) · Key Win (opt) · Next Step (opt). Relations: Song. Rollups: None. Formulas: Auto Name display. No Status property. No relation to Writing Assets. Templates: Writing · Production · Recording · Mix Review. Keep template to 3 required inputs maximum.</div>
+      <div class="ft-status fs-watch">Fragile — Simplify</div>
+    </div>
+    <div class="ft-row">
+      <div class="ft-db">🚀 Releases DB</div>
+      <div class="ft-desc">Release Title · Status (6 options) · Format · Release Date · Distributor · UPC · Distribution Link · Playlist Pitch Deadline · Artwork Done · Metadata Verified · Promo Assets Ready. Relations: Songs · Tasks. Rollups: Song Count · Open Release Tasks · Songs Ready. Formulas: Days Until Release · Release Health. Build only 60 days before first release.</div>
+      <div class="ft-status fs-trim">Build Pre-Release</div>
+    </div>
+    <div class="ft-row">
+      <div class="ft-db">✅ Tasks DB</div>
+      <div class="ft-desc">Task (title, action-verb required) · Task Type (6 options, Select not Multi-select) · Status (4 options) · Focus (checkbox — the key property) · Priority · Due Date (opt) · Notes (opt). Relations: Song (opt) · Release (opt). Rollups: None. Formulas: Overdue · Days Until Due. Primary views: Focus Board · Due This Week (both filter locked). Templates: Production Task · Release Prep Bundle.</div>
+      <div class="ft-status fs-watch">High Risk — Monitor</div>
+    </div>
+  </div>
+
+  <h3>Cut — Do Not Build</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Sessions → Writing Assets relation</td><td>Maintenance overhead, zero workflow return, covered by page body notes and Writing Asset's own Song relation.</td></tr>
+      <tr><td>Collaborators DB</td><td>Solo artist context. Build when active collaboration tracking creates real bottleneck.</td></tr>
+      <tr><td>Finance DB</td><td>No data volume. Use a linked spreadsheet until structured tracking is genuinely needed.</td></tr>
+      <tr><td>Average Session Rating rollup</td><td>Averaging subjective data produces meaningless output.</td></tr>
+      <tr><td>Total Session Hours rollup</td><td>Will be inaccurate if Duration is often blank. Trivia, not decision data.</td></tr>
+      <tr><td>Sessions DB Status property</td><td>Event logs don't have statuses. Use Tasks for planning future sessions.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green" style="margin-top:24px;">
+    <span class="icon">🎯</span>
+    <p><strong>The database model at 8.5/10 looks like this:</strong> Five databases with the relation to Writing Assets from Sessions removed. Property naming standardized across all five (Asset Type, Session Type, Task Type). Focus checkbox added to Tasks. The formula layer fully specified for Days Stale, Stale Warning, Release Health, Days Until Release, Overdue, Floating. Rollups built in two phases: Releases DB rollups immediately, Songs DB rollups at Day 30. Sessions DB template capped at 3 required inputs. Every view filter condition written out before the database is built. That's it. That's the complete, clean system.</p>
+  </div>
+</div>
+
+<div class="doc-footer">
+  JaZeR Music OS v2 — Database Schema Audit · May 2026<br>
+  <span style="color:var(--b2);">Relational Architecture · Rollups · Formulas · Views · Templates · Build Order</span>
+</div>
+
+</body>
+</html>

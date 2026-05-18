@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Phase 2A: Database Schema</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --bg:         #09090b;
+    --bg2:        #101014;
+    --bg3:        #161619;
+    --bg4:        #1c1c22;
+    --bg5:        #212129;
+    --border:     #242430;
+    --border2:    #313140;
+    --text:       #e3e1ee;
+    --text2:      #8e8ca8;
+    --text3:      #535168;
+    --gold:       #c8a645;
+    --gold-dim:   #5e4c12;
+    --green:      #4aad7e;
+    --green-dim:  #163826;
+    --red:        #df4f4f;
+    --red-dim:    #3a1818;
+    --blue:       #5a8def;
+    --blue-dim:   #172645;
+    --orange:     #df7730;
+    --orange-dim: #3a2008;
+    --purple:     #9a6de6;
+    --purple-dim: #271c44;
+    --teal:       #2fb7c7;
+    --teal-dim:   #0c2c34;
+    --yellow:     #d4c060;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .page { max-width: 1040px; margin: 0 auto; padding: 0 32px 120px; }
+
+  /* ── HEADER ── */
+  .doc-header {
+    padding: 52px 0 30px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 44px;
+  }
+  .phase-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .phase-tag::before { content: ''; width: 20px; height: 1px; background: var(--gold); }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 3.8vw, 42px);
+    font-weight: 800; letter-spacing: -0.025em; line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  h1 span { color: var(--gold); }
+  .doc-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic; font-size: 17px; color: var(--text2);
+    margin-bottom: 18px;
+  }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 3px;
+    border: 1px solid var(--border2); color: var(--text3);
+  }
+  .pill.gold { color: var(--gold); border-color: var(--gold-dim); background: rgba(200,166,69,0.06); }
+  .pill.green { color: var(--green); border-color: var(--green-dim); background: rgba(74,173,126,0.06); }
+  .pill.blue  { color: var(--blue);  border-color: var(--blue-dim);  background: rgba(90,141,239,0.06); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 56px; }
+  .s-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    display: inline-block; padding: 3px 9px;
+    border-radius: 3px; margin-bottom: 10px;
+  }
+  .sl-songs   { background: rgba(74,173,126,0.1);  color: var(--green);  border: 1px solid var(--green-dim);  }
+  .sl-wa      { background: rgba(90,141,239,0.1);  color: var(--blue);   border: 1px solid var(--blue-dim);   }
+  .sl-rel     { background: rgba(47,183,199,0.1);  color: var(--teal);   border: 1px solid var(--teal-dim);   }
+  .sl-del     { background: rgba(200,166,69,0.1);  color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .sl-oq      { background: rgba(200,166,69,0.08); color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .sl-lock    { background: rgba(74,173,126,0.1);  color: var(--green);  border: 1px solid var(--green-dim);  }
+  .sl-wns     { background: rgba(83,81,104,0.22);  color: var(--text3);  border: 1px solid var(--border2);    }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 800;
+    letter-spacing: -0.02em; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .s-intro { font-size: 12.5px; color: var(--text2); max-width: 680px; line-height: 1.7; margin-bottom: 22px; }
+
+  /* ── DB HEADER CARD ── */
+  .db-header-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px 6px 0 0;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 2px solid var(--border2);
+  }
+  .db-emoji { font-size: 20px; }
+  .db-name-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 800;
+    color: var(--text);
+  }
+  .db-risk {
+    margin-left: auto;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 3px;
+  }
+  .risk-low  { background: rgba(74,173,126,0.1);  color: var(--green);  border: 1px solid var(--green-dim);  }
+  .risk-med  { background: rgba(200,166,69,0.1);  color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .risk-high { background: rgba(223,79,79,0.1);   color: var(--red);    border: 1px solid var(--red-dim);    }
+  .db-prop-count {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; color: var(--text3);
+  }
+
+  /* ── PROPERTY TABLE ── */
+  .prop-table-wrap {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .prop-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .prop-table thead tr {
+    background: var(--bg4);
+    border-bottom: 1px solid var(--border2);
+  }
+  .prop-table thead th {
+    padding: 9px 12px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text3);
+  }
+  .prop-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .prop-table tbody tr:last-child { border-bottom: none; }
+  .prop-table tbody tr:hover { background: var(--bg3); }
+  .prop-table tbody td {
+    padding: 11px 12px;
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  /* Column widths */
+  .col-num    { width: 32px;  color: var(--text3); font-size: 10px; }
+  .col-name   { width: 190px; }
+  .col-type   { width: 130px; }
+  .col-opts   { width: 200px; color: var(--text2); font-size: 11.5px; }
+  .col-purp   { color: var(--text2); font-size: 12px; }
+  .col-req    { width: 70px;  text-align: center; font-size: 11px; }
+
+  .prop-name-cell {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: var(--text);
+  }
+  .prop-note {
+    font-size: 11px; color: var(--text3);
+    margin-top: 3px; font-family: 'DM Mono', monospace;
+  }
+
+  /* Type badges */
+  .type-badge {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 3px;
+  }
+  .tb-title    { background: rgba(200,166,69,0.12);  color: var(--gold);   border: 1px solid var(--gold-dim);   }
+  .tb-select   { background: rgba(90,141,239,0.1);   color: var(--blue);   border: 1px solid var(--blue-dim);   }
+  .tb-number   { background: rgba(47,183,199,0.1);   color: var(--teal);   border: 1px solid var(--teal-dim);   }
+  .tb-date     { background: rgba(155,109,230,0.1);  color: var(--purple); border: 1px solid var(--purple-dim); }
+  .tb-text     { background: rgba(83,81,104,0.2);    color: var(--text2);  border: 1px solid var(--border2);    }
+  .tb-relation { background: rgba(223,119,48,0.1);   color: var(--orange); border: 1px solid var(--orange-dim); }
+  .tb-formula  { background: rgba(74,173,126,0.1);   color: var(--green);  border: 1px solid var(--green-dim);  }
+  .tb-auto     { background: rgba(83,81,104,0.15);   color: var(--text3);  border: 1px solid var(--border);     }
+  .tb-checkbox { background: rgba(47,183,199,0.08);  color: var(--teal);   border: 1px solid var(--teal-dim);   }
+
+  .req-yes { color: var(--green); font-size: 11px; }
+  .req-no  { color: var(--text3); font-size: 11px; }
+  .req-auto { color: var(--blue); font-size: 10px; font-family: 'Syne', sans-serif; font-weight: 700; letter-spacing: 0.06em; }
+  .req-def { color: var(--purple); font-size: 10px; font-family: 'Syne', sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* Row treatments */
+  .row-relation td { background: rgba(223,119,48,0.03); }
+  .row-formula  td { background: rgba(74,173,126,0.03); }
+  .row-deferred td { background: var(--bg); opacity: 0.55; }
+
+  /* ── STATUS FLOW ── */
+  .status-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 14px 0;
+  }
+  .sf-step {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; font-weight: 700;
+    padding: 4px 10px; border-radius: 3px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    background: var(--bg4);
+  }
+  .sf-step.active { color: var(--gold); border-color: var(--gold-dim); background: rgba(200,166,69,0.08); }
+  .sf-step.start  { color: var(--blue); border-color: var(--blue-dim); background: rgba(90,141,239,0.08); }
+  .sf-step.end    { color: var(--green); border-color: var(--green-dim); background: rgba(74,173,126,0.08); }
+  .sf-step.arch   { color: var(--text3); border-color: var(--border); background: var(--bg3); }
+  .sf-arrow { color: var(--text3); font-size: 12px; }
+
+  /* ── FORMULA BLOCKS ── */
+  .formula-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .fc-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    background: var(--bg4);
+    border-bottom: 1px solid var(--border);
+  }
+  .fc-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700; color: var(--text);
+  }
+  .fc-db {
+    font-size: 11px; color: var(--text3);
+  }
+  .fc-body { padding: 14px 16px; }
+  .fc-purpose { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 12px; }
+  .fc-code {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--teal);
+    line-height: 1.75;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+  }
+  .fc-note { font-size: 11.5px; color: var(--text3); line-height: 1.55; }
+  .kw { color: var(--blue); }
+  .fn { color: var(--green); }
+  .pr { color: var(--gold); }
+  .st { color: var(--orange); }
+  .cm { color: var(--text3); font-style: italic; }
+
+  /* ── RELATION MAP ── */
+  .rel-map {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+  }
+  .rel-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .rel-row:last-child { border-bottom: none; }
+  .rel-db {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 8px; border-radius: 3px;
+    min-width: 120px; text-align: center;
+    white-space: nowrap;
+  }
+  .rdb-songs { background: rgba(74,173,126,0.1); color: var(--green); border: 1px solid var(--green-dim); }
+  .rdb-wa    { background: rgba(90,141,239,0.1); color: var(--blue);  border: 1px solid var(--blue-dim);  }
+  .rel-arrow-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--text3); font-size: 11px;
+  }
+  .rel-prop-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--orange);
+    background: rgba(223,119,48,0.08);
+    border: 1px solid var(--orange-dim);
+    border-radius: 2px; padding: 1px 5px;
+  }
+  .rel-detail { font-size: 12px; color: var(--text2); line-height: 1.55; flex: 1; }
+
+  /* ── DEFER TABLE ── */
+  .defer-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .defer-table thead tr { background: var(--bg4); border-bottom: 1px solid var(--border2); }
+  .defer-table thead th {
+    padding: 9px 12px; text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text3);
+  }
+  .defer-table tbody tr { border-bottom: 1px solid var(--border); }
+  .defer-table tbody tr:last-child { border-bottom: none; }
+  .defer-table tbody td { padding: 10px 12px; color: var(--text2); vertical-align: top; }
+  .defer-table tbody td:first-child { color: var(--text); font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; }
+  .when-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 2px; white-space: nowrap;
+  }
+  .wt-exc  { background: rgba(74,173,126,0.12); color: var(--green); border: 1px solid var(--green-dim); }
+  .wt-30   { background: rgba(83,81,104,0.2);   color: var(--text2); border: 1px solid var(--border2);  }
+  .wt-pre  { background: rgba(90,141,239,0.1);  color: var(--blue);  border: 1px solid var(--blue-dim); }
+  .wt-post { background: rgba(83,81,104,0.15);  color: var(--text3); border: 1px solid var(--border);   }
+
+  /* ── DELIVERABLE BLOCK ── */
+  .del-block {
+    border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .del-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 18px;
+    background: var(--bg3); border-bottom: 1px solid var(--border);
+  }
+  .del-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 3px; white-space: nowrap;
+  }
+  .dt-lock   { background: rgba(74,173,126,0.12); color: var(--green); border: 1px solid var(--green-dim); }
+  .dt-oq     { background: rgba(200,166,69,0.1);  color: var(--gold);  border: 1px solid var(--gold-dim); }
+  .dt-defer  { background: rgba(83,81,104,0.2);   color: var(--text3); border: 1px solid var(--border2);  }
+  .del-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
+  .del-count { margin-left: auto; font-size: 10px; color: var(--text3); font-family: 'Syne', sans-serif; }
+  .del-body  { padding: 16px 18px; font-size: 12.5px; color: var(--text2); }
+
+  .lock-list { display: flex; flex-direction: column; gap: 6px; }
+  .lock-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 12px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  .ln { font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700; color: var(--green); min-width: 22px; margin-top: 1px; }
+  .lt { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+  .lt .dim { color: var(--text2); font-size: 11.5px; margin-top: 3px; display: block; }
+
+  .oq-list { display: flex; flex-direction: column; gap: 12px; }
+  .oq-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 3px; padding: 14px 16px;
+  }
+  .oq-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .oq-num { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; color: var(--gold); min-width: 30px; }
+  .oq-q   { font-family: 'Syne', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--text); }
+  .oq-body { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .oq-rec {
+    margin-top: 8px; font-size: 11.5px;
+    background: var(--bg4); border: 1px solid var(--border2);
+    border-radius: 3px; padding: 7px 10px; color: var(--teal);
+    line-height: 1.55;
+  }
+  .oq-rec strong { color: var(--text); }
+
+  .defer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .di {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 12px; color: var(--text3);
+    padding: 6px 10px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 3px;
+  }
+  .di-arrow { color: var(--border2); }
+  .di-when { margin-left: auto; }
+
+  /* ── STATUS BOX ── */
+  .status-box {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(74,173,126,0.06); border: 1px solid var(--green-dim);
+    border-radius: 6px; padding: 16px 22px; margin-top: 44px; gap: 16px;
+  }
+  .sb-left { }
+  .sb-label { font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green); margin-bottom: 4px; }
+  .sb-text  { font-size: 12.5px; color: var(--text2); }
+  .sb-gate  { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 14px; border-radius: 4px; background: rgba(74,173,126,0.1); color: var(--green); border: 1px solid var(--green-dim); white-space: nowrap; }
+
+  .doc-footer { border-top: 1px solid var(--border); padding-top: 22px; font-size: 10px; color: var(--text3); display: flex; justify-content: space-between; font-family: 'Syne', sans-serif; letter-spacing: 0.07em; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    display: flex; gap: 12px; padding: 12px 16px; border-radius: 4px; margin: 14px 0;
+    font-size: 12px; line-height: 1.6;
+  }
+  .callout.warn  { background: rgba(200,166,69,0.07); border: 1px solid var(--gold-dim); color: var(--text2); }
+  .callout.info  { background: rgba(47,183,199,0.07); border: 1px solid var(--teal-dim); color: var(--text2); }
+  .callout.cut   { background: rgba(223,79,79,0.06);  border: 1px solid var(--red-dim);  color: var(--text2); }
+  .callout .ci   { flex-shrink: 0; }
+
+  /* ── CUTS APPLIED ── */
+  .cuts-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .cut-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 8px 12px; font-size: 12px;
+    background: rgba(223,79,79,0.04); border: 1px solid var(--red-dim);
+    border-radius: 3px;
+  }
+  .cut-icon { color: var(--red); flex-shrink: 0; margin-top: 1px; }
+  .cut-name { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .cut-reason { color: var(--text2); font-size: 11.5px; line-height: 1.5; }
+
+  @media(max-width: 700px) {
+    .page { padding: 0 14px 80px; }
+    .prop-table thead th:nth-child(3),
+    .prop-table tbody td:nth-child(3) { display: none; }
+    .defer-grid { grid-template-columns: 1fr; }
+    .status-box { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<header class="doc-header">
+  <div class="phase-tag">Phase 2A · Database Schema</div>
+  <h1>Songs DB &amp; Writing Assets DB <span>Schema</span></h1>
+  <div class="doc-sub">Property Maps, Formulas, Relations, and Deferred Decisions</div>
+  <div class="pills">
+    <span class="pill gold">Phase 1 Approved</span>
+    <span class="pill green">Songs DB — 12 Properties + 1 Formula</span>
+    <span class="pill blue">Writing Assets DB — 6 Properties + 1 Formula</span>
+    <span class="pill">3 Open Questions</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SONGS DB -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="section" id="songs">
+  <span class="s-label sl-songs">Songs DB</span>
+  <h2>Songs DB — Property Map</h2>
+  <p class="s-intro">The creative spine of the workspace. Every song from Concept to Released lives here. Property cap: 12 data properties. Formula properties are computed from existing data and do not count as additional data entry burden — flagged as OQ-1 for confirmation.</p>
+
+  <div class="db-header-card">
+    <span class="db-emoji">🎵</span>
+    <span class="db-name-big">Songs DB</span>
+    <span class="db-prop-count">12 data props · 1 formula · 3 relations built now · 1 relation deferred</span>
+    <span class="db-risk risk-low">Low Risk</span>
+  </div>
+
+  <div class="prop-table-wrap">
+    <table class="prop-table">
+      <thead>
+        <tr>
+          <th class="col-num">#</th>
+          <th class="col-name">Property Name</th>
+          <th class="col-type">Type</th>
+          <th class="col-opts">Options / Format</th>
+          <th class="col-purp">Purpose</th>
+          <th class="col-req">Req?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Core -->
+        <tr>
+          <td class="col-num">1</td>
+          <td class="col-name"><div class="prop-name-cell">Name</div></td>
+          <td><span class="type-badge tb-title">Title</span></td>
+          <td class="col-opts">—</td>
+          <td class="col-purp">Working or final title of the song; primary identifier across all views and relations</td>
+          <td class="col-req"><span class="req-yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">2</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Status</div>
+          </td>
+          <td><span class="type-badge tb-select">Select</span></td>
+          <td class="col-opts">Concept · Writing · Recording · Producing · Mixing · Review · Release Prep · Released</td>
+          <td class="col-purp">Tracks position in the 8-step pipeline; drives every dashboard filter, hub view, and the Status Progress formula</td>
+          <td class="col-req"><span class="req-yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">3</td>
+          <td class="col-name"><div class="prop-name-cell">BPM</div></td>
+          <td><span class="type-badge tb-number">Number</span></td>
+          <td class="col-opts">Integer (e.g., 92)</td>
+          <td class="col-purp">Tempo reference for sessions, collaborations, and DAW context; set when the beat structure is established</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">4</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Key</div>
+            <div class="prop-note">See OQ-3 on root note vs. full key</div>
+          </td>
+          <td><span class="type-badge tb-select">Select</span></td>
+          <td class="col-opts">C · C# · D · E♭ · E · F · F# · G · A♭ · A · B♭ · B (12 options)</td>
+          <td class="col-purp">Root note of the song; major/minor distinction is noted in the Song page body template, keeping the DB column filterable at 12 options</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <!-- Production metadata -->
+        <tr>
+          <td class="col-num">5</td>
+          <td class="col-name"><div class="prop-name-cell">LUFS Target</div></td>
+          <td><span class="type-badge tb-number">Number</span></td>
+          <td class="col-opts">Negative integer (e.g., −14)</td>
+          <td class="col-purp">Target integrated loudness for mastering; −14 for Spotify / YouTube, −16 for Apple Music; set at Mixing stage</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">6</td>
+          <td class="col-name"><div class="prop-name-cell">LUFS Actual</div></td>
+          <td><span class="type-badge tb-number">Number</span></td>
+          <td class="col-opts">Negative integer (e.g., −13.8)</td>
+          <td class="col-purp">Achieved loudness after the final master bounce; gap between Target and Actual exposes mastering accuracy</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">7</td>
+          <td class="col-name"><div class="prop-name-cell">Mix Pass Count</div></td>
+          <td><span class="type-badge tb-number">Number</span></td>
+          <td class="col-opts">Integer, starts at 0</td>
+          <td class="col-purp">Counts completed full mix passes; at 3 passes the hard decision point activates: Release Prep or Shelve — no default to a 4th pass</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">8</td>
+          <td class="col-name"><div class="prop-name-cell">Playlist Pitch Deadline</div></td>
+          <td><span class="type-badge tb-date">Date</span></td>
+          <td class="col-opts">Date</td>
+          <td class="col-purp">Editorial playlist pitch window — typically 7 days before release date on DistroKid or Amuse; set at Release Prep stage</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">9</td>
+          <td class="col-name">
+            <div class="prop-name-cell">FL Studio Path</div>
+            <div class="prop-note">Plain text — no integration</div>
+          </td>
+          <td><span class="type-badge tb-text">Text</span></td>
+          <td class="col-opts">Plain text string (e.g., "C:/Music/JaZeR/Cosmic Beam v4.flp")</td>
+          <td class="col-purp">File path or drive location for the FL Studio project; plain text avoids cloud dependency; visible in table views for quick access</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <!-- Relations -->
+        <tr class="row-relation">
+          <td class="col-num">10</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Sessions</div>
+            <div class="prop-note">Build after Sessions DB exists</div>
+          </td>
+          <td><span class="type-badge tb-relation">Relation</span></td>
+          <td class="col-opts">→ Sessions DB · Backlink: "Song"</td>
+          <td class="col-purp">Links song to all logged session records; enables Session Count rollup (Phase 1 approved exception: may be added at build time)</td>
+          <td class="col-req"><span class="req-def">Rel</span></td>
+        </tr>
+        <tr class="row-relation">
+          <td class="col-num">11</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Writing Assets</div>
+            <div class="prop-note">Build in Phase 2A (this phase)</div>
+          </td>
+          <td><span class="type-badge tb-relation">Relation</span></td>
+          <td class="col-opts">→ Writing Assets DB · Backlink: "Song"</td>
+          <td class="col-purp">Links song to all attached hooks, verses, and writing fragments; enables Writing Assets Count rollup (Day 30+)</td>
+          <td class="col-req"><span class="req-def">Rel</span></td>
+        </tr>
+        <tr class="row-relation">
+          <td class="col-num">12</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Tasks</div>
+            <div class="prop-note">Build after Tasks DB exists</div>
+          </td>
+          <td><span class="type-badge tb-relation">Relation</span></td>
+          <td class="col-opts">→ Tasks DB · Backlink: "Song"</td>
+          <td class="col-purp">Links song to all associated production, release prep, and admin tasks; enables Open Tasks Count rollup (Day 30+)</td>
+          <td class="col-req"><span class="req-def">Rel</span></td>
+        </tr>
+        <!-- Formula -->
+        <tr class="row-formula">
+          <td class="col-num" style="color:var(--green);">F</td>
+          <td class="col-name">
+            <div class="prop-name-cell" style="color:var(--green);">Status Progress %</div>
+            <div class="prop-note">See OQ-1 on formula cap</div>
+          </td>
+          <td><span class="type-badge tb-formula">Formula</span></td>
+          <td class="col-opts">0 – 100 (Number output)</td>
+          <td class="col-purp">Maps Status to a progress percentage; useful in gallery card subtitles and board view headers; depends only on the Status property</td>
+          <td class="col-req"><span class="req-def">Fml</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Songs DB Status Flow -->
+  <p style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Status Flow (8 steps)</p>
+  <div class="status-flow">
+    <div class="sf-step start">Concept</div><div class="sf-arrow">→</div>
+    <div class="sf-step">Writing</div><div class="sf-arrow">→</div>
+    <div class="sf-step">Recording</div><div class="sf-arrow">→</div>
+    <div class="sf-step">Producing</div><div class="sf-arrow">→</div>
+    <div class="sf-step">Mixing</div><div class="sf-arrow">→</div>
+    <div class="sf-step">Review</div><div class="sf-arrow">→</div>
+    <div class="sf-step active">Release Prep</div><div class="sf-arrow">→</div>
+    <div class="sf-step end">Released</div>
+  </div>
+
+  <!-- Status Progress Formula -->
+  <div class="formula-card" style="margin-top:20px;">
+    <div class="fc-head">
+      <span class="fc-name">Status Progress %</span>
+      <span class="fc-db">Songs DB · Depends on: Status</span>
+    </div>
+    <div class="fc-body">
+      <div class="fc-purpose">Maps the current Status option to a 0–100 number. Provides visual progress in gallery cards and board view headers without requiring any manual input. All 8 status steps are covered; any unrecognized status returns 0 as a safe default.</div>
+      <div class="fc-code"><span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Concept"</span>,       5,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Writing"</span>,       20,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Recording"</span>,     40,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Producing"</span>,     55,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Mixing"</span>,         70,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Review"</span>,         80,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Release Prep"</span>,   90,
+<span class="kw">if</span>(<span class="fn">prop</span>(<span class="st">"Status"</span>) == <span class="st">"Released"</span>,       100,
+0))))))))</div>
+      <div class="fc-note">Dependencies: Status property only. No other property reads needed. Safe to build at launch. Returns 0 for any status option not listed above — acts as a build-time error indicator if a status is misspelled.</div>
+    </div>
+  </div>
+
+  <!-- Songs DB Cuts Applied -->
+  <div class="callout cut" style="margin-top:20px;">
+    <span class="ci">✂</span>
+    <div><strong style="color:var(--text);">Properties cut to stay within the 12-property cap</strong> — these were present in the DB Schema source document but are excluded at launch. They are not lost — they are explicitly deferred.</div>
+  </div>
+  <div class="cuts-list">
+    <div class="cut-item">
+      <span class="cut-icon">✗</span>
+      <div><div class="cut-name">Priority (Select)</div><div class="cut-reason">The working rules prohibit a Priority property. Focus checkbox in Tasks DB handles prioritization. A Priority Select on Songs DB would duplicate that signal with no added workflow value.</div></div>
+    </div>
+    <div class="cut-item">
+      <span class="cut-icon">✗</span>
+      <div><div class="cut-name">Energy (Select: High · Medium · Low · Variable)</div><div class="cut-reason">Useful for filtering by creative mood but not essential at launch. Deferred to Day 30+ when real-use filtering patterns are known. Add if you find yourself wanting to filter songs by energy level.</div></div>
+    </div>
+    <div class="cut-item">
+      <span class="cut-icon">✗</span>
+      <div><div class="cut-name">Song Type (Select: Single · EP Cut · Album Cut · Instrumental · Collab)</div><div class="cut-reason">Low value at launch when catalog is small. Add post-launch when differentiating song types becomes a real filtering need.</div></div>
+    </div>
+    <div class="cut-item">
+      <span class="cut-icon">✗</span>
+      <div><div class="cut-name">Genre Tags (Multi-select)</div><div class="cut-reason">Not necessary for filtering at catalog size of 4–20 songs. Deferred to Day 30+.</div></div>
+    </div>
+    <div class="cut-item">
+      <span class="cut-icon">✗</span>
+      <div><div class="cut-name">ISRC (Text)</div><div class="cut-reason">Rights metadata belongs on Releases DB, set at Release Prep stage. Placing it on Songs DB requires managing it before a release context exists. Moved to Releases DB schema (Phase 2B).</div></div>
+    </div>
+    <div class="cut-item">
+      <span class="cut-icon">✗</span>
+      <div><div class="cut-name">Reference Track (URL)</div><div class="cut-reason">One URL property in the Song page body template handles this without consuming a DB column. Sonic reference is opened from the song page, not filtered in a database view — URL property in a DB column adds no workflow advantage over the page body.</div></div>
+    </div>
+  </div>
+
+  <!-- Songs DB Deferred -->
+  <p style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin:24px 0 10px;">Deferred Properties — Do Not Build At Launch</p>
+  <table class="defer-table">
+    <thead>
+      <tr><th>Property</th><th>Type</th><th>When to Add</th><th>Reason for Deferral</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Release</td>
+        <td><span class="type-badge tb-relation" style="font-size:10px;">Relation</span></td>
+        <td><span class="when-tag wt-pre">Pre-release</span></td>
+        <td>Releases DB doesn't exist until 60 days before first release. Build this relation then.</td>
+      </tr>
+      <tr>
+        <td>Sessions Count</td>
+        <td><span class="type-badge tb-formula" style="font-size:10px;">Rollup</span></td>
+        <td><span class="when-tag wt-exc">Exception — Build Time OK</span></td>
+        <td>Phase 1 approved exception. Add when Sessions DB is built. Provides immediate visible reward for logging sessions.</td>
+      </tr>
+      <tr>
+        <td>Writing Assets Count</td>
+        <td><span class="type-badge tb-formula" style="font-size:10px;">Rollup</span></td>
+        <td><span class="when-tag wt-30">Day 30+</span></td>
+        <td>Standard rollup deferral. Add after 30 days of real writing asset creation.</td>
+      </tr>
+      <tr>
+        <td>Open Tasks Count</td>
+        <td><span class="type-badge tb-formula" style="font-size:10px;">Rollup</span></td>
+        <td><span class="when-tag wt-30">Day 30+</span></td>
+        <td>Standard rollup deferral. Add after 30 days of task creation patterns are established.</td>
+      </tr>
+      <tr>
+        <td>Energy · Song Type · Genre Tags</td>
+        <td><span class="type-badge tb-select" style="font-size:10px;">Select / Multi</span></td>
+        <td><span class="when-tag wt-post">Post-launch</span></td>
+        <td>Add when the filtering need becomes real. Do not add speculatively.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- WRITING ASSETS DB -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="section" id="wa">
+  <span class="s-label sl-wa">Writing Assets DB</span>
+  <h2>Writing Assets DB — Property Map</h2>
+  <p class="s-intro">The creative inbox. Every idea, hook, verse, and lyric lives here — unified, not split. Intentionally minimal: 5 data properties + 1 auto-property + 1 formula. The Floating formula powers the Unattached Ideas view without complex filter configuration on every view.</p>
+
+  <div class="db-header-card">
+    <span class="db-emoji">📝</span>
+    <span class="db-name-big">Writing Assets DB</span>
+    <span class="db-prop-count">5 data props · 1 auto · 1 formula · 1 relation</span>
+    <span class="db-risk risk-med">Medium Risk (view config)</span>
+  </div>
+
+  <div class="prop-table-wrap">
+    <table class="prop-table">
+      <thead>
+        <tr>
+          <th class="col-num">#</th>
+          <th class="col-name">Property Name</th>
+          <th class="col-type">Type</th>
+          <th class="col-opts">Options / Format</th>
+          <th class="col-purp">Purpose</th>
+          <th class="col-req">Req?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-num">1</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Name</div>
+            <div class="prop-note">First line or key phrase — never leave blank</div>
+          </td>
+          <td><span class="type-badge tb-title">Title</span></td>
+          <td class="col-opts">—</td>
+          <td class="col-purp">The writing asset's identifying title, first line, or phrase. Convention: "Hook idea — soulful defiance" or "Verse 1 draft — Cosmic Beam." Every record must be named on creation.</td>
+          <td class="col-req"><span class="req-yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">2</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Asset Type</div>
+            <div class="prop-note">Renamed from "Type" — unambiguous in filters</div>
+          </td>
+          <td><span class="type-badge tb-select">Select</span></td>
+          <td class="col-opts">Idea · Hook · Verse · Chorus · Bridge · Lyric Sheet · Freestyle</td>
+          <td class="col-purp">Classifies the creative object. Select (not multi-select) — one type per record. Drives the Hook Bank, Freestyle, and By Type views. See type definitions below.</td>
+          <td class="col-req"><span class="req-yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">3</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Status</div>
+            <div class="prop-note">See OQ-2 on 3 vs. 5 options</div>
+          </td>
+          <td><span class="type-badge tb-select">Select</span></td>
+          <td class="col-opts">Raw · Developing · Archived (3 options — see OQ-2)</td>
+          <td class="col-purp">Tracks developmental maturity. Raw = captured, unprocessed. Developing = being actively worked on (replaces the cut Concept Type: Idea + Status = Developing). Archived = shelved, excluded from Unattached Ideas.</td>
+          <td class="col-req"><span class="req-yes">Yes</span></td>
+        </tr>
+        <tr class="row-relation">
+          <td class="col-num">4</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Song</div>
+            <div class="prop-note">Build first — drives Unattached Ideas view</div>
+          </td>
+          <td><span class="type-badge tb-relation">Relation</span></td>
+          <td class="col-opts">→ Songs DB · Backlink: "Writing Assets"</td>
+          <td class="col-purp">Links this asset to its parent song. When empty, the asset appears in Unattached Ideas. When filled, the asset is attached. The Song relation — not Status — is the primary attachment signal.</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">5</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Date Created</div>
+            <div class="prop-note">Auto — do not use a manual Date</div>
+          </td>
+          <td><span class="type-badge tb-auto">Created Time</span></td>
+          <td class="col-opts">Auto-filled by Notion on creation</td>
+          <td class="col-purp">Immutable creation timestamp. Drives sort order in Unattached Ideas (newest first). Never drift like a manual Date property. Do not add a separate manual Date field.</td>
+          <td class="col-req"><span class="req-auto">Auto</span></td>
+        </tr>
+        <tr>
+          <td class="col-num">6</td>
+          <td class="col-name">
+            <div class="prop-name-cell">Notes</div>
+          </td>
+          <td><span class="type-badge tb-text">Text</span></td>
+          <td class="col-opts">Short text (1–2 lines max)</td>
+          <td class="col-purp">Brief inline preview of the content — the first line of a hook, the theme of an idea, the vibe of a freestyle. Visible in table/gallery views without opening the record. Not a replacement for the page body.</td>
+          <td class="col-req"><span class="req-no">No</span></td>
+        </tr>
+        <!-- Formula -->
+        <tr class="row-formula">
+          <td class="col-num" style="color:var(--green);">F</td>
+          <td class="col-name">
+            <div class="prop-name-cell" style="color:var(--green);">Floating</div>
+          </td>
+          <td><span class="type-badge tb-formula">Formula</span></td>
+          <td class="col-opts">Boolean (true / false)</td>
+          <td class="col-purp">Returns true when Song relation is empty AND Status ≠ Archived. Powers the Unattached Ideas view filter without requiring complex filter setup on every view that needs it.</td>
+          <td class="col-req"><span class="req-def">Fml</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Writing Assets Status Flow -->
+  <p style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Status Flow — Writing Assets (different from Songs DB)</p>
+  <div class="status-flow">
+    <div class="sf-step start">Raw</div>
+    <div class="sf-arrow">→</div>
+    <div class="sf-step active">Developing</div>
+    <div class="sf-arrow">→</div>
+    <div class="sf-step arch">Archived</div>
+  </div>
+
+  <div class="callout info" style="margin-top:12px;">
+    <span class="ci">ℹ</span>
+    <div><strong style="color:var(--text);">"Attached to Song" is not a Status option.</strong> Attachment is signaled by the Song relation field, not by Status. When the Song field is filled, the asset is attached. Status tracks developmental maturity only — not attachment state. The Floating formula combines both conditions for view filtering. This is OQ-2 — confirm the 3-option Status or choose the 5-option version from the DB Schema source.</div>
+  </div>
+
+  <!-- Floating Formula -->
+  <div class="formula-card" style="margin-top:20px;">
+    <div class="fc-head">
+      <span class="fc-name">Floating</span>
+      <span class="fc-db">Writing Assets DB · Depends on: Song (relation) · Status</span>
+    </div>
+    <div class="fc-body">
+      <div class="fc-purpose">Boolean that returns true when a writing asset is unattached (no Song) and not Archived. Powers the Unattached Ideas default view without requiring the same complex filter to be recreated on every view. If Floating = true, the asset needs attention — it's a live fragment with no home.</div>
+      <div class="fc-code"><span class="fn">and</span>(
+  <span class="fn">empty</span>(<span class="fn">prop</span>(<span class="st">"Song"</span>)),
+  <span class="fn">prop</span>(<span class="st">"Status"</span>) <span class="kw">!=</span> <span class="st">"Archived"</span>
+)</div>
+      <div class="fc-note">Dependencies: Song relation + Status property. Both must exist before building this formula. Build order: Song property first → Status property → then add Floating formula. The Unattached Ideas view filter uses: Floating = true. This is valid Notion formula syntax in both the current and legacy formula engines.</div>
+    </div>
+  </div>
+
+  <!-- Asset Type Definitions -->
+  <p style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin:24px 0 10px;">Asset Type Definitions — All 7 Confirmed Types</p>
+  <table class="defer-table">
+    <thead>
+      <tr><th>Type</th><th>What It Is</th><th>Typical Evolution</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Idea</td>
+        <td>A raw fragment — a word, title, vibe note, or concept sentence. Unnamed, undeveloped. Use Status = Developing when it grows beyond this.</td>
+        <td>→ Hook, Verse, or attached to a Song</td>
+      </tr>
+      <tr>
+        <td>Hook</td>
+        <td>A melodic or lyrical phrase with strong potential — the part people remember. Usually 1–4 bars. Can precede a Song record or attach to one in progress.</td>
+        <td>→ Chorus; attached to a Song at Writing stage</td>
+      </tr>
+      <tr>
+        <td>Verse</td>
+        <td>A completed or near-complete verse draft, typically 8–16 bars. Attached to a specific song once committed.</td>
+        <td>→ Part of a Lyric Sheet</td>
+      </tr>
+      <tr>
+        <td>Chorus</td>
+        <td>A completed or near-complete chorus. Often the last section to be finalized; hooks often become choruses.</td>
+        <td>→ Part of a Lyric Sheet</td>
+      </tr>
+      <tr>
+        <td>Bridge</td>
+        <td>A transitional section draft — contrast material, breakdown, spoken word, or emotional turn.</td>
+        <td>→ Part of a Lyric Sheet</td>
+      </tr>
+      <tr>
+        <td>Lyric Sheet</td>
+        <td>The complete assembled lyric document for a finished song. Terminal type — created at Writing or Recording stage, attached to exactly one Song.</td>
+        <td>→ Terminal; attached to Released song</td>
+      </tr>
+      <tr>
+        <td>Freestyle</td>
+        <td>Unstructured, raw session output — typed or transcribed during a session. High volume, low pressure. May never evolve; may become the best hook in the catalog.</td>
+        <td>→ Verse, Hook, or Idea; or Archived</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Optional Deferred Properties -->
+  <p style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin:24px 0 10px;">Optional Properties — Deferred, Not Cut</p>
+  <table class="defer-table">
+    <thead>
+      <tr><th>Property</th><th>Type</th><th>When to Add</th><th>Value When Added</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Energy</td>
+        <td><span class="type-badge tb-select" style="font-size:10px;">Select</span></td>
+        <td><span class="when-tag wt-30">Day 30+</span></td>
+        <td>High · Medium · Low. Useful for Hook Bank filtering — matching a hook's energy to a song in progress. Add when you have enough hooks to need energy-based sorting.</td>
+      </tr>
+      <tr>
+        <td>Recorded</td>
+        <td><span class="type-badge tb-checkbox" style="font-size:10px;">Checkbox</span></td>
+        <td><span class="when-tag wt-30">Day 30+</span></td>
+        <td>Has this writing asset been captured to audio? Separate from Status — a raw lyric can be recorded before it's attached to a song. Add when audio capture tracking becomes a real workflow need.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- RELATION MAP: Songs ↔ Writing Assets -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="section" id="rel">
+  <span class="s-label sl-rel">Relation Map · Phase 2A</span>
+  <h2>Songs DB ↔ Writing Assets DB</h2>
+  <p class="s-intro">The only relation built in Phase 2A. Relations to Sessions DB and Tasks DB are built when those databases are created (Phase 2B). The Release relation is built at pre-release.</p>
+
+  <div class="rel-map">
+    <div class="rel-row">
+      <span class="rel-db rdb-wa">📝 Writing Assets DB</span>
+      <div class="rel-arrow-wrap">
+        <span>←</span>
+        <span class="rel-prop-label">Song</span>
+        <span>→</span>
+      </div>
+      <span class="rel-db rdb-songs">🎵 Songs DB</span>
+      <div class="rel-detail" style="margin-left:12px;">
+        <strong style="color:var(--text);">Build direction:</strong> Create the relation from the Writing Assets DB side. Add a new property in Writing Assets DB, name it "Song," type = Relation, select Songs DB as the target. The backlink "Writing Assets" appears automatically in Songs DB. Do not manually create it in Songs DB first.
+      </div>
+    </div>
+    <div class="rel-row">
+      <div style="width:140px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Cardinality</div>
+      <div class="rel-detail">Many Writing Assets can link to one Song (many-to-one from Writing Assets perspective). One song can have many writing assets. Technically Notion allows many-to-many, but the intended pattern is one primary song per writing asset — enforce this by convention, not by technical constraint.</div>
+    </div>
+    <div class="rel-row">
+      <div style="width:140px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Verify After Build</div>
+      <div class="rel-detail">After creating the relation: (1) Open any Writing Asset record, fill the Song field with "Cosmic Beam," save. (2) Open the Cosmic Beam Song record — verify "Writing Assets" backlink shows the linked asset. (3) Open Writing Assets DB default view — verify the linked asset no longer appears in the Unattached Ideas view (Floating = false once Song is filled).</div>
+    </div>
+    <div class="rel-row" style="border-bottom:none;">
+      <div style="width:140px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Not Built In Phase 2A</div>
+      <div class="rel-detail" style="color:var(--text3);">Songs → Sessions DB · Songs → Tasks DB · Songs → Releases DB. All three are built when their respective databases exist. The relation properties (rows 10, 11, 12 in the Songs DB table) are listed here for completeness but are not created in Notion until Phase 2B and pre-release.</div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FORMAL DELIVERABLE (Part D) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="section" id="formal">
+  <span class="s-label sl-del">Phase 2A · Formal Deliverable</span>
+  <h2>Decisions Locked · Open Questions · Deferred</h2>
+
+  <!-- DECISIONS LOCKED -->
+  <div class="del-block">
+    <div class="del-head">
+      <span class="del-tag dt-lock">Decisions Locked</span>
+      <span class="del-title">Phase 2A — What Is Now Fixed</span>
+      <span class="del-count">14 items</span>
+    </div>
+    <div class="del-body">
+      <div class="lock-list">
+        <div class="lock-item"><span class="ln">01</span><div class="lt">Songs DB has exactly 12 data properties at launch. Property names and types are fixed as listed above.<span class="dim">Formula properties (Status Progress %) are computed, not data-entry properties, and are treated separately per OQ-1.</span></div></div>
+        <div class="lock-item"><span class="ln">02</span><div class="lt">Songs DB Status flow: Concept → Writing → Recording → Producing → Mixing → Review → Release Prep → Released.<span class="dim">8 steps, exactly these names, exactly this order. No status added or removed without explicit approval.</span></div></div>
+        <div class="lock-item"><span class="ln">03</span><div class="lt">Songs DB Key property: Select with 12 root-note options (C · C# · D · E♭ · E · F · F# · G · A♭ · A · B♭ · B).<span class="dim">Major/minor distinction is captured in the Song page body template (Phase 4), not in this property. Subject to OQ-3 confirmation.</span></div></div>
+        <div class="lock-item"><span class="ln">04</span><div class="lt">Songs DB Mix Pass Count triggers a hard decision at 3 passes: Release Prep or Shelve.<span class="dim">This is a convention enforced by the Song page body template language, not a Notion technical constraint.</span></div></div>
+        <div class="lock-item"><span class="ln">05</span><div class="lt">Songs DB FL Studio Path is a plain Text property, not a URL.<span class="dim">Plain text avoids cloud dependency. File path is a string. No Notion app integration assumed or required.</span></div></div>
+        <div class="lock-item"><span class="ln">06</span><div class="lt">Songs DB Playlist Pitch Deadline is separate from any Releases DB deadline property.<span class="dim">It lives on Songs DB for individual song tracking; Releases DB will have its own distribution timeline properties (Phase 2B).</span></div></div>
+        <div class="lock-item"><span class="ln">07</span><div class="lt">ISRC belongs on Releases DB, not Songs DB. It is not built in Phase 2A.<span class="dim">Rights metadata is set at Release Prep stage and belongs in the release context, not the song creation context.</span></div></div>
+        <div class="lock-item"><span class="ln">08</span><div class="lt">Writing Assets DB has exactly 6 properties (5 data + 1 auto) at launch, plus the Floating formula.<span class="dim">This is intentionally minimal. Resist adding properties until the database has real records and real filtering needs.</span></div></div>
+        <div class="lock-item"><span class="ln">09</span><div class="lt">Writing Assets DB property is named "Asset Type" (not "Type").<span class="dim">Avoids ambiguity when building multi-database filters in later phases. All type-classification properties across all databases use specific names: Asset Type, Session Type, Task Type.</span></div></div>
+        <div class="lock-item"><span class="ln">10</span><div class="lt">Writing Assets DB confirmed Type list: Idea · Hook · Verse · Chorus · Bridge · Lyric Sheet · Freestyle (7 types, exactly).<span class="dim">No "Concept," no "Concept Note," no 8th type without explicit approval. Definitions are locked in the Asset Type Definitions table above.</span></div></div>
+        <div class="lock-item"><span class="ln">11</span><div class="lt">Writing Assets DB Date Created uses Notion's Created Time auto-property — not a manual Date property.<span class="dim">Manual Date drifts when records are moved or duplicated. Created Time is immutable. This distinction matters for the Unattached Ideas sort order.</span></div></div>
+        <div class="lock-item"><span class="ln">12</span><div class="lt">Floating formula: and(empty(prop("Song")), prop("Status") != "Archived"). Build after Song relation and Status are created.<span class="dim">Floating = true means the asset is unattached and active — it belongs in the Unattached Ideas view.</span></div></div>
+        <div class="lock-item"><span class="ln">13</span><div class="lt">Unattached Ideas default view filter: Floating = true. Sort: Date Created descending. View name: "Unattached Ideas."<span class="dim">This is Writing Assets DB View #1. It opens by default when the database is accessed from the sidebar. This was locked in Phase 1 and is confirmed here with the Floating formula as its implementation.</span></div></div>
+        <div class="lock-item"><span class="ln">14</span><div class="lt">Sessions → Writing Assets relation is not built. It was cut in the Source Alignment Pass.<span class="dim">Session page body notes handle what was created in a session. The Writing Asset's own Song relation handles lineage. This relation added overhead with no workflow return.</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPEN QUESTIONS -->
+  <div class="del-block">
+    <div class="del-head">
+      <span class="del-tag dt-oq">Open Questions</span>
+      <span class="del-title">3 Items — Answer Before Approving Phase 2A</span>
+      <span class="del-count">3 items</span>
+    </div>
+    <div class="del-body">
+      <div class="oq-list">
+
+        <div class="oq-card">
+          <div class="oq-head">
+            <span class="oq-num">OQ-1</span>
+            <span class="oq-q">Do formula properties count against the 12-property cap?</span>
+          </div>
+          <div class="oq-body">Songs DB has 12 data properties (rows 1–12) plus 1 formula (Status Progress %) = 13 total Notion property columns. The formula reads existing data and outputs a computed number — it adds zero data-entry burden. However, it does count as a visible column in Notion's property panel. If the rule is "12 total including formulas," one data property must be cut to make room for the formula.</div>
+          <div class="oq-rec"><strong>Recommendation:</strong> Formulas count separately from data properties. The cap of 12 applies to data-entry properties (rows 1–12). Formulas are display utilities, not data fields. If this is approved, Songs DB launches with 12 data properties + 1 formula = 13 total columns. If this is not approved, the lowest-priority data property to cut first would be FL Studio Path (it can live in the Song page body instead), bringing data properties to 11 + 1 formula = 12 total.</div>
+        </div>
+
+        <div class="oq-card">
+          <div class="oq-head">
+            <span class="oq-num">OQ-2</span>
+            <span class="oq-q">Writing Assets Status: 3 options (Raw · Developing · Archived) or 5 options from the DB Schema?</span>
+          </div>
+          <div class="oq-body">The DB Schema source document specified 5 Status options: Raw → Developing → Attached → Used → Archived. Phase 2A proposes 3 options by cutting "Attached" (redundant with the Song relation field) and "Used" (inferred from the linked Song's Released status). The 5-option version gives more granularity — you can distinguish "attached but not yet used in recording" from "recorded and used." The 3-option version is simpler and relies on the Song relation to carry attachment state.</div>
+          <div class="oq-rec"><strong>Recommendation:</strong> 3 options (Raw · Developing · Archived). "Attached" is covered by whether the Song relation is filled. "Used" in a released song is covered by the linked Song's Status = Released. Adding redundant status options creates maintenance overhead — you'd need to remember to update Status when you fill the relation. The relation is the ground truth; Status tracks development maturity only.</div>
+        </div>
+
+        <div class="oq-card">
+          <div class="oq-head">
+            <span class="oq-num">OQ-3</span>
+            <span class="oq-q">Songs DB Key property: 12-option root-note Select, or free Text?</span>
+          </div>
+          <div class="oq-body">The current spec uses a 12-option Select (C, C#, D, Eb, E, F, F#, G, Ab, A, Bb, B). Major/minor is noted in the Song page body template. This is filterable ("show me all songs in F#") but loses major/minor in the database column view. The alternative is a Text property ("F# minor") — fully expressive but not cleanly filterable or sortable. A third option is two properties: Root Note (12-option Select) + Mode (2-option Select: Major/Minor) — fully expressive and filterable, but uses 2 property slots instead of 1 (bringing data properties to 13).</div>
+          <div class="oq-rec"><strong>Recommendation:</strong> Single 12-option root-note Select. Major/minor in the Song page body is sufficient for a solo artist's catalog. Filtering by "show me F# songs" is more useful than filtering by "show me minor key songs" at this catalog size. Two-property option deferred to Day 30+ if needed. Confirm the single Select, or approve the two-property approach (noting it adds 1 data property).</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT I AM NOT SPECIFYING YET -->
+  <div class="del-block">
+    <div class="del-head">
+      <span class="del-tag dt-defer">What I Am Not Specifying Yet</span>
+      <span class="del-title">Deferred to Later Phases</span>
+    </div>
+    <div class="del-body">
+      <div class="defer-grid">
+        <div class="di"><span class="di-arrow">→</span><span>Sessions DB property map</span><span class="di-when"><span class="when-tag wt-30" style="font-size:9px;">Phase 2B</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Releases DB property map</span><span class="di-when"><span class="when-tag wt-30" style="font-size:9px;">Phase 2B</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Tasks DB property map</span><span class="di-when"><span class="when-tag wt-30" style="font-size:9px;">Phase 2B</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Full relation map (all 5 databases)</span><span class="di-when"><span class="when-tag wt-30" style="font-size:9px;">Phase 2B</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Song page body template contents</span><span class="di-when"><span class="when-tag wt-post" style="font-size:9px;">Phase 4</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Writing Asset page body template</span><span class="di-when"><span class="when-tag wt-post" style="font-size:9px;">Phase 4</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Dashboard section layouts &amp; filters</span><span class="di-when"><span class="when-tag wt-post" style="font-size:9px;">Phase 3</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Hub page layouts</span><span class="di-when"><span class="when-tag wt-post" style="font-size:9px;">Phase 3</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>View specs beyond Unattached Ideas default</span><span class="di-when"><span class="when-tag wt-post" style="font-size:9px;">Phase 5</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>All rollup properties</span><span class="di-when"><span class="when-tag wt-30" style="font-size:9px;">Day 30+</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Sessions Count rollup (approved exception)</span><span class="di-when"><span class="when-tag wt-exc" style="font-size:9px;">Build time</span></span></div>
+        <div class="di"><span class="di-arrow">→</span><span>Releases DB Notion build</span><span class="di-when"><span class="when-tag wt-pre" style="font-size:9px;">Pre-release</span></span></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- STATUS BOX -->
+<div class="status-box">
+  <div class="sb-left">
+    <div class="sb-label">Phase 2A Status</div>
+    <div class="sb-text">Songs DB and Writing Assets DB schemas complete. 3 open questions require your answers. Approve Phase 2A to proceed to Phase 2B (Sessions DB, Releases DB schema, Tasks DB).</div>
+  </div>
+  <div class="sb-gate">Awaiting 2A Approval → Phase 2B</div>
+</div>
+
+<hr>
+
+<footer class="doc-footer">
+  <span>JaZeR Music OS v2 — Phase 2A Deliverable · May 2026</span>
+  <span>Songs DB · Writing Assets DB · 14 Decisions · 3 Open Questions</span>
+</footer>
+
+</div>
+</body>
+</html>

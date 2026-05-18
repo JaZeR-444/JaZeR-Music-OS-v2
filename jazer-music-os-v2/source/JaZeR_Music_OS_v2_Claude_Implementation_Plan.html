@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaZeR Music OS v2 — Claude Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --bg:        #0a0a0b;
+    --bg2:       #111114;
+    --bg3:       #18181d;
+    --bg4:       #1f1f26;
+    --border:    #2a2a35;
+    --border2:   #3a3a48;
+    --text:      #e8e6f0;
+    --text2:     #9893b0;
+    --text3:     #5e5a72;
+    --gold:      #c9a84c;
+    --gold2:     #f0d080;
+    --gold-dim:  #7a6228;
+    --green:     #4caf82;
+    --green-dim: #1e3d2f;
+    --red:       #e05555;
+    --red-dim:   #3d1f1f;
+    --blue:      #5b8ef0;
+    --blue-dim:  #1a2a4a;
+    --purple:    #9b6fe8;
+    --purple-dim:#2a1f45;
+    --orange:    #e07a30;
+    --orange-dim:#3d2510;
+    --accent:    #c9a84c;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ─── LAYOUT ─────────────────────────────────────── */
+  .page { max-width: 980px; margin: 0 auto; padding: 0 32px 120px; }
+
+  /* ─── HEADER ─────────────────────────────────────── */
+  .doc-header {
+    border-bottom: 1px solid var(--border);
+    padding: 64px 0 40px;
+    margin-bottom: 60px;
+  }
+  .doc-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .doc-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .doc-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .doc-title span { color: var(--gold); }
+  .doc-subtitle {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--text2);
+    margin-bottom: 28px;
+  }
+  .doc-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    font-size: 11px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 3px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .meta-pill.gold { border-color: var(--gold-dim); color: var(--gold); background: rgba(201,168,76,0.06); }
+  .meta-pill.green { border-color: #2a5a40; color: var(--green); background: rgba(76,175,130,0.06); }
+
+  /* ─── TOC ─────────────────────────────────────────── */
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px 32px;
+    margin-bottom: 64px;
+  }
+  .toc-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 32px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text2);
+    font-size: 13px;
+    padding: 5px 0;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .toc-item:hover { color: var(--gold); border-color: var(--border); }
+  .toc-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text3);
+    min-width: 20px;
+  }
+
+  /* ─── SECTION ─────────────────────────────────────── */
+  .section { margin-bottom: 80px; }
+  .s-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .s-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .s-tag.gold { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid var(--gold-dim); }
+  .s-tag.green { background: rgba(76,175,130,0.1); color: var(--green); border: 1px solid #2a5a40; }
+  .s-tag.blue { background: rgba(91,142,240,0.1); color: var(--blue); border: 1px solid #1e3060; }
+  .s-tag.purple { background: rgba(155,111,232,0.1); color: var(--purple); border: 1px solid #3a2560; }
+  .s-tag.orange { background: rgba(224,122,48,0.1); color: var(--orange); border: 1px solid #4a2a10; }
+  .s-tag.red { background: rgba(224,85,85,0.1); color: var(--red); border: 1px solid #4a2020; }
+
+  .s-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .section-intro {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 28px;
+    max-width: 680px;
+  }
+
+  /* ─── PROMPT BLOCK ────────────────────────────────── */
+  .prompt-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .prompt-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.75;
+  }
+  .prompt-block .pb-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .prompt-block .pb-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .prompt-block.green { border-left-color: var(--green); }
+  .prompt-block.green .pb-label { color: var(--green); }
+  .prompt-block.blue { border-left-color: var(--blue); }
+  .prompt-block.blue .pb-label { color: var(--blue); }
+  .prompt-block.purple { border-left-color: var(--purple); }
+  .prompt-block.purple .pb-label { color: var(--purple); }
+  .prompt-block.orange { border-left-color: var(--orange); }
+  .prompt-block.orange .pb-label { color: var(--orange); }
+
+  .copy-hint {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    text-align: right;
+    margin-top: 8px;
+  }
+
+  /* ─── RULES LIST ──────────────────────────────────── */
+  .rules-list { display: flex; flex-direction: column; gap: 10px; }
+  .rule-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 18px;
+  }
+  .rule-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    min-width: 26px;
+    margin-top: 1px;
+  }
+  .rule-item.hard .rule-num { color: var(--red); }
+  .rule-item.hard { border-color: rgba(224,85,85,0.2); }
+  .rule-body { flex: 1; }
+  .rule-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .rule-desc { font-size: 12.5px; color: var(--text2); line-height: 1.6; }
+
+  /* ─── PHASE CARDS ─────────────────────────────────── */
+  .phases { display: flex; flex-direction: column; gap: 20px; }
+  .phase-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+  .phase-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .phase-badge.p1 { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .phase-badge.p2 { background: rgba(76,175,130,0.12); color: var(--green); }
+  .phase-badge.p3 { background: rgba(91,142,240,0.12); color: var(--blue); }
+  .phase-badge.p4 { background: rgba(155,111,232,0.12); color: var(--purple); }
+  .phase-badge.p5 { background: rgba(224,122,48,0.12); color: var(--orange); }
+  .phase-badge.p6 { background: rgba(224,85,85,0.1); color: var(--red); }
+  .phase-badge.p7 { background: rgba(201,168,76,0.2); color: var(--gold2); }
+
+  .phase-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .phase-meta {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text3);
+    text-align: right;
+  }
+  .phase-body { padding: 20px 24px; }
+  .phase-goal {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.65;
+  }
+  .phase-deliverables { margin-top: 0; }
+  .pd-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+  .del-list { display: flex; flex-direction: column; gap: 6px; }
+  .del-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .del-item::before {
+    content: '→';
+    color: var(--text3);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ─── PROMPT CHAIN ────────────────────────────────── */
+  .chain { display: flex; flex-direction: column; gap: 16px; }
+  .chain-item {
+    display: flex;
+    gap: 0;
+    position: relative;
+  }
+  .chain-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 42px;
+    bottom: -16px;
+    width: 1px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .chain-num-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .chain-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .chain-circle.active { background: var(--bg4); border-color: var(--gold-dim); color: var(--gold); }
+  .chain-content { flex: 1; padding-top: 4px; padding-bottom: 4px; }
+  .chain-phase-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 6px;
+  }
+  .chain-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 18px;
+    margin-bottom: 4px;
+  }
+  .chain-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.7;
+  }
+
+  /* ─── QA CHECKLIST ────────────────────────────────── */
+  .qa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .qa-category {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .qa-cat-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .qa-list { display: flex; flex-direction: column; gap: 7px; }
+  .qa-item {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .qa-box {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .qa-category.hard-stop { border-color: rgba(224,85,85,0.25); }
+  .qa-category.hard-stop .qa-cat-title { color: var(--red); }
+  .qa-category.hard-stop .qa-box { border-color: rgba(224,85,85,0.4); }
+
+  /* ─── FINAL COMMAND ───────────────────────────────── */
+  .final-command {
+    background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(155,111,232,0.04) 100%);
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    padding: 36px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-command::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .final-command pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.8;
+  }
+  .final-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .final-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold-dim);
+  }
+
+  /* ─── CALLOUTS ────────────────────────────────────── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 5px;
+    margin-top: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .callout.warn { background: rgba(201,168,76,0.07); border: 1px solid var(--gold-dim); color: var(--text2); }
+  .callout.warn .icon { color: var(--gold); font-size: 16px; }
+  .callout.danger { background: rgba(224,85,85,0.07); border: 1px solid var(--red-dim); color: var(--text2); }
+  .callout.danger .icon { color: var(--red); font-size: 16px; }
+  .callout.info { background: rgba(91,142,240,0.07); border: 1px solid var(--blue-dim); color: var(--text2); }
+  .callout.info .icon { color: var(--blue); font-size: 16px; }
+
+  /* ─── DIVIDER ─────────────────────────────────────── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 60px 0;
+  }
+
+  /* ─── FOOTER ──────────────────────────────────────── */
+  .doc-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    font-size: 11px;
+    color: var(--text3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── SCOPE FENCE ─────────────────────────────────── */
+  .scope-fence {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .sf-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--bg4);
+    border-bottom: 1px solid var(--border);
+  }
+  .sf-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  .sf-status {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .sf-status.in { background: rgba(76,175,130,0.15); color: var(--green); }
+  .sf-status.out { background: rgba(224,85,85,0.12); color: var(--red); }
+  .sf-body { padding: 14px 18px; }
+  .sf-list { display: flex; flex-direction: column; gap: 6px; }
+  .sf-item {
+    font-size: 12.5px;
+    color: var(--text2);
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    line-height: 1.5;
+  }
+  .sf-dot-in { color: var(--green); flex-shrink: 0; }
+  .sf-dot-out { color: var(--red); flex-shrink: 0; }
+
+  @media (max-width: 680px) {
+    .toc-grid { grid-template-columns: 1fr; }
+    .qa-grid { grid-template-columns: 1fr; }
+    .page { padding: 0 16px 80px; }
+    .final-command { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="doc-eyebrow">Claude Implementation Plan</div>
+    <h1 class="doc-title">JaZeR Music OS <span>v2</span></h1>
+    <div class="doc-subtitle">Build-Ready Execution Architecture for Claude</div>
+    <div class="doc-meta">
+      <span class="meta-pill gold">Notion Workspace Build</span>
+      <span class="meta-pill gold">5 Databases · 5 Hubs</span>
+      <span class="meta-pill green">7 Build Phases</span>
+      <span class="meta-pill">May 2026</span>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-title">Document Contents</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-item"><span class="toc-num">01</span> Claude Project Setup Prompt</a>
+      <a href="#s2" class="toc-item"><span class="toc-num">02</span> Claude Working Rules</a>
+      <a href="#s3" class="toc-item"><span class="toc-num">03</span> Task Sequence — 7 Phases</a>
+      <a href="#s4" class="toc-item"><span class="toc-num">04</span> Phase Deliverables</a>
+      <a href="#s5" class="toc-item"><span class="toc-num">05</span> Prompt Chain</a>
+      <a href="#s6" class="toc-item"><span class="toc-num">06</span> Quality Control Checklist</a>
+      <a href="#s7" class="toc-item"><span class="toc-num">07</span> Final Implementation Command</a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 — SETUP PROMPT -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s1">
+    <div class="s-eyebrow">
+      <span class="s-tag gold">01</span>
+      <span class="s-num">Claude Project Setup Prompt</span>
+    </div>
+    <h2>Opening Initialization Prompt</h2>
+    <p class="section-intro">Paste this into a new Claude Project to initialize the entire session. This prompt establishes identity, scope, constraints, and the working contract Claude must honor for every subsequent message.</p>
+
+    <div class="prompt-block">
+      <div class="pb-label">Initialization Prompt — Paste This First</div>
+      <pre>You are a senior Notion Workspace Architect and Claude Prompt Engineer helping me build JaZeR Music OS v2 — a professional music operating system inside Notion.
+
+SYSTEM OVERVIEW:
+This is a CreativeOps workspace for a solo recording artist (JaZeR). The system treats music production as a connected lifecycle: Seeds → Sessions → Tracks → Releases. It is built around one guiding question: "What do I work on right now?"
+
+CONFIRMED ARCHITECTURE:
+- 1 Master Dashboard (filtered views only — no content lives here)
+- 5 Hubs: Song Lab, Production Hub, Launch Hub, Brand Hub, Vault
+- 5 Core Databases: Songs DB, Writing Assets DB, Sessions DB, Releases DB, Tasks DB
+- 1 External Sibling: FL Studio Plugin Command Center (linked, never merged)
+- Writing Assets DB is unified — it replaces all separate Ideas/Hooks/Lyrics/Freestyles databases
+- The master dashboard is NOT an archive — it is a live operating surface
+
+KNOWN ARCHITECTURE RISKS (pre-identified, do not re-raise unless I ask):
+1. Sessions DB has 7+ properties — simplify before building
+2. Tasks DB needs a Focus/Pinned property before build
+3. Writing Assets DB default view must be "Unattached Ideas" — not "All Records"
+4. Production Hub may be architecturally redundant (two filtered views + link = dashboard section)
+5. Brand Hub has no active workflow — treat as a reference folder, not a full hub
+
+YOUR ROLE:
+You are helping me plan and specify this Notion workspace. You are NOT building Notion pages directly. You are producing written specs, schemas, templates, formulas, checklists, and structured content I will use to build.
+
+You will work through 7 phases in sequence:
+Phase 1: Architecture Audit
+Phase 2: Database Schema
+Phase 3: Dashboard Design
+Phase 4: Templates
+Phase 5: Views and Filters
+Phase 6: QA and Simplification
+Phase 7: Final Build Checklist
+
+Confirm you have read this brief, state the 5 databases and 5 hubs back to me, and tell me which known risk you would address first before Phase 1 begins.</pre>
+    </div>
+    <p class="copy-hint">↑ Copy entire block and paste as first message in Claude project</p>
+
+    <div class="callout warn">
+      <span class="icon">⚡</span>
+      <div>After Claude responds to this prompt, verify it correctly states all 5 databases and all 5 hubs before proceeding. If Claude invents a sixth database or merges the FL Studio system, stop and re-paste the initialization prompt.</div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 — WORKING RULES -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s2">
+    <div class="s-eyebrow">
+      <span class="s-tag green">02</span>
+      <span class="s-num">Claude Working Rules</span>
+    </div>
+    <h2>Scope, Discipline &amp; Hallucination Prevention</h2>
+    <p class="section-intro">These rules govern every interaction. Paste them as a follow-up message immediately after the initialization prompt, or include them in the Claude Project system prompt if using Projects.</p>
+
+    <div class="scope-fence">
+      <div class="sf-header">
+        <div class="sf-title">Build Scope Boundary</div>
+        <div class="sf-status in">IN SCOPE</div>
+      </div>
+      <div class="sf-body">
+        <div class="sf-list">
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Database property maps for the 5 confirmed databases</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Filtered view specifications for the Master Dashboard and each Hub</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Notion formula syntax for Songs DB progress and status calculations</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Page templates for Sessions, Writing Assets, and Tasks records</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Hub page layouts (what sections appear, in what order, with what views)</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Build checklists and QA sequences</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Relation and rollup property specifications</div>
+          <div class="sf-item"><span class="sf-dot-in">✓</span> Archiving and migration recommendations for legacy content</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scope-fence">
+      <div class="sf-header">
+        <div class="sf-title">Build Scope Boundary</div>
+        <div class="sf-status out">OUT OF SCOPE — HARD STOPS</div>
+      </div>
+      <div class="sf-body">
+        <div class="sf-list">
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Proposing a 6th database without explicit permission and a written justification</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Splitting Writing Assets DB into separate Hooks, Lyrics, Ideas, or Freestyle databases</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Merging FL Studio Plugin Command Center into Music OS v2</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Converting the Master Dashboard into a content archive</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Adding properties described as "would be useful" — only add properties that serve a confirmed workflow</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Designing a Finance Tracker, Collaborator CRM, Touring DB, or Sample Library as new databases</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Jumping ahead to a later phase without completing deliverables for the current phase</div>
+          <div class="sf-item"><span class="sf-dot-out">✗</span> Treating rollups and relations as solved until the base property maps are confirmed</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <div class="rules-list">
+
+        <div class="rule-item hard">
+          <div class="rule-num">R-01</div>
+          <div class="rule-body">
+            <div class="rule-title">State Your Reasoning Before Adding Anything New</div>
+            <div class="rule-desc">If you want to recommend a new property, view, database, or section that is not in the confirmed architecture, state "NEW ADDITION PROPOSED" and explain the specific workflow it serves before including it in any spec. Do not bury additions in lists.</div>
+          </div>
+        </div>
+
+        <div class="rule-item hard">
+          <div class="rule-num">R-02</div>
+          <div class="rule-body">
+            <div class="rule-title">Simple &gt; Clever — Every Time</div>
+            <div class="rule-desc">When two approaches produce the same outcome, always specify the simpler one. A Select property beats a formula where both work. A filtered view beats a linked database where both work. A text property beats a multi-select where both work.</div>
+          </div>
+        </div>
+
+        <div class="rule-item hard">
+          <div class="rule-num">R-03</div>
+          <div class="rule-body">
+            <div class="rule-title">No Speculative Databases</div>
+            <div class="rule-desc">Do not propose databases for workflows that do not currently exist. "JaZeR might eventually want to track collaborators" is not a justification. The confirmed 5-database architecture is final unless changed in an explicit architectural revision message.</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R-04</div>
+          <div class="rule-body">
+            <div class="rule-title">Deliverable Format Discipline</div>
+            <div class="rule-desc">Every phase output must be formatted as: (1) a summary of decisions made, (2) the spec or document itself, and (3) a list of open questions for my review. Never produce a deliverable without open questions — there are always edge cases.</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R-05</div>
+          <div class="rule-body">
+            <div class="rule-title">Separate Content From Architecture</div>
+            <div class="rule-desc">Always distinguish: (a) database structure and properties, (b) dashboard view configuration, (c) hub page layout, (d) reference content. Never mix these layers in a single deliverable. Each has its own spec document.</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R-06</div>
+          <div class="rule-body">
+            <div class="rule-title">Notion Formula Syntax Must Be Real</div>
+            <div class="rule-desc">Any Notion formula you produce must use valid Notion formula language (not JavaScript, Python, or SQL). Test logic verbally before committing. If unsure whether a function exists in Notion, say so explicitly rather than inventing plausible-looking syntax.</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R-07</div>
+          <div class="rule-body">
+            <div class="rule-title">Rollups Come Last</div>
+            <div class="rule-desc">Do not specify rollup properties until the base database schemas are confirmed. Rollup design depends on finalized relations. Proposing rollups on unconfirmed schemas generates rework and creates a false sense of completion.</div>
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-num">R-08</div>
+          <div class="rule-body">
+            <div class="rule-title">Phase Gates Are Non-Negotiable</div>
+            <div class="rule-desc">You must receive explicit approval on phase deliverables before proceeding. If I ask a question about Phase 3 while we are in Phase 2, answer it briefly but do not produce Phase 3 deliverables. Return to Phase 2 completion.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 — TASK SEQUENCE -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s3">
+    <div class="s-eyebrow">
+      <span class="s-tag blue">03</span>
+      <span class="s-num">Claude Task Sequence</span>
+    </div>
+    <h2>Seven Build Phases</h2>
+    <p class="section-intro">Each phase has a single stated goal, defined deliverables, and a gate condition. Claude cannot proceed to the next phase without explicit approval on the current phase output.</p>
+
+    <div class="phases">
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p1">Phase 1</span>
+          <span class="phase-name">Architecture Audit</span>
+          <div class="phase-meta">Gate: Written approval before Phase 2</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Verify the confirmed architecture against the known risks. Resolve the Production Hub and Brand Hub questions. Lock the hub count and the database count before any schema work begins. This phase produces decisions, not designs.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 1 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">Hub viability verdict for Production Hub: Hub or Dashboard Section?</div>
+              <div class="del-item">Hub viability verdict for Brand Hub: Hub or Reference Folder?</div>
+              <div class="del-item">Confirmed hub list with one-sentence purpose statement for each</div>
+              <div class="del-item">Confirmed database list with one-sentence scope for each</div>
+              <div class="del-item">Scope boundary statement: what is explicitly excluded from v2</div>
+              <div class="del-item">Pre-build risk register: 5 risks + mitigation strategy for each</div>
+              <div class="del-item">Open questions list for architectural decisions not yet locked</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p2">Phase 2</span>
+          <span class="phase-name">Database Schema</span>
+          <div class="phase-meta">Gate: All 5 schemas approved before Phase 3</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Produce a complete property map for all 5 databases. Each property must justify its existence against a real workflow. Specify data type, options (for Select/Multi-Select), default values, and whether the property is required. Resolve the Sessions DB simplification and Tasks DB Focus property before finalizing.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 2 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">Songs DB property map — name, type, options, purpose</div>
+              <div class="del-item">Writing Assets DB property map — including Type options and Status flow</div>
+              <div class="del-item">Sessions DB property map — simplified to 5 properties max</div>
+              <div class="del-item">Releases DB property map — including distributor and metadata fields</div>
+              <div class="del-item">Tasks DB property map — including Focus/Pinned property spec</div>
+              <div class="del-item">Relation map: which databases are related and via which properties</div>
+              <div class="del-item">Rollup candidate list: proposed rollups deferred to Phase 5 confirmation</div>
+              <div class="del-item">Formula candidates for Songs DB (progress %, status age)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p3">Phase 3</span>
+          <span class="phase-name">Dashboard Design</span>
+          <div class="phase-meta">Gate: Dashboard layout approved before Phase 4</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Design the Master Dashboard and each Hub page as structured layouts. Specify every section, its database source, its filter conditions, and its display format. The Master Dashboard must answer "What do I work on right now?" in under 10 seconds of reading.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 3 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">Master Dashboard section map: section name → database → filter conditions → view type</div>
+              <div class="del-item">Song Lab Hub layout spec</div>
+              <div class="del-item">Launch Hub layout spec</div>
+              <div class="del-item">Vault Hub layout spec</div>
+              <div class="del-item">Production Hub or Dashboard Section verdict — implemented appropriately</div>
+              <div class="del-item">Brand Hub as reference folder — section structure defined</div>
+              <div class="del-item">Navigation hierarchy: sidebar structure and page nesting</div>
+              <div class="del-item">Cover icon and page title conventions for all top-level pages</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p4">Phase 4</span>
+          <span class="phase-name">Templates</span>
+          <div class="phase-meta">Gate: All templates approved before Phase 5</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Produce Notion page templates for database records. Templates define what a new record looks like when first created. Focus on reducing friction at the moment of entry — the more fields a template pre-fills or prompts, the more likely it gets used consistently.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 4 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">New Song template — default status, linked writing assets section, session log section</div>
+              <div class="del-item">New Writing Asset template — Type prompt, Song relation, notes block</div>
+              <div class="del-item">New Session template — date auto-fill, song link, what-happened block, next-step callout</div>
+              <div class="del-item">New Release template — distribution checklist, asset checklist, milestone dates</div>
+              <div class="del-item">New Task template — minimal: just Type, Due Date, and notes block</div>
+              <div class="del-item">Template naming conventions for all 5 databases</div>
+              <div class="del-item">Pre-fill strategy: list every property that should auto-populate on creation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p5">Phase 5</span>
+          <span class="phase-name">Views &amp; Filters</span>
+          <div class="phase-meta">Gate: All view specs approved before Phase 6</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Specify every database view: name, format (table/board/gallery/list/calendar), filter conditions, sort order, visible properties, and where it appears (Dashboard section, Hub page, or inline within a database). This phase locks the operational surface of the system.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 5 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">Songs DB view list with full filter/sort/property spec for each</div>
+              <div class="del-item">Writing Assets DB view list — "Unattached Ideas" confirmed as default view</div>
+              <div class="del-item">Sessions DB view list — recency-sorted as default</div>
+              <div class="del-item">Releases DB view list — active pipeline as default, archive as secondary</div>
+              <div class="del-item">Tasks DB view list — "This Week + Focus" as primary view</div>
+              <div class="del-item">Rollup finalizations: confirm or eliminate all rollup candidates from Phase 2</div>
+              <div class="del-item">View count per database: target ≤ 5 views per database before launch</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p6">Phase 6</span>
+          <span class="phase-name">QA &amp; Simplification</span>
+          <div class="phase-meta">Gate: All QA checks passed before Phase 7</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Run the full QA checklist against every deliverable produced in Phases 1–5. Identify anything that was added without justification, any view that duplicates another, any property that has no confirmed workflow, and any hub section that is architecturally redundant. Cut aggressively.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 6 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">QA audit report: pass/fail for every checklist item</div>
+              <div class="del-item">Cut list: every property, view, or section proposed for removal with reason</div>
+              <div class="del-item">Consolidation opportunities: any two views that could be merged into one</div>
+              <div class="del-item">Property audit: any property with no confirmed write workflow — flag or cut</div>
+              <div class="del-item">Rollup audit: any rollup requiring more than 2 hops — cut or defer</div>
+              <div class="del-item">Dashboard stress test: does the dashboard answer "What do I work on right now?" with no clicks?</div>
+              <div class="del-item">Revised specs for anything that failed QA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge p7">Phase 7</span>
+          <span class="phase-name">Final Build Checklist</span>
+          <div class="phase-meta">Gate: Full checklist approved = ready to build</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-goal">Produce the complete, ordered, step-by-step build sequence a human can execute in Notion to construct the entire workspace from scratch. Every step is atomic, sequenced, and includes a verification check. This is the final product of all previous phases.</div>
+          <div class="phase-deliverables">
+            <div class="pd-label">Phase 7 Deliverables</div>
+            <div class="del-list">
+              <div class="del-item">Build sequence: numbered steps from "Create new Notion page" to "Dashboard live"</div>
+              <div class="del-item">Database build order: which database to create first and why (dependency order)</div>
+              <div class="del-item">Relation build order: when to connect databases relative to property creation</div>
+              <div class="del-item">View build order: when to create views (after all properties are set)</div>
+              <div class="del-item">Template build step: when and how to add database templates</div>
+              <div class="del-item">Smoke test checklist: 10 tasks to perform after build to verify the system works</div>
+              <div class="del-item">First 7-day use guide: what to add, what to test, what to ignore for the first week</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 — DELIVERABLES (already embedded in Phase cards above) -->
+  <!-- But we expand on format standards here -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s4">
+    <div class="s-eyebrow">
+      <span class="s-tag purple">04</span>
+      <span class="s-num">Deliverable Format Standards</span>
+    </div>
+    <h2>How Claude Must Format Every Output</h2>
+    <p class="section-intro">These format requirements apply to every deliverable Claude produces. Inconsistent formatting is the fastest way to lose track of decisions across a long build session.</p>
+
+    <div class="prompt-block purple">
+      <div class="pb-label">Deliverable Format Rules — Include in Claude Project Instructions</div>
+      <pre>For every deliverable you produce, use this exact format:
+
+─── PHASE [N] DELIVERABLE: [NAME] ───────────────────
+
+DECISIONS LOCKED:
+• [State every decision this deliverable resolves — format as locked facts]
+
+THE SPEC:
+[The actual deliverable content — schema, layout, template, checklist, etc.]
+
+OPEN QUESTIONS:
+• [Every unresolved edge case, ambiguity, or decision pending my input]
+• [There must always be at least one open question — if you have none, dig deeper]
+
+WHAT I AM NOT SPECIFYING YET:
+• [Anything in scope for a later phase that is deliberately deferred]
+
+─────────────────────────────────────────────────────
+
+For database property maps specifically, use this table format:
+| Property Name | Type | Options/Format | Purpose (one sentence) | Required? |
+|---|---|---|---|---|
+
+For view specifications, use this format:
+VIEW NAME: [Name]
+Format: [Table / Board / Gallery / List / Calendar]
+Source DB: [Database name]
+Filter: [Exact filter conditions]
+Sort: [Property → Direction]
+Visible Properties: [Comma-separated list]
+Used On: [Dashboard / Hub name / Inline]
+
+For Notion formulas, provide:
+FORMULA NAME: [Property name]
+FORMULA: [Exact formula syntax]
+WHAT IT DOES: [Plain language description]
+DEPENDENCIES: [Which properties it reads]</pre>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 — PROMPT CHAIN -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s5">
+    <div class="s-eyebrow">
+      <span class="s-tag orange">05</span>
+      <span class="s-num">Prompt Chain</span>
+    </div>
+    <h2>Send These Prompts In Sequence</h2>
+    <p class="section-intro">Each prompt below is designed to be sent one at a time, after Claude has completed and you have approved the previous response. Do not send multiple prompts at once. Copy each block exactly.</p>
+
+    <div class="chain">
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle active">P1</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 1 · Architecture Audit</div>
+          <div class="chain-block">
+            <pre>Begin Phase 1: Architecture Audit.
+
+Your goal is to lock the architecture before any schema work begins.
+
+Address these specific questions and produce verdicts — not options:
+
+1. PRODUCTION HUB VERDICT: Based on the confirmed spec (two filtered database views + FL Studio link), should Production Hub be a dedicated sidebar hub page or collapsed into two sections on the Master Dashboard? State your verdict and reasoning in 3 sentences max.
+
+2. BRAND HUB VERDICT: Brand Hub currently contains only reference documents and a website link with no active workflow. Should it be a full hub page or a collapsible reference section inside the Master Dashboard? State your verdict and reasoning in 3 sentences max.
+
+3. VAULT VERDICT: Confirm Vault's scope — is it an active workspace or a read-only archive? What is the threshold for something moving to Vault vs. staying in active databases?
+
+4. MASTER DASHBOARD CONSTRAINT: Restate the one rule that governs what can and cannot live on the Master Dashboard.
+
+5. SCOPE EXCLUSIONS: List everything explicitly excluded from v2 (do not invent new exclusions — only confirm what is in the brief).
+
+Then produce the Phase 1 deliverable in the correct format.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P2</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 2 · Database Schema — Songs DB + Writing Assets DB</div>
+          <div class="chain-block">
+            <pre>Begin Phase 2: Database Schema. Start with Songs DB and Writing Assets DB only.
+
+For Songs DB:
+- List every property with: name, type, options, and one-sentence purpose
+- The Status property must use the 8-step flow: Idea → Writing → Recording → Producing → Mixing → Review → Release Prep → Released
+- Flag any property that would require a formula and give me the formula logic before the formula syntax
+- Cap the property count at 12. If you want more than 12, ask me first.
+
+For Writing Assets DB:
+- The default view when opening this database must be "Unattached Ideas" (filter: linked Song = empty AND Status = Active). Confirm this is built into the spec.
+- List every Type option — do not add Types I haven't confirmed
+- The Status flow for writing assets is different from Songs — define it separately
+- Specify exactly which property links Writing Assets to Songs DB
+
+After I approve these two, send me Sessions DB and Releases DB. Do not send all five at once.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P3</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 2 · Database Schema — Sessions DB, Releases DB, Tasks DB</div>
+          <div class="chain-block">
+            <pre>Continue Phase 2. Now produce property maps for Sessions DB, Releases DB, and Tasks DB.
+
+For Sessions DB:
+- Hard cap: 5 properties maximum. If you want more than 5, you must ask permission and justify each addition.
+- Required properties: Date, Song (relation), Type (Songwriting / Production / Mixing / Other)
+- The "what happened" field should be a text property on the record page, not a database column
+- Do not add a Duration property unless I confirm I want to log session time
+
+For Releases DB:
+- Include the rights metadata fields: ISRC, UPC
+- Include a Status property with a release pipeline flow (not the same options as Songs DB)
+- Include a relation to Songs DB (one release can contain multiple songs)
+- Cap at 14 properties
+
+For Tasks DB:
+- Must include a "Focus" property (Checkbox) that pins a task to the top of the This Week view
+- Type options: Production, Release Prep, Content, Brand / Website, Admin, Review — confirm or adjust
+- Due Date is required
+- Do not add a Priority Select property. Focus checkbox serves that function.
+
+After all three are approved, produce the Relation Map showing all database connections.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P4</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 3 · Dashboard Design</div>
+          <div class="chain-block">
+            <pre>Begin Phase 3: Dashboard Design.
+
+Produce the Master Dashboard layout first.
+
+The Master Dashboard must answer "What do I work on right now?" in under 10 seconds of reading. Use this constraint as your design filter.
+
+For each section on the dashboard, specify:
+- Section title
+- Source database
+- View type (table / board / gallery / list)
+- Exact filter conditions
+- Sort order
+- How many rows/cards visible before scroll
+- Whether this section is collapsible
+
+Rules for this phase:
+- The dashboard contains NO content — only filtered views of the 5 databases
+- Maximum 6 sections on the Master Dashboard
+- Every section must connect directly to the "What do I work on right now?" question
+- If a section doesn't answer that question, it doesn't belong on the dashboard
+
+After I approve the Master Dashboard, produce hub page layouts for: Song Lab, Launch Hub, and Vault.
+Handle Production Hub and Brand Hub per the Phase 1 verdicts.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P5</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 4 · Templates</div>
+          <div class="chain-block">
+            <pre>Begin Phase 4: Templates.
+
+For each of the 5 databases, produce a Notion page template spec.
+
+A template spec includes:
+1. Template name (what it's called in the Notion "New from template" menu)
+2. Default property values (what gets pre-filled on creation)
+3. Page body structure (what sections appear inside the record page, in order)
+4. Any callout blocks, dividers, or toggle sections pre-built into the template
+
+Priority rules:
+- Templates should minimize friction, not maximize thoroughness
+- If a field requires lookup or thought at creation time, make it optional — don't block creation
+- The Session template is the most important one. Make sure it has: a "What happened" text block, a "Next step" callout, and the linked Song pre-selected if opened from a Song record
+- The Task template should be nearly empty — just a notes block. Do not over-template tasks.
+
+Do not produce templates for weekly reviews, monthly audits, or any other non-database-record template. Those are Phase 6 deferred items.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P6</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 5 · Views &amp; Filters</div>
+          <div class="chain-block">
+            <pre>Begin Phase 5: Views and Filters.
+
+For each of the 5 databases, produce the complete view specification list.
+
+Rules:
+- Maximum 5 views per database at launch. If you want more than 5, list them as "Post-launch candidates" — they are not built now.
+- Every view must have a stated purpose. A view without a clear use case is cut.
+- The first view in the list for each database is the default view (what opens when you click the database from the sidebar).
+- For Writing Assets DB: default view must be "Unattached Ideas" — confirm this is view #1 in the list.
+- For Tasks DB: default view must be "This Week" filtered to Focus = true OR Due Date within 7 days.
+- For Songs DB: default view must be the active pipeline (Status is not Idea, not Released).
+
+After producing the view specs, produce the Rollup Finalization:
+- List every rollup candidate from Phase 2
+- For each: confirm it, modify it, or cut it with a reason
+- Any rollup requiring more than 2 relation hops is automatically cut</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P7</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 6 · QA &amp; Simplification</div>
+          <div class="chain-block">
+            <pre>Begin Phase 6: QA and Simplification.
+
+Run the complete QA checklist against everything produced in Phases 1–5.
+
+For each checklist item, return: PASS, FAIL, or FLAG (needs my input).
+
+Hard stops — if any of these FAIL, revise before proceeding:
+□ Does Writing Assets DB default view filter to Unattached Ideas?
+□ Does Tasks DB have a Focus/Pinned checkbox property?
+□ Is the FL Studio Plugin CC confirmed as external — never merged?
+□ Does the Master Dashboard contain zero database records (views only)?
+□ Is every database property justified by a specific workflow?
+□ Is total database count exactly 5?
+
+Standard checks:
+□ No view duplicates within any database (two views with the same effective filter)
+□ No property duplicates across databases (same data stored in two places)
+□ All relations are bidirectional — both sides are specified
+□ All rollups have their source relation confirmed
+□ No hub page is empty of content when first opened
+□ Dashboard answers "What do I work on right now?" without clicking anything
+□ Every template has at least one pre-filled property
+
+Then produce the Cut List: everything you recommend removing before we move to Phase 7.</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="chain-item">
+        <div class="chain-num-wrap">
+          <div class="chain-circle">P8</div>
+        </div>
+        <div class="chain-content">
+          <div class="chain-phase-label">Phase 7 · Final Build Checklist</div>
+          <div class="chain-block">
+            <pre>Begin Phase 7: Final Build Checklist.
+
+Produce the complete, ordered, step-by-step build sequence. This is the document I will use to actually build the workspace in Notion.
+
+Format: numbered steps, grouped into these sections:
+1. Foundation Setup (workspace settings, sidebar structure)
+2. Database Creation — in dependency order
+3. Relation Configuration — after all databases exist
+4. Property Finalization — including formulas after relations are live
+5. View Creation — after all properties are finalized
+6. Template Creation — after views are live
+7. Hub Page Assembly — pull views into hub pages
+8. Dashboard Assembly — pull views into master dashboard
+9. Smoke Test — 10 verification tasks to confirm the system works
+
+Each step must include:
+- The exact action in Notion (e.g., "Create new database inside Song Lab page, name it Songs")
+- A verification check (e.g., "Verify: Songs DB appears in sidebar under Song Lab")
+
+After the build checklist, produce:
+FIRST 7 DAYS: What to add, what to test, and what to deliberately ignore for the first week of use.
+DO NOT BUILD YET: List of features intentionally deferred to post-launch (weekly review template, rollup dashboards, etc.)</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 6 — QA CHECKLIST -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s6">
+    <div class="s-eyebrow">
+      <span class="s-tag red">06</span>
+      <span class="s-num">Quality Control Checklist</span>
+    </div>
+    <h2>Pre-Finalization QA Checklist</h2>
+    <p class="section-intro">Claude must run this checklist before marking any phase complete. You should also run it independently when reviewing deliverables. Hard stops must pass before Phase 7 begins.</p>
+
+    <div class="qa-grid">
+
+      <div class="qa-category hard-stop">
+        <div class="qa-cat-title">⛔ Hard Stops — Must Pass</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-box"></div>Database count is exactly 5 — no additions without explicit approval</div>
+          <div class="qa-item"><div class="qa-box"></div>Writing Assets DB is unified — not split into Hooks / Lyrics / Ideas</div>
+          <div class="qa-item"><div class="qa-box"></div>FL Studio Plugin CC is external — not merged or referenced as internal DB</div>
+          <div class="qa-item"><div class="qa-box"></div>Master Dashboard contains zero records — only database views</div>
+          <div class="qa-item"><div class="qa-box"></div>Writing Assets default view is "Unattached Ideas" (not All Records)</div>
+          <div class="qa-item"><div class="qa-box"></div>Tasks DB has a Focus checkbox property</div>
+          <div class="qa-item"><div class="qa-box"></div>Sessions DB has ≤ 5 database-column properties</div>
+          <div class="qa-item"><div class="qa-box"></div>All Notion formulas use valid Notion formula language</div>
+        </div>
+      </div>
+
+      <div class="qa-category">
+        <div class="qa-cat-title">🗄 Database Quality</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-box"></div>Every property has a stated workflow purpose</div>
+          <div class="qa-item"><div class="qa-box"></div>No property exists solely because "it might be useful"</div>
+          <div class="qa-item"><div class="qa-box"></div>No two properties store the same data</div>
+          <div class="qa-item"><div class="qa-box"></div>Every Select/Multi-Select has a capped, confirmed option list</div>
+          <div class="qa-item"><div class="qa-box"></div>Relations are bidirectional with both sides named</div>
+          <div class="qa-item"><div class="qa-box"></div>Rollups do not exceed 2 relation hops</div>
+          <div class="qa-item"><div class="qa-box"></div>Songs DB ≤ 12 properties</div>
+          <div class="qa-item"><div class="qa-box"></div>Releases DB ≤ 14 properties</div>
+        </div>
+      </div>
+
+      <div class="qa-category">
+        <div class="qa-cat-title">📊 Views &amp; Dashboard</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-box"></div>Each database has ≤ 5 views at launch</div>
+          <div class="qa-item"><div class="qa-box"></div>No two views within a database have the same effective filter</div>
+          <div class="qa-item"><div class="qa-box"></div>Every view has a stated use case</div>
+          <div class="qa-item"><div class="qa-box"></div>Master Dashboard has ≤ 6 sections</div>
+          <div class="qa-item"><div class="qa-box"></div>Dashboard answers "What do I work on right now?" without clicking</div>
+          <div class="qa-item"><div class="qa-box"></div>Tasks "This Week" view shows ≤ 15 items under normal use</div>
+          <div class="qa-item"><div class="qa-box"></div>No hub page is empty when first opened</div>
+        </div>
+      </div>
+
+      <div class="qa-category">
+        <div class="qa-cat-title">📄 Templates &amp; Hubs</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-box"></div>Every database has at least one Notion page template</div>
+          <div class="qa-item"><div class="qa-box"></div>Session template includes "What happened" block and "Next step" callout</div>
+          <div class="qa-item"><div class="qa-box"></div>Every template pre-fills at least one property</div>
+          <div class="qa-item"><div class="qa-box"></div>Task template is deliberately minimal (notes block only)</div>
+          <div class="qa-item"><div class="qa-box"></div>Hub pages contain only views and reference links — no raw content</div>
+          <div class="qa-item"><div class="qa-box"></div>Production Hub / Brand Hub decision is implemented per Phase 1 verdict</div>
+          <div class="qa-item"><div class="qa-box"></div>Vault scope is defined: archive threshold is documented</div>
+        </div>
+      </div>
+
+      <div class="qa-category">
+        <div class="qa-cat-title">🏗 Build Readiness</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-box"></div>Database build order accounts for relation dependencies</div>
+          <div class="qa-item"><div class="qa-box"></div>Relations are built after all related databases exist</div>
+          <div class="qa-item"><div class="qa-box"></div>Formulas are built after all dependent properties exist</div>
+          <div class="qa-item"><div class="qa-box"></div>Views are built after all properties are finalized</div>
+          <div class="qa-item"><div class="qa-box"></div>Build checklist has a smoke test with ≥ 10 verification tasks</div>
+          <div class="qa-item"><div class="qa-box"></div>Post-launch deferred items are documented separately</div>
+          <div class="qa-item"><div class="qa-box"></div>First 7-day use guide is included</div>
+        </div>
+      </div>
+
+      <div class="qa-category">
+        <div class="qa-cat-title">✂️ Simplification Audit</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-box"></div>Cut list produced and reviewed before Phase 7</div>
+          <div class="qa-item"><div class="qa-box"></div>No Finance Tracker, CRM, Touring DB, or Sample Library proposed</div>
+          <div class="qa-item"><div class="qa-box"></div>No Weekly Review template built before 14 days of real use</div>
+          <div class="qa-item"><div class="qa-box"></div>No rollups on databases that were empty during design</div>
+          <div class="qa-item"><div class="qa-box"></div>No hub with zero active workflows (Brand Hub is reference folder)</div>
+          <div class="qa-item"><div class="qa-box"></div>Any "nice to have" feature is explicitly deferred, not built</div>
+          <div class="qa-item"><div class="qa-box"></div>Total property count across 5 DBs is under 60</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SECTION 7 — FINAL IMPLEMENTATION COMMAND -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section class="section" id="s7">
+    <div class="s-eyebrow">
+      <span class="s-tag gold">07</span>
+      <span class="s-num">Final Implementation Command</span>
+    </div>
+    <h2>All-In-One Start Prompt</h2>
+    <p class="section-intro">Use this single prompt to initialize Claude on a fresh session when you want to run the entire planning process from start. It contains the full system context, rules, and Phase 1 kickoff in one block. Best used in a new Claude Project with the architecture brief uploaded as project knowledge.</p>
+
+    <div class="final-command">
+      <div class="final-label">Final Implementation Command — All-In-One Version</div>
+      <pre>You are a senior Notion Workspace Architect helping me build JaZeR Music OS v2.
+
+ARCHITECTURE BRIEF:
+A Notion-based Music Operating System for a solo recording artist (JaZeR). Guiding question: "What do I work on right now?" The system treats music as a lifecycle: Seeds → Sessions → Tracks → Releases.
+
+CONFIRMED STRUCTURE:
+Databases (exactly 5):
+  1. Songs DB — tracks every song from Idea to Released
+  2. Writing Assets DB — unified; replaces all separate Hooks/Lyrics/Ideas/Freestyles DBs
+  3. Sessions DB — logs production and writing sessions
+  4. Releases DB — manages distribution pipeline and rights metadata
+  5. Tasks DB — one task list for all work types, filtered by Type
+
+Hubs (exactly 5):
+  1. Song Lab — songwriting and writing asset surface
+  2. Production Hub — production workflow (verdict on hub vs. dashboard section TBD in Phase 1)
+  3. Launch Hub — release pipeline and distribution
+  4. Brand Hub — reference documents and website (no active workflow; may be a folder)
+  5. Vault — archive for completed work and legacy migration
+
+External Sibling (never merged): FL Studio Plugin Command Center — 7 databases, 141 plugins, linked only.
+
+HARD RULES — enforce these in every response:
+1. Do not propose a 6th database without my explicit permission.
+2. Do not split Writing Assets into multiple databases.
+3. Do not merge FL Studio Plugin CC into this system.
+4. Do not put content (records, notes, documents) on the Master Dashboard — views only.
+5. Simple beats clever. When two approaches work, specify the simpler one.
+6. Do not add properties that "might be useful." Every property needs a confirmed workflow.
+7. Do not jump phases. Complete deliverables before moving forward.
+8. Format every deliverable as: DECISIONS LOCKED / THE SPEC / OPEN QUESTIONS / WHAT I AM NOT SPECIFYING YET.
+
+KNOWN RISKS (pre-identified — do not re-surface unless I ask):
+- Sessions DB: 7+ properties risks logging abandonment — simplify to 5 max
+- Tasks DB: missing Focus/Pinned checkbox — add before build
+- Writing Assets DB: default view must be "Unattached Ideas" — not All Records
+- Production Hub: may be two dashboard sections, not a full hub
+- Brand Hub: no active workflow — may be a reference folder
+
+YOUR TASK — BEGIN NOW:
+Start with Phase 1: Architecture Audit.
+
+Produce verdicts (not options) on:
+1. Production Hub — Hub page OR Dashboard sections? State verdict + 3-sentence reason.
+2. Brand Hub — Hub page OR Reference folder? State verdict + 3-sentence reason.
+3. Vault scope — Active workspace or read-only archive? Define the threshold.
+4. Master Dashboard constraint — restate the governing rule in one sentence.
+5. Scope exclusions — list everything explicitly excluded from v2.
+
+Then produce the Phase 1 deliverable in the required format.
+
+Wait for my approval before beginning Phase 2.</pre>
+    </div>
+
+    <div class="callout info" style="margin-top: 24px;">
+      <span class="icon">💡</span>
+      <div><strong>Pro tip:</strong> Create a Claude Project and upload the JaZeR Music OS v2 All-In-One HTML file as project knowledge before pasting this prompt. Claude will be able to reference the full architecture spec and audit findings throughout all 7 phases without you needing to re-explain context.</div>
+    </div>
+
+    <div class="callout warn" style="margin-top: 12px;">
+      <span class="icon">⚡</span>
+      <div><strong>Session management:</strong> Each phase approval should be marked clearly in the chat with a message like "Phase 1 APPROVED — proceed to Phase 2." This creates a clear checkpoint log you can scroll back through if a decision needs revisiting.</div>
+    </div>
+  </section>
+
+  <hr>
+
+  <footer class="doc-footer">
+    <span>JaZeR Music OS v2 — Claude Implementation Plan · May 2026</span>
+    <span>7 Phases · 5 Databases · Build-Ready</span>
+  </footer>
+
+</div>
+</body>
+</html>
